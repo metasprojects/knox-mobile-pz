@@ -1,0 +1,77 @@
+/* Knox Mobile recipes (hand-written). The repeater's skill level follows sandbox RepeaterSkill at runtime (Game/Recipes.lua). */
+module KnoxMobile
+{
+    imports
+    {
+        Base
+    }
+
+    craftRecipe BuildCellRepeater
+    {
+        timedAction = MakingElectrical,
+        time = 400,
+        SkillRequired = Electricity:4,
+        category = Electrical,
+        xpAward = Electricity:30,
+        inputs
+        {
+            item 1 [KnoxMobile.TransceiverBoard] flags[NoBrokenItems],
+            item 1 [Base.Amplifier] flags[NoBrokenItems],
+            item 1 [Base.RadioReceiver] flags[NoBrokenItems],
+            item 1 [Base.RadioTransmitter] flags[NoBrokenItems],
+            item 4 [Base.ElectronicsScrap],
+            item 3 [Base.ElectricWire],
+            item 1 tags[base:screwdriver] mode:keep flags[NoBrokenItems],
+        }
+        outputs
+        {
+            item 1 KnoxMobile.Repeater,
+        }
+    }
+
+    /* Cellular Repair Monthly, Issue 1 (and the Cell Tower Technician): the same repeater, step by step, with no skill gate. */
+    craftRecipe BuildCellRepeaterGuided
+    {
+        timedAction = MakingElectrical,
+        time = 600,
+        NeedToBeLearn = true,
+        category = Electrical,
+        xpAward = Electricity:30,
+        inputs
+        {
+            item 1 [KnoxMobile.TransceiverBoard] flags[NoBrokenItems],
+            item 1 [Base.Amplifier] flags[NoBrokenItems],
+            item 1 [Base.RadioReceiver] flags[NoBrokenItems],
+            item 1 [Base.RadioTransmitter] flags[NoBrokenItems],
+            item 4 [Base.ElectronicsScrap],
+            item 3 [Base.ElectricWire],
+            item 1 tags[base:screwdriver] mode:keep flags[NoBrokenItems],
+        }
+        outputs
+        {
+            item 1 KnoxMobile.Repeater,
+        }
+    }
+
+    /* Cellular Repair Monthly, Issue 2 (and the Cell Tower Technician): a phone battery cell rebuilt from loose cells. */
+    craftRecipe RebuildPhoneBatteryCell
+    {
+        timedAction = MakingElectrical,
+        time = 150,
+        NeedToBeLearn = true,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:10,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 3 [Base.Battery] mode:destroy flags[NotEmpty;ItemCount],
+            item 1 [Base.ElectricWire],
+            item 1 [Base.Scotchtape;Base.DuctTape],
+        }
+        outputs
+        {
+            item 1 KnoxMobile.PhoneBattery,
+        }
+    }
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Knox Mobile: the right (main) hand holding a phone (up to look at it). The phone items set
+     primaryAnimMask = KnoxPhoneHoldRight; client/KnoxMobile/Hold.lua sets KnoxPhoneCall during a call
+     and KnoxPhoneDown while sprinting (the phone comes down).
+     The clip (media/anims_X/Bob) is made by tools/anim/make_anims.py. -->
+<animNode>
+	<m_Name>KnoxMobile_PhoneLookR</m_Name>
+	<m_Priority>10</m_Priority>
+	<m_AnimName>KnoxMobile_PhoneLookR</m_AnimName>
+	<m_BlendTime>0.30</m_BlendTime>
+	<m_SpeedScale>0.00</m_SpeedScale>
+	<m_Conditions x_name="6b1f2c10-4a1e-4c55-9a51-0c3e2b9d7b01">
+		<m_Name>RightHandMask</m_Name>
+		<m_Type>STRING</m_Type>
+		<m_Value>knoxphoneholdright</m_Value>
+	</m_Conditions>
+	<m_Conditions x_name="6b1f2c10-4a1e-4c55-9a51-0c3e2b9d7b02">
+		<m_Name>KnoxPhoneCall</m_Name>
+		<m_Type>BOOL</m_Type>
+		<m_Value>false</m_Value>
+	</m_Conditions>
+	<m_Conditions x_name="6b1f2c10-4a1e-4c55-9a51-0c3e2b9d7b0d">
+		<m_Name>KnoxPhoneDown</m_Name>
+		<m_Type>BOOL</m_Type>
+		<m_Value>false</m_Value>
+	</m_Conditions>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01</boneName>
+		<weight>0.00</weight>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_R_Clavicle</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_Prop1</boneName>
+	</m_SubStateBoneWeights>
+</animNode>

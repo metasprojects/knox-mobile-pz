@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Knox Mobile: the right (main) hand holding a phone (at the ear on a call). The phone items set
+     primaryAnimMask = KnoxPhoneHoldRight; client/KnoxMobile/Hold.lua sets KnoxPhoneCall during a call.
+     The clip (media/anims_X/Bob) is made by tools/anim/make_anims.py. -->
+<animNode>
+	<m_Name>KnoxMobile_PhoneEarR</m_Name>
+	<m_Priority>11</m_Priority>
+	<m_AnimName>KnoxMobile_PhoneEarR</m_AnimName>
+	<m_BlendTime>0.30</m_BlendTime>
+	<m_SpeedScale>0.00</m_SpeedScale>
+	<m_Conditions x_name="6b1f2c10-4a1e-4c55-9a51-0c3e2b9d7b03">
+		<m_Name>RightHandMask</m_Name>
+		<m_Type>STRING</m_Type>
+		<m_Value>knoxphoneholdright</m_Value>
+	</m_Conditions>
+	<m_Conditions x_name="6b1f2c10-4a1e-4c55-9a51-0c3e2b9d7b04">
+		<m_Name>KnoxPhoneCall</m_Name>
+		<m_Type>BOOL</m_Type>
+		<m_Value>true</m_Value>
+	</m_Conditions>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01</boneName>
+		<weight>0.00</weight>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_R_Clavicle</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_Prop1</boneName>
+	</m_SubStateBoneWeights>
+</animNode>

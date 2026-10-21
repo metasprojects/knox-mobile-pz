@@ -1,0 +1,10 @@
+name=Knox Mobile
+id=KnoxMobile
+description=Phones for Build 42, made for first person with Project Viewpoint: calls and texts, a real camera, batteries and chargers, a cell network that dies with the grid, and the stories of their owners.
+author=Meta
+modversion=0.1.0
+versionMin=42.21
+poster=poster.png
+icon=icon.png
+javaJarFile=media/java/client/KnoxMobileLive.jar
+javaPkgName=knoxmobile.live

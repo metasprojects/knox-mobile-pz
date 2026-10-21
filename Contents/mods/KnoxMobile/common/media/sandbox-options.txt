@@ -1,0 +1,468 @@
+VERSION = 1,
+
+option KnoxMobile.EraLimit
+{
+    type = enum,
+    numValues = 2,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_EraLimit,
+    valueTranslation = KnoxMobile_EraLimit,
+}
+
+option KnoxMobile.StartingPhone
+{
+    type = enum,
+    numValues = 3,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_StartingPhone,
+    valueTranslation = KnoxMobile_StartingPhone,
+}
+
+option KnoxMobile.StartWithOwnSim
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_StartWithOwnSim,
+}
+
+option KnoxMobile.RarityMultiplier
+{
+    type = double,
+    min = 0,
+    max = 5,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_RarityMultiplier,
+}
+
+option KnoxMobile.HousePhones
+{
+    type = double,
+    min = 0,
+    max = 10,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_HousePhones,
+}
+
+option KnoxMobile.BoxedPhones
+{
+    type = double,
+    min = 0,
+    max = 10,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_BoxedPhones,
+}
+
+option KnoxMobile.ZombiePhoneChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 6,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_ZombiePhoneChance,
+}
+
+option KnoxMobile.SmartphoneShare
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_SmartphoneShare,
+}
+
+option KnoxMobile.PristineOldPhones
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 15,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_PristineOldPhones,
+}
+
+option KnoxMobile.PristineMidPhones
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 8,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_PristineMidPhones,
+}
+
+option KnoxMobile.PristineSmartphones
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 4,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_PristineSmartphones,
+}
+
+option KnoxMobile.FamilyStoryline
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_FamilyStoryline,
+}
+
+option KnoxMobile.StoryDarkness
+{
+    type = enum,
+    numValues = 3,
+    default = 2,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_StoryDarkness,
+    valueTranslation = KnoxMobile_StoryDarkness,
+}
+
+option KnoxMobile.SurvivorTexts
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_SurvivorTexts,
+}
+
+option KnoxMobile.FamilyHunt
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_FamilyHunt,
+}
+
+option KnoxMobile.QuestTrapChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_QuestTrapChance,
+}
+
+option KnoxMobile.BatteryLifeMultiplier
+{
+    type = double,
+    min = 0.25,
+    max = 4,
+    default = 1,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_BatteryLifeMultiplier,
+}
+
+option KnoxMobile.ChargeSpeedMultiplier
+{
+    type = double,
+    min = 0.25,
+    max = 4,
+    default = 1,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_ChargeSpeedMultiplier,
+}
+
+option KnoxMobile.BatteryWear
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_BatteryWear,
+}
+
+option KnoxMobile.FlashlightDrain
+{
+    type = double,
+    min = 0,
+    max = 4,
+    default = 1,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_FlashlightDrain,
+}
+
+option KnoxMobile.FoundPhoneChargeMin
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 0,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_FoundPhoneChargeMin,
+}
+
+option KnoxMobile.FoundPhoneChargeMax
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 50,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_FoundPhoneChargeMax,
+}
+
+option KnoxMobile.FoundPhoneHealthMin
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 40,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_FoundPhoneHealthMin,
+}
+
+option KnoxMobile.FoundPhoneHealthMax
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 100,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_FoundPhoneHealthMax,
+}
+
+option KnoxMobile.PowerBankCapacity
+{
+    type = double,
+    min = 0.5,
+    max = 10,
+    default = 2.5,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_PowerBankCapacity,
+}
+
+option KnoxMobile.ExactChargersForOldPhones
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileBattery,
+    translation = KnoxMobile_ExactChargersForOldPhones,
+}
+
+option KnoxMobile.ServiceCollapse
+{
+    type = enum,
+    numValues = 4,
+    default = 3,
+    page = KnoxMobileService,
+    translation = KnoxMobile_ServiceCollapse,
+    valueTranslation = KnoxMobile_ServiceCollapse,
+}
+
+option KnoxMobile.ServiceCollapseDays
+{
+    type = integer,
+    min = 0,
+    max = 365,
+    default = 7,
+    page = KnoxMobileService,
+    translation = KnoxMobile_ServiceCollapseDays,
+}
+
+option KnoxMobile.GradualCollapse
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_GradualCollapse,
+}
+
+option KnoxMobile.NetworkCongestion
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_NetworkCongestion,
+}
+
+option KnoxMobile.RepeaterRange
+{
+    type = integer,
+    min = 50,
+    max = 2000,
+    default = 300,
+    page = KnoxMobileService,
+    translation = KnoxMobile_RepeaterRange,
+}
+
+option KnoxMobile.RepeaterSkill
+{
+    type = integer,
+    min = 0,
+    max = 10,
+    default = 4,
+    page = KnoxMobileService,
+    translation = KnoxMobile_RepeaterSkill,
+}
+
+option KnoxMobile.AllowPrivateRepeaters
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_AllowPrivateRepeaters,
+}
+
+option KnoxMobile.QueueMessages
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_QueueMessages,
+}
+
+option KnoxMobile.TowerRestore
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_TowerRestore,
+}
+
+option KnoxMobile.TowerFuelUse
+{
+    type = double,
+    min = 0,
+    max = 5,
+    default = 1,
+    page = KnoxMobileService,
+    translation = KnoxMobile_TowerFuelUse,
+}
+
+option KnoxMobile.RoofSignal
+{
+    type = double,
+    min = 0,
+    max = 4,
+    default = 1,
+    page = KnoxMobileService,
+    translation = KnoxMobile_RoofSignal,
+}
+
+option KnoxMobile.CarrierAlerts
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_CarrierAlerts,
+}
+
+option KnoxMobile.StumbleChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 5,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_StumbleChance,
+}
+
+option KnoxMobile.DropChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_DropChance,
+}
+
+option KnoxMobile.NoiseMultiplier
+{
+    type = double,
+    min = 0,
+    max = 4,
+    default = 1,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_NoiseMultiplier,
+}
+
+option KnoxMobile.AlarmRadius
+{
+    type = integer,
+    min = 0,
+    max = 75,
+    default = 30,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_AlarmRadius,
+}
+
+option KnoxMobile.HearingPenalty
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_HearingPenalty,
+}
+
+option KnoxMobile.DamageMultiplier
+{
+    type = double,
+    min = 0,
+    max = 4,
+    default = 1,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_DamageMultiplier,
+}
+
+option KnoxMobile.WaterDamage
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_WaterDamage,
+}
+
+option KnoxMobile.RiceTrick
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileHandling,
+    translation = KnoxMobile_RiceTrick,
+}
+
+option KnoxMobile.FindMyCrew
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileCommunity,
+    translation = KnoxMobile_FindMyCrew,
+}
+
+option KnoxMobile.SosRange
+{
+    type = integer,
+    min = 0,
+    max = 2000,
+    default = 300,
+    page = KnoxMobileCommunity,
+    translation = KnoxMobile_SosRange,
+}
+
+option KnoxMobile.SosToStrangers
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileCommunity,
+    translation = KnoxMobile_SosToStrangers,
+}
+
+option KnoxMobile.ClassifiedsDays
+{
+    type = integer,
+    min = 1,
+    max = 60,
+    default = 7,
+    page = KnoxMobileCommunity,
+    translation = KnoxMobile_ClassifiedsDays,
+}
+
