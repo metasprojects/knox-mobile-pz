@@ -28,6 +28,13 @@ function Hold.raise(player, item)
         ISTimedActionQueue.add(ISUnequipAction:new(player, primary, 50))
     end
     local main = KnoxMobile.Options and KnoxMobile.Options.hand() == "main"
+    -- Immersive first person reads the phone in your hand, and Viewpoint's first person only shows a main-hand hold
+    -- (PC test 2026-10-23: an off-hand phone never came into view), so there it goes to the main hand.
+    local VP, Live = KnoxMobile.Viewpoint, KnoxMobile.Live
+    if not main and KnoxMobile.Options and KnoxMobile.Options.immersive() and VP and VP.view() == "first"
+        and Live and Live.active() then
+        main = true
+    end
     if (main and player:getPrimaryHandItem() ~= item) or (not main and player:getSecondaryHandItem() ~= item) then
         ISTimedActionQueue.add(ISEquipWeaponAction:new(player, item, 20, main, false))
     end

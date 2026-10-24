@@ -10,10 +10,12 @@
 -- only on phones that had a front camera (PearPhone 4, Supernova IV): your own character, drawn by the game's face
 -- close-up renderer, over what you're facing.
 local CameraSpec = require "KnoxMobile/Core/CameraSpec"
+local ALife = require "KnoxMobile/Game/ALife"
 local Format = require "KnoxMobile/Core/Format"
 local Machine = require "KnoxMobile/Core/Machine"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local Camera = { want = nil, uploads = {}, downloads = {}, asked = {}, nextSend = 0, frame = 0 }
@@ -263,7 +265,7 @@ local function steerView(p)
     Camera.nextCycle = now + 350
 end
 
-Events.OnTick.Add(Util.safe("camera view", function()
+Tick.add("camera view", function()
     local p = cameraOpen()
     if (p ~= nil) ~= (Camera.wasOpen == true) then Camera.steps, Camera.wasOpen = 0, p ~= nil end
     steerView(p)
@@ -301,7 +303,7 @@ Events.OnTick.Add(Util.safe("camera view", function()
         if Camera.lastPanel then dropFace(Camera.lastPanel) end
     end
     Camera.lastPanel = p
-end))
+end)
 
 -- What the photo shows, in words: the town, the time, the weather, zombies in sight.
 function Camera.caption(player)
@@ -327,8 +329,13 @@ function Camera.caption(player)
         local z = list:get(i)
         local dx, dy = z:getX() - x, z:getY() - y
         local d = math.sqrt(dx * dx + dy * dy)
-        -- In front of you (within about 40 degrees of where you face) and near enough to make out.
-        if d > 0.5 and d < 15 and z:getZ() == player:getZ() and (dx * fx + dy * fy) / d > 0.75 then n = n + 1 end
+        -- In front of you (within about 40 degrees of where you face), near enough to make out, and in your line of
+        -- sight (0.1.1: the count took in zombies behind walls). Project A-Life NPCs are zombies underneath, but they
+        -- aren't "them".
+        if d > 0.5 and d < 15 and z:getZ() == player:getZ() and (dx * fx + dy * fy) / d > 0.75 and not ALife.isNPC(z) then
+            local ok, seen = pcall(function() return player:CanSee(z) end)
+            if not ok or seen then n = n + 1 end
+        end
     end
     if n == 1 then parts[#parts + 1] = T("IGUI_KnoxMobile_PhotoOneZombie", "one of them in the shot")
     elseif n > 1 then parts[#parts + 1] = T("IGUI_KnoxMobile_PhotoZombies", "%1 of them in the shot", n) end
@@ -408,7 +415,7 @@ Net.onClient("photoSaved", function(args)
 end)
 
 -- Uploads go a chunk at a time, a few per second, so they never trip the server's rate limit.
-Events.OnTick.Add(Util.safe("camera upload", function()
+Tick.add("camera upload", function()
     local t = getTimestampMs()
     for i = #flashes, 1, -1 do
         if t >= flashes[i].untilMs then
@@ -435,6 +442,6 @@ Events.OnTick.Add(Util.safe("camera upload", function()
             Util.log("camera: photo", id, "never came back from the shutter")
         end
     end
-end))
+end)
 
 return Camera

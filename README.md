@@ -1,4 +1,4 @@
-# Knox Mobile: Phones, Calls & Camera for Project Zomboid (Build 42)
+# Knox Mobile: Phones, Calls & Camera for Project Zomboid (Build 42, Viewpoint, A-Life)
 
 ![Knox Mobile: STILL ONE BAR.](media/key-art.png)
 
@@ -8,7 +8,7 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.1.0, early access (released 2026-10-21). Photos are a work in progress and get the next polish pass.
+- **Version:** 0.2.0, early access (released 2026-10-23): the world rings back, and Project A-Life compatibility.
 - **Made by:** Meta
 
 Players should install it from the Steam Workshop. This repository holds the mod exactly as it ships there.
@@ -31,6 +31,13 @@ Players should install it from the Steam Workshop. This repository holds the mod
 - **Danger.** Ringing and the camera flash draw zombies. Phones can be dropped, rained on, cracked and repaired
   (rice works). The Alarm app makes a zombie lure.
 - **Found phones belong to someone:** their PIN, calls, texts, notes and, on newer phones, their last photos.
+  The PIN is often on their body: the birthday on their ID card, or digits on a scrap of paper in their wallet.
+- **Nearly 1,000 texts, voicemails and notes** written for Knox County in July 1993, with 30 recurring people whose
+  stories cross between phones. Put your SIM in a dead person's phone and text their family back; some answer.
+- **The world rings back:** call 911, 411 and the town's businesses as the county falls; phones ring in zombies'
+  pockets; the first week's jammed network; answering machines; a ringtone composer.
+- **Project A-Life compatible:** A-Life NPCs carry phones of their own, with their faction's live group chat, raid
+  warnings and their crew on the Map; a robbed phone shows in Find my crew and comes back as itself.
 - **Apps:** Messages, Phone, Alarm, Snake, Calculator, Map, Photos, Camera, and a Flashlight on the smartphones.
 - **First person with Project Viewpoint.** The phone stays in your hand while you walk and look around.
 - **With ZombieBuddy:** the phone in your hand shows its live screen, and the Camera takes real photos of exactly
@@ -63,6 +70,8 @@ Players should install it from the Steam Workshop. This repository holds the mod
 - Optional: [ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853) for the live screen and
   the camera. Install it the way its page explains, then allow Knox Mobile's Java part when it asks. Without it,
   everything else works.
+- Optional: [Project A-Life](https://steamcommunity.com/sharedfiles/filedetails/?id=3803984183) for NPC phones and
+  faction chatter. Without it nothing changes.
 - Adds its own items and doesn't replace vanilla files.
 - Press **0** to open the phone (rebind under Options > Mods). Right-click a phone for everything else.
 
@@ -82,7 +91,7 @@ test suite are kept separately.
 
 ## Bugs and feedback
 
-Please use the Workshop page's Discussions tab, and include your `console.txt` (in your Zomboid folder).
+Please use the Workshop page's comments or Discussions tab, and include your `console.txt` (in your Zomboid folder).
 
 ## License
 

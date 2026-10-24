@@ -41,6 +41,8 @@ M.notify = {
         notAllowed = "Restoring cell sites is off on this server", disconnected = "Generator unhooked from %1",
     },
     sim = { inserted = "SIM inserted: %1" },
+    -- A found phone taken home (Actions takeHome, server TextBack); %1 is its owner's first name.
+    returned = { home = "%1's phone is home" },
     audio = { noGear = "You have no %1 that fit this phone" },
     manual = { read = "You know how this kind of phone works now" },
     bank = { plugged = "Power bank charging", unplugged = "Power bank unplugged", full = "Power bank full" },
@@ -80,7 +82,7 @@ M.words = {
     -- Settings values.
     Sound = { ring = "Ring", vibrate = "Vibrate", silent = "Silent" },
     Route = { speaker = "Speaker", earbuds = "Earbuds", oneEarbud = "One earbud", headphones = "Headphones" },
-    Tone = { classic = "Classic", chiptune = "Chiptune" },
+    Tone = { classic = "Classic", chiptune = "Chiptune", custom = "My tune" },
     Size = { S = "Small", M = "Medium", L = "Large" },
     Side = { right = "Right", left = "Left" },
     Switch = { on = "On", off = "Off" },

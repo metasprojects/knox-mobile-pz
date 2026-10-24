@@ -8,6 +8,8 @@ local Jobs = require "KnoxMobile/Story/Jobs"
 local Templates = require "KnoxMobile/Story/Templates"
 local Places = require "KnoxMobile/Story/Places"
 local Photos = require "KnoxMobile/Core/Photos"
+local Voicemail = require "KnoxMobile/Core/Voicemail"
+local Texts = require "KnoxMobile/Core/Texts"
 
 local Story = {}
 
@@ -27,9 +29,9 @@ local DEPTH = {
 -- The outbreak, day by day (relative to game start, July 9 1993). Each phase adds a few messages. The Knox Event
 -- timeline: news on July 4-5, the roads sealed on July 6 at 06:00, the zone's phone lines down on July 7-8.
 local PHASES = {
-    { key = "normal", from = -9, to = -6, min = 3, max = 5 },  -- June 30 - July 3
-    { key = "news", from = -5, to = -4, min = 2, max = 4 },    -- July 4 - 5
-    { key = "closure", from = -3, to = 0, min = 2, max = 3 },  -- July 6 - 9
+    { key = "normal", from = -9, to = -6, min = 4, max = 7 },  -- June 30 - July 3
+    { key = "news", from = -5, to = -4, min = 3, max = 6 },    -- July 4 - 5
+    { key = "closure", from = -3, to = 0, min = 3, max = 5 },  -- July 6 - 9
 }
 Story.PHASES = PHASES
 
@@ -62,8 +64,29 @@ function Story.fill(rng, template, ctx)
     return text
 end
 
+-- The age band of an age in years (Story.identity's ageBand).
+function Story.bandFor(age)
+    if age <= 25 then return "18-25" elseif age <= 35 then return "26-35" elseif age <= 50 then return "36-50" end
+    return "51-65"
+end
+
 function Story.pin(rng)
     return string.format("%04d", rng:int(0, 9999))
+end
+
+-- PIN puzzles (0.2.0): a dead person's PIN often has a clue on them. kind "birthday": the PIN is the month and day of
+-- the birth date printed on their ID card ("born 03/14/61" is 0314); "note": a scrap of paper in the wallet with the
+-- four digits; "none": nothing, crack it the hard way. Returns { kind, pin, born (MM/DD/YY) or nil }.
+function Story.pinClue(rng)
+    local r = rng:int(1, 100)
+    if r <= 40 then
+        local month, day, year = rng:int(1, 12), rng:int(1, 28), rng:int(38, 75)
+        return { kind = "birthday", pin = string.format("%02d%02d", month, day),
+            born = string.format("%02d/%02d/%02d", month, day, year) }
+    elseif r <= 65 then
+        return { kind = "note", pin = Story.pin(rng) }
+    end
+    return { kind = "none", pin = Story.pin(rng) }
 end
 
 -- Template entries (Story/Templates.lua) are plain strings or tables with a body and conditions.
@@ -77,6 +100,36 @@ function Story.fitsJob(entry, id)
     for _, key in ipairs(Jobs.groups[group] or {}) do if key == id.job.key then return true end end
     return false
 end
+
+-- Does a template's `age` (young 18-25, adult 26-50, elder 51+; docs/lore/KNOX_LORE.md) fit this person?
+local AGES = { young = { ["18-25"] = true }, adult = { ["26-35"] = true, ["36-50"] = true }, elder = { ["51-65"] = true } }
+function Story.fitsAge(entry, id)
+    local age = type(entry) == "table" and entry.age
+    if not age or age == "any" or not AGES[age] then return true end
+    return AGES[age][id.ageBand] == true
+end
+
+-- A local line (`town`: the deputy everyone in Rosewood knows) only goes on phones from that town (id.hometown).
+function Story.fitsTown(entry, id)
+    local town = type(entry) == "table" and entry.town
+    return not town or town == id.hometown
+end
+
+-- The written library (Story/Library.lua, made by tools/lore/lore.py build from docs/lore/approved) adds to the
+-- hand-written templates: pool("normal") is both lists together. Threads (short conversations) only come from it.
+local okLib, Library = pcall(require, "KnoxMobile/Story/Library")
+if not okLib or type(Library) ~= "table" then Library = { deadPhone = {} } end
+Story.Library = Library
+local pools = {}
+local function pool(key)
+    if pools[key] then return pools[key] end
+    local out = {}
+    for _, t in ipairs(Templates.deadPhone[key] or {}) do out[#out + 1] = t end
+    for _, t in ipairs(Library.deadPhone and Library.deadPhone[key] or {}) do out[#out + 1] = t end
+    pools[key] = out
+    return out
+end
+Story.pool = pool
 
 -- Identities ------------------------------------------------------------------------------------
 
@@ -124,7 +177,7 @@ function Story.identity(rng, opts)
 
     return {
         first = first, last = last, female = female,
-        ageBand = rng:weighted({ { "18-25", 3 }, { "26-35", 3 }, { "36-50", 3 }, { "51-65", 2 } }),
+        ageBand = opts.ageBand or rng:weighted({ { "18-25", 3 }, { "26-35", 3 }, { "36-50", 3 }, { "51-65", 2 } }),
         job = job,
         family = {
             mom = { label = rng:pick(Names.mom), name = momFirst .. " " .. last },
@@ -193,9 +246,12 @@ function Story.deadPhone(rng, id, opts)
     local ctx = Story.context(id)
     local events, seq = {}, 0
 
-    local function add(day, minute, from, body, inbound, unread)
+    -- with: whose conversation it goes in (a thread's own lines; otherwise the sender, or a guess for the owner's own).
+    -- thread: set on a thread's lines, so nothing else is placed in the middle of the conversation.
+    local function add(day, minute, from, body, inbound, unread, with, thread)
         seq = seq + 1
-        events[#events + 1] = { day = day, minute = minute, from = from, body = body, inbound = inbound, unread = unread, seq = seq }
+        events[#events + 1] = { day = day, minute = minute, from = from, body = body, inbound = inbound, unread = unread,
+            seq = seq, with = with, thread = thread }
     end
 
     -- A template is used at most once per phone; nil when none is left that fits this person (their contacts and job).
@@ -203,7 +259,8 @@ function Story.deadPhone(rng, id, opts)
     local function pickTemplate(list)
         for _ = 1, 12 do
             local t = rng:pick(list)
-            if not used[t] and Story.fitsJob(t, id) and (t.from == nil or t.from == "self" or senderLabel(id, t.from)) then
+            if not used[t] and Story.fitsJob(t, id) and Story.fitsAge(t, id) and Story.fitsTown(t, id)
+                and (t.from == nil or t.from == "self" or senderLabel(id, t.from)) then
                 used[t] = true
                 return t
             end
@@ -213,30 +270,100 @@ function Story.deadPhone(rng, id, opts)
 
     for _, phase in ipairs(PHASES) do
         for _ = 1, rng:int(phase.min, phase.max) do
-            local t = pickTemplate(Templates.deadPhone[phase.key])
+            local t = pickTemplate(pool(phase.key))
             local day, minute = rng:int(phase.from, phase.to), rng:int(7 * 60, 23 * 60)
             if t and at(day, minute) < deathAt then
                 add(day, minute, t.from, Story.fill(rng, t.body, ctx), t.from ~= "self", false)
             end
         end
     end
+    -- Texts put together from parts (Core/Texts, 0.2.0): one to three more a period, from whoever this person has, and
+    -- one or two more after they died, so no two phones read alike.
+    local written = {}
+    for _, ev in ipairs(events) do written[ev.body] = true end
+    local CONTACTS = { "mom", "dad", "sib", "partner", "friend", "work" }
+    local function composed(phase, day, minute, unread)
+        local who = rng:pick(CONTACTS)
+        if not senderLabel(id, who) then return end
+        local body = Texts.compose(rng, Story.fill, { who = who, phase = phase, town = id.hometown, young = id.ageBand == "18-25" })
+        if written[body] then return end
+        written[body] = true
+        add(day, minute, who, body, true, unread)
+    end
+    for _, phase in ipairs(PHASES) do
+        for _ = 1, rng:int(1, 3) do
+            local day, minute = rng:int(phase.from, phase.to), rng:int(7 * 60, 23 * 60)
+            if at(day, minute) < deathAt then composed(phase.key, day, minute, false) end
+        end
+    end
+    for _ = 1, rng:int(1, 2) do
+        local when = afterDeath(deathAt + rng:int(60, 2 * DAY))
+        if when then composed("after", math.floor(when / DAY), Mod.floor(when, DAY), true) end
+    end
     -- Using it right before they died.
-    for i = 1, rng:int(1, 2) do
-        local t = pickTemplate(Templates.deadPhone.lastDay)
+    for i = 1, rng:int(1, 3) do
+        local t = pickTemplate(pool("lastDay"))
         if t then
             local minute = math.max(0, deathMinute - rng:int(5, 240) + i)
             add(deathDay, math.min(minute, deathMinute - 1), t.from, Story.fill(rng, t.body, ctx), t.from ~= "self", false)
         end
     end
     -- Missed messages after death; the first lands the next day.
-    for i = 1, rng:int(2, 4) do
-        local t = pickTemplate(Templates.deadPhone.afterDeath)
+    for i = 1, rng:int(3, 6) do
+        local t = pickTemplate(pool("afterDeath"))
         if t then
             local when
             if i == 1 then when = at(deathDay + 1, rng:int(6 * 60, 20 * 60)) else when = deathAt + rng:int(30, 2 * DAY) end
             local body = Story.fill(rng, t.body, ctx)
             when = afterDeath(when)
             if when then add(math.floor(when / DAY), Mod.floor(when, DAY), t.from, body, true, true) end
+        end
+    end
+    -- Conversations (the library's threads): one to three on phones that keep texts, each a few minutes from line to
+    -- line on one day of its phase, all before the owner died. Phones without threads in the library draw nothing
+    -- here, so their stories stay as they were.
+    local threads = pool("threads")
+    if depth.texts and #threads > 0 then
+        local days = { lastDay = { deathDay, deathDay } }
+        for _, phase in ipairs(PHASES) do days[phase.key] = { phase.from, phase.to } end
+        local windows = {}
+        for n = 1, rng:int(2, 4) do
+            local t = pickTemplate(threads)
+            local span = t and days[t.phase]
+            -- A conversation whose words are already on this phone (two threads that both open "Where are you") is left out.
+            local filled = {}
+            if t then for i, line in ipairs(t.lines) do filled[i] = Story.fill(rng, line[2], ctx) end end
+            for _, ev in ipairs(events) do
+                for _, w in ipairs(filled) do if ev.body == w then t = nil end end
+            end
+            if t and senderLabel(id, t.with) and span and span[1] <= deathDay then
+                local day = rng:int(span[1], math.min(span[2], deathDay))
+                local minute = rng:int(7 * 60, 21 * 60)
+                if day == deathDay then minute = math.max(0, deathMinute - #t.lines * 6 - rng:int(5, 120)) end
+                -- Two conversations the same day take turns, they don't overlap.
+                for _, w in ipairs(windows) do
+                    if w.day == day and minute <= w.to + 1 and minute + #t.lines * 6 >= w.from then minute = w.to + 30 end
+                end
+                local window = { day = day, from = minute, to = minute }
+                for i, line in ipairs(t.lines) do
+                    if at(day, minute) >= deathAt then break end
+                    local mine = line[1] == "self"
+                    add(day, minute, mine and "self" or t.with, filled[i], not mine, false, t.with, n)
+                    window.to = minute
+                    minute = minute + rng:int(1, 6)
+                end
+                windows[#windows + 1] = window
+            end
+        end
+        -- Anything else that landed in the middle of a conversation goes just before it.
+        for _, ev in ipairs(events) do
+            if not ev.thread then
+                for _, w in ipairs(windows) do
+                    if ev.day == w.day and ev.minute >= w.from and ev.minute <= w.to + 1 then
+                        ev.minute = w.from >= 10 and w.from - 10 or w.to + 10
+                    end
+                end
+            end
         end
     end
     sortByTime(events)
@@ -261,17 +388,27 @@ function Story.deadPhone(rng, id, opts)
             with = "mom", name = ctx.mom, day = math.floor(after / DAY), minute = Mod.floor(after, DAY), inbound = true, missed = true,
         }
     end
-    for _ = 1, rng:int(1, 3) do
-        local t = pickTemplate(Templates.deadPhone.voicemails)
+    -- Voicemails left after they stopped answering: written ones (templates and the library) and ones put together
+    -- from parts (Core/Voicemail, 0.2.0), two to five, so a town's dead phones don't all say the same thing.
+    local VOICES = { "mom", "dad", "sib", "partner", "friend", "work" }
+    for _ = 1, rng:int(2, 5) do
+        local from, body
+        local t = rng:chance(0.4) and pickTemplate(pool("voicemails"))
         if t then
-            local when = afterDeath(deathAt + rng:int(30, 2 * DAY))
-            local body = Story.fill(rng, t.body, ctx)
-            if when then
-                content.voicemails[#content.voicemails + 1] = {
-                    from = t.from, name = senderLabel(id, t.from), body = body,
-                    day = math.floor(when / DAY), minute = Mod.floor(when, DAY),
-                }
+            from, body = t.from, Story.fill(rng, t.body, ctx)
+        else
+            from = rng:pick(VOICES)
+            if senderLabel(id, from) then
+                body = Voicemail.compose(rng, Story.fill, { who = from, phase = "after", name = id.first,
+                    caller = senderLabel(id, from), town = id.hometown })
             end
+        end
+        local when = body and afterDeath(deathAt + rng:int(30, 2 * DAY))
+        if when then
+            content.voicemails[#content.voicemails + 1] = {
+                from = from, name = senderLabel(id, from), body = body,
+                day = math.floor(when / DAY), minute = Mod.floor(when, DAY),
+            }
         end
     end
     sortByTime(content.voicemails)
@@ -280,7 +417,7 @@ function Story.deadPhone(rng, id, opts)
         local partners = { "partner", "mom", "friend" }
         local byWith, order = {}, {}
         for _, ev in ipairs(events) do
-            local with = ev.from
+            local with = ev.with or ev.from
             if with == "self" then with = rng:pick(partners) end
             if not byWith[with] then
                 byWith[with] = { with = with, name = senderLabel(id, with), messages = {} }
@@ -291,12 +428,12 @@ function Story.deadPhone(rng, id, opts)
         end
         table.sort(order)
         for _, with in ipairs(order) do content.texts[#content.texts + 1] = byWith[with] end
-        content.draft = rng:pick(Templates.deadPhone.drafts)
+        content.draft = rng:pick(pool("drafts"))
     end
 
     if depth.notes then
         for _ = 1, rng:int(1, 3) do
-            local t = pickTemplate(Templates.deadPhone.notes)
+            local t = pickTemplate(pool("notes"))
             if t then
                 local body = Story.fill(rng, bodyOf(t), ctx)
                 local hint = false
@@ -309,14 +446,17 @@ function Story.deadPhone(rng, id, opts)
     if depth.group and id.job.group then
         local chat = { name = id.job.group, messages = {} }
         for _ = 1, rng:int(2, 4) do
-            local t = rng:pick(Templates.deadPhone.groupChat)
+            -- Each message once, and a local one (the library's `town`) only in its own town.
+            local t = pickTemplate(pool("groupChat"))
             local day = rng:int(-3, deathDay)
             local minute = rng:int(6 * 60, 23 * 60)
             if foundAt and at(day, minute) >= foundAt then minute = Mod.floor(foundAt - 1, DAY); day = math.floor((foundAt - 1) / DAY) end
-            chat.messages[#chat.messages + 1] = {
-                day = day, minute = minute, inbound = true,
-                from = firstName(rng, rng:chance(0.5)), body = Story.fill(rng, t.body, ctx),
-            }
+            if t then
+                chat.messages[#chat.messages + 1] = {
+                    day = day, minute = minute, inbound = true,
+                    from = firstName(rng, rng:chance(0.5)), body = Story.fill(rng, t.body, ctx),
+                }
+            end
         end
         sortByTime(chat.messages)
         content.groupChats[1] = chat

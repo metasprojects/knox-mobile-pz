@@ -1,4 +1,4 @@
--- Client: the in-game self-test (debug menu → Knox Mobile (admin) → Run self-test). It runs the mod against the
+-- Client: the in-game self-test (-debug only: debug menu → Knox Mobile (admin) → Run all tests). It runs the mod against the
 -- real game, which the fake game in tests/smoke cannot stand in for: every item script, icon, frame texture,
 -- sandbox option and translation, then every phone opened and drawn for a moment. Each check writes one line,
 -- "[KnoxMobile] SELFTEST PASS|FAIL <check>: <detail>", to console.txt, and a summary shows on screen.
@@ -8,6 +8,7 @@ local Util = require "KnoxMobile/Game/Util"
 local ItemIds = require "KnoxMobile/ItemIds"
 local Sandbox = require "KnoxMobile/Core/Sandbox"
 local Frames = require "KnoxMobile/Data/Frames"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local SelfTest = {}
 KnoxMobile.SelfTest = SelfTest
@@ -294,7 +295,7 @@ Events.OnGameStart.Add(Util.safe("self-test auto", function()
     if KnoxMobile.Client then KnoxMobile.Client.toast("Knox Mobile tests start in 15 seconds. Hands off for a minute.") end
 end))
 
-Events.OnTick.Add(Util.safe("self-test", function()
+Tick.add("self-test", function()
     if autoAt and getTimestampMs() >= autoAt then
         autoAt = nil
         SelfTest.run(getPlayer())
@@ -308,6 +309,6 @@ Events.OnTick.Add(Util.safe("self-test", function()
         Util.log("SELFTEST DONE " .. passed .. " passed, " .. failed .. " failed")
         if KnoxMobile.Client then KnoxMobile.Client.toast(summary) end
     end
-end))
+end)
 
 return SelfTest

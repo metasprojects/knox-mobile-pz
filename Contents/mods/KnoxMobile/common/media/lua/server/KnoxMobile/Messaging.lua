@@ -183,6 +183,17 @@ function Messaging.deliverToItem(state, model, x, y)
     return true
 end
 
+-- The first week (sandbox Network congestion): a text between phones can take minutes to hours to arrive, so they
+-- land late and out of order. Returns the game minute it may arrive, or nil for right away.
+function Messaging.lag(now)
+    if not Util.settings().NetworkCongestion then return nil end
+    local day = Util.nowDay()
+    if day >= 7 then return nil end
+    local rng = Rng.new("lag:" .. tostring(now) .. ":" .. tostring(State.get().queue.nextId))
+    if not rng:chance(day < 3 and 0.35 or 0.2) then return nil end
+    return now + (day < 3 and rng:int(20, 240) or rng:int(10, 90))
+end
+
 -- One message to one number through the normal per-recipient path: straight onto the recipient's phone when it is
 -- on the sender's network, else into the queue (sandbox QueueMessages). msg = { from, to, body, and the queue's
 -- optional fields: group, groupName, sos, event }. Returns "delivered" | "queued" | "failed", then the record or a reason.
@@ -192,7 +203,10 @@ function Messaging.route(msg, senderNet)
     local rPlayer, rItem, rState, rModel = Messaging.findNumber(msg.to)
     if rPlayer then recipientNet = select(2, Messaging.service(rPlayer, rModel)) end
     local status, rec = MessageQueue.send(q, msg, senderNet, recipientNet,
-        { queueMessages = Util.settings().QueueMessages }, Util.nowMinutes())
+        { queueMessages = Util.settings().QueueMessages, lagUntil = not msg.sos and Messaging.lag(Util.nowMinutes()) or nil },
+        Util.nowMinutes())
+    -- Sent; the jammed network hands it over later (Messaging.lag).
+    if status == "delayed" then return "delivered", rec end
     if status == "delivered" then
         local day, minute = stamp()
         Messaging.appendRecord(rState, rec, day, minute)

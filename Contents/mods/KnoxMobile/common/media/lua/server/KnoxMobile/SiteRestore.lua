@@ -102,6 +102,7 @@ Net.onServer("siteConnect", function(player, args)
     local up = CellSites.isUp(entry, now)
     Util.log("cell site", site.code, "connected by", entry.by, up and "and on the air" or "(generator not running)")
     tell(player, up and "online" or "connectedOff", site)
+    if up and KnoxMobile.Journal then KnoxMobile.Journal.add(player, "Got tower " .. site.code .. " back on the air.") end
     broadcast()
 end)
 

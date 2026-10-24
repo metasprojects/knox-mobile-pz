@@ -4,6 +4,7 @@
 -- keys; in the vanilla isometric view the phone never captures, and clicks around it still reach the world.
 -- The held phone itself is the character's own model (item StaticModel, hand attachments and arm poses), which
 -- Viewpoint renders like any held item.
+local Tick = require "KnoxMobile/Game/Tick"
 local Compat = {}
 KnoxMobile.Viewpoint = Compat
 
@@ -84,7 +85,7 @@ end
 
 -- Every tick: Viewpoint's first/third key; every few ticks: View.next(), so no change of view goes unseen.
 local tick = 0
-Events.OnTick.Add(function()
+Tick.add("viewpoint keys", function()
     if Viewpoint and Viewpoint.View then
         local ok, pressed = pcall(swapPressed)
         if ok and pressed then

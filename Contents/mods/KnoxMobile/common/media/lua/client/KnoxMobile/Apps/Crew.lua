@@ -30,7 +30,9 @@ local function rows(ctx)
         out[#out + 1] = { id = "refresh", label = T("IGUI_KnoxMobile_CrewLooking", "Looking...") }
     else
         for _, r in ipairs(result.list or {}) do
-            local name = Social().nameFor(ctx.state, r.number)
+            -- A phone an A-Life robber took (server StolenPhones): "Your phone (Vic)".
+            local name = r.stolenBy and T("IGUI_KnoxMobile_CrewStolen", "Your phone (%1)", r.stolenBy)
+                or Social().nameFor(ctx.state, r.number)
             -- The longest wording that fits the row: "Rob: northeast, a few blocks", "Rob: NE, a few blocks", "Rob NE blocks".
             local label = T("IGUI_KnoxMobile_CrewLine", "%1: %2, %3", name, SocialText.dir(r.dir), SocialText.band(r.band))
             if small(ctx) or ctx:measure(label) > ctx.w - 10 then

@@ -5,6 +5,7 @@ local Phones = require "KnoxMobile/Game/Phones"
 local Registry = require "KnoxMobile/Core/Registry"
 local Power = require "KnoxMobile/Core/Power"
 local Util = require "KnoxMobile/Game/Util"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local Tooltip = { nextMs = 0 }
@@ -152,12 +153,12 @@ local function refresh(player)
     end
 end
 
-Events.OnPlayerUpdate.Add(Util.safe("phone tooltips", function(player)
-    if player ~= getPlayer() then return end
+Tick.add("phone tooltips", function()
     local t = getTimestampMs()
     if t < Tooltip.nextMs then return end
     Tooltip.nextMs = t + REFRESH_MS
-    refresh(player)
-end))
+    local player = getPlayer()
+    if player then refresh(player) end
+end)
 
 return Tooltip

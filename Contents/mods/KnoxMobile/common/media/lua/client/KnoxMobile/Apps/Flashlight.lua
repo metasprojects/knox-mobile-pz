@@ -16,6 +16,7 @@
 local Phones = require "KnoxMobile/Game/Phones"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local ICONS = "media/ui/KnoxMobile/apps/"
@@ -134,7 +135,7 @@ local function checkRemote()
     end
 end
 
-Events.OnTick.Add(Util.safe("flashlight", function()
+Tick.add("flashlight", function()
     local t = getTimestampMs()
     if t < Flashlight.nextCheck then return end
     Flashlight.nextCheck = t + CHECK_MS
@@ -142,7 +143,7 @@ Events.OnTick.Add(Util.safe("flashlight", function()
         if not player:isDead() then checkLocal(player) end
     end
     if isClient() then checkRemote() end
-end))
+end)
 
 -- Server replies -------------------------------------------------------------------------------------
 Net.onClient("flashlightResult", function(args)

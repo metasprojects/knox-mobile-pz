@@ -23,7 +23,7 @@ end
 
 function Protocol._validatePlaceCall(args)
     if type(args.to) ~= "string" then return false, "to must be a string" end
-    local normalised = Sim.normalise(args.to)
+    local normalised = Sim.dialable(args.to)
     if normalised == nil or normalised ~= args.to then
         return false, "to is not a normalised phone number"
     end

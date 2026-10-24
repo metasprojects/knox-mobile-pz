@@ -14,6 +14,7 @@ local Sim = require "KnoxMobile/Core/Sim"
 local Rng = require "KnoxMobile/Core/Rng"
 local ItemIds = require "KnoxMobile/ItemIds"
 local Messages = require "KnoxMobile/Data/Messages"
+local Replies = require "KnoxMobile/Core/Replies"
 
 KnoxMobileAction = ISBaseTimedAction:derive("KnoxMobileAction")
 local Kinds = {}
@@ -89,7 +90,7 @@ Kinds.powerOn = {
             return
         end
         state.power.on = true
-        if state.owner.pending and KnoxMobile.Server then KnoxMobile.Server.fillFoundPhone(self.item, state, model) end
+        if state.owner.pending and KnoxMobile.Server then KnoxMobile.Server.fillFoundPhone(self.item, state, model, self.character) end
         if KnoxMobile.Server then KnoxMobile.Server.deliverNow(self.character) end
     end,
 }
@@ -449,6 +450,35 @@ Kinds.unplugBank = {
 
 -- Leave a phone charging on the floor of a powered building (spec §6.5 "placed on a surface"). The server
 -- charges it on a slow timer (§13.7); anyone can pick it up (and in multiplayer, steal it).
+-- Return the phone (0.2.0): a found phone left at the house its owner's family named (server TextBack). Your SIM
+-- comes out first; the phone stays on the floor there, for whoever comes by.
+Kinds.takeHome = {
+    time = 80,
+    anim = "Loot",
+    valid = function(self)
+        local state = Phones.get(self.item)
+        local home = state and state.story and state.story.home
+        return home ~= nil and not home.returned and state.sim == nil
+            and Replies.nearHome(home, self.character:getX(), self.character:getY())
+    end,
+    complete = function(self)
+        local state = Phones.get(self.item)
+        state.story.home.returned = true
+        if KnoxMobile.TextBack then KnoxMobile.TextBack.returned(self.character, state) end
+        local sq = self.character:getCurrentSquare()
+        Phones.save(self.item, self.character)
+        removeItem(self.item)
+        local placed = sq and sq:AddWorldInventoryItem(self.item, 0.5, 0.5, 0, false)
+        local wo = placed and placed:getWorldItem()
+        if wo then
+            wo:setIgnoreRemoveSandbox(true)
+            wo:transmitCompleteItemToClients()
+        end
+        tell(self.character, { kind = "returned", event = "home", source = state.owner.first, phoneId = self.item:getID() })
+    end,
+    noSave = true,
+}
+
 Kinds.leaveCharging = {
     time = 40,
     anim = "Loot",

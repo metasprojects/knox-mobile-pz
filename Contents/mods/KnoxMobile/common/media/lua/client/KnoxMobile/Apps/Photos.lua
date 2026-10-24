@@ -126,11 +126,16 @@ local function drawPhoto(ctx, entry, n, total, x, y, w, h)
     local tex, loading = picture(ctx, entry.photo)
     local hint = #actions(ctx, entry) > 0 and T("IGUI_KnoxMobile_PhotoOptions", "Select: options") or nil
     local room = h - (top - y) - (hint and lh + 2 or 0)
+    -- A caption-only photo says what it is ("Photo: ..."); under a picture the caption is enough.
+    local words = (tex or loading) and caption(entry.photo)
+        or T("IGUI_KnoxMobile_PhotoCaption", "Photo: %1", caption(entry.photo))
+    local lines = ctx:wrap(words, w - 8)
     if tex or loading then
-        -- The picture, as big as fits (4:3 unless it says otherwise), with the caption under it.
+        -- The picture, as big as fits (4:3 unless it says otherwise), with room under it for the caption: up to four
+        -- lines (0.1.1: the Soapbar's small screen cut captions after two).
         local pw, ph = entry.photo.w or 4, entry.photo.h or 3
         if tex and tex:getWidth() > 0 then pw, ph = tex:getWidth(), tex:getHeight() end
-        local maxH = math.max(lh, room - lh * 2 - 4)
+        local maxH = math.max(lh, room - lh * math.min(4, math.max(2, #lines)) - 4)
         local iw = w - 4
         local ih = math.floor(iw * ph / pw)
         if ih > maxH then ih = maxH; iw = math.floor(ih * pw / ph) end
@@ -145,10 +150,6 @@ local function drawPhoto(ctx, entry, n, total, x, y, w, h)
         room = room - ih - 4
         top = top + ih + 4
     end
-    -- A caption-only photo says what it is ("Photo: ..."); under a picture the caption is enough.
-    local words = (tex or loading) and caption(entry.photo)
-        or T("IGUI_KnoxMobile_PhotoCaption", "Photo: %1", caption(entry.photo))
-    local lines = ctx:wrap(words, w - 8)
     local fit = math.max(1, math.floor(room / lh))
     for i, l in ipairs(lines) do
         if i > fit then break end

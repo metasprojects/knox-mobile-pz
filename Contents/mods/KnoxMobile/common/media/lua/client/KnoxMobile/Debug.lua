@@ -1,10 +1,12 @@
--- Client: the debug menu (spec §16.1, plan task 4.8). Right-click the ground in debug mode, or as an admin
--- on a server. The server checks access again before doing anything.
+-- Client: the debug menu (spec §16.1, plan task 4.8). Right-click the ground in debug mode (-debug) only, so
+-- server admins in a normal game never see it (Meta, 2026-10-21). On a server you must also be an admin there;
+-- the server checks access again before doing anything.
 local Phones = require "KnoxMobile/Game/Phones"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
 local ItemIds = require "KnoxMobile/ItemIds"
 local Calls = require "KnoxMobile/Core/Calls"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local function debug(player, args) Net.toServer(player, "debug", args) end
 
@@ -17,7 +19,7 @@ end
 -- The pretend call "connects" after 4 s (the hidden radio comes up on a call channel, as in a real call)
 -- and ends by itself (or with the phone's hang up, which clears it).
 local fakeCallUntil, fakeConnectAt = nil, nil
-Events.OnTick.Add(Util.safe("fake call", function()
+Tick.add("fake call", function()
     if not fakeCallUntil then return end
     local t = getTimestampMs()
     local call = KnoxMobile.Client and KnoxMobile.Client.call
@@ -31,7 +33,7 @@ Events.OnTick.Add(Util.safe("fake call", function()
     fakeCallUntil = nil
     KnoxMobile.Client.call = nil
     if KnoxMobile.Audio then KnoxMobile.Audio.endCall() end
-end))
+end)
 
 local function phoneWithSim(player)
     for _, it in ipairs(Phones.inventoryPhones(player)) do
@@ -85,7 +87,7 @@ end
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("debug menu", function(playerNum, context, _, test)
     if test then return end
     local player = getSpecificPlayer(playerNum)
-    if not player or not Util.debugAllowed(player) then return end
+    if not player or not isDebugEnabled() or not Util.debugAllowed(player) then return end
     local m = sub(context, "Knox Mobile (admin)")
 
     -- Results go to console.txt as "[KnoxMobile] SELFTEST ..." lines (client/KnoxMobile/SelfTest.lua).
@@ -268,6 +270,13 @@ Events.OnFillWorldObjectContextMenu.Add(Util.safe("debug menu", function(playerN
         end
     end
     local story = sub(m, "Story")
+    -- 0.2.0 depth features, for the PC test: what is rare or slow, now.
+    story:addOption("Text back: answer now, and say where home is", nil, function()
+        local phone = targetPhone(player)
+        if phone then debug(player, { action = "textBackNow", phoneId = phone:getID() }) end
+    end)
+    story:addOption("Ring a phone in a zombie's pocket nearby", nil, function() debug(player, { action = "ringNow" }) end)
+    story:addOption("A wrong number and a rumor, now", nil, function() debug(player, { action = "strangersNow" }) end)
     story:addOption("Fast-forward 1 day", nil, function() debug(player, { action = "storyForward", days = 1 }) end)
     story:addOption("Fast-forward 7 days", nil, function() debug(player, { action = "storyForward", days = 7 }) end)
     story:addOption("Text me (phone with a SIM)", nil, function()

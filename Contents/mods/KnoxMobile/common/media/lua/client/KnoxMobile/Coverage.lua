@@ -10,6 +10,7 @@ local Phones = require "KnoxMobile/Game/Phones"
 local WorldModel = require "KnoxMobile/Game/WorldModel"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local Coverage = {}
@@ -125,12 +126,12 @@ local function showHookup(site)
     highlighted = { floor = floor, untilMs = getTimestampMs() + 8000 }
 end
 
-Events.OnTick.Add(Util.safe("hookup highlight", function()
+Tick.add("hookup highlight", function()
     if highlighted and getTimestampMs() >= highlighted.untilMs then
         highlighted.floor:setHighlighted(false)
         highlighted = nil
     end
-end))
+end)
 
 -- Is a generator standing in the hookup area (as this client sees it)? The server checks again.
 local function generatorHere(site)

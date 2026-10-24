@@ -17,6 +17,9 @@ local Accessories = require "KnoxMobile/Data/Accessories"
 local Phones = require "KnoxMobile/Game/Phones"
 local WorldModel = require "KnoxMobile/Game/WorldModel"
 local Util = require "KnoxMobile/Game/Util"
+local ALife = require "KnoxMobile/Game/ALife"
+local FactionChatter = require "KnoxMobile/Core/FactionChatter"
+local Names = require "KnoxMobile/Story/Names"
 local PhoneState = require "KnoxMobile/Core/PhoneState"
 local Net = require "KnoxMobile/Game/Net"
 local State = require "KnoxMobile/State"
@@ -25,6 +28,10 @@ local CameraSpec = require "KnoxMobile/Core/CameraSpec"
 local PhoneTick = require "KnoxMobile/PhoneTick"
 local HuntWorld = require "KnoxMobile/Hunt"
 local Pagers = require "KnoxMobile/Pagers"
+local Tick = require "KnoxMobile/Game/Tick"
+local Recordings = require "KnoxMobile/Core/Recordings"
+local Mod = require "KnoxMobile/Core/Mod"
+local Machine = require "KnoxMobile/Core/Machine"
 local Payphones = require "KnoxMobile/Payphones"
 
 local Server = {}
@@ -204,7 +211,8 @@ end)
 -- Phone settings: battery saver, sound mode, PIN set and unlock (spec §6.2, §8.5) ------------------
 local SOUND_MODES = { ring = true, vibrate = true, silent = true }
 local AUDIO_ROUTES = { speaker = true, earbuds = true, oneEarbud = true, headphones = true }
-local RINGTONES = { classic = true, chiptune = true }
+local RINGTONES = { classic = true, chiptune = true, custom = true }
+local Composer = require "KnoxMobile/Core/Composer"
 local WALLPAPERS = 6
 
 Net.onServer("phoneSetting", function(player, args)
@@ -261,7 +269,12 @@ Net.onServer("phoneSetting", function(player, args)
         end
     elseif args.key == "ringtone" and RINGTONES[args.value] then
         if args.value == "chiptune" and model.family == "SegmentLCD" then return end
+        if args.value == "custom" and not state.look.tune then return end
         state.look.ringtone = args.value
+    elseif args.key == "tune" and type(args.value) == "string" and #args.value <= 240 then
+        -- The ringtone composer (Core/Composer): a tune that parses becomes this phone's ringtone.
+        if not Composer.parse(args.value) then return end
+        state.look.tune, state.look.ringtone = args.value, "custom"
     elseif args.key == "wallpaper" and tonumber(args.value) then
         local family = Phones.registry:family(model.family)
         local n = math.floor(tonumber(args.value))
@@ -277,6 +290,12 @@ Net.onServer("phoneSetting", function(player, args)
         state.look.wallpaperPhoto = args.value
     elseif args.key == "volume" and tonumber(args.value) then
         state.look.volume = math.max(0, math.min(1, tonumber(args.value)))
+    elseif args.key == "ice" then
+        -- In case of emergency (0.2.0): one of the SIM's contacts, shown on the lock screen for whoever finds the phone.
+        state.ice = nil
+        for _, c in ipairs(state.sim and state.sim.contacts or {}) do
+            if c.number == args.value then state.ice = { name = c.name, number = c.number } end
+        end
     elseif args.key == "markRead" then
         for _, conv in ipairs(state.contents.texts) do
             for _, m in ipairs(conv.messages) do m.unread = nil end
@@ -344,6 +363,20 @@ local function npcCall(player, item, state, to, fail)
     Net.toClient(player, "callScripted", { to = to, kind = kind, lines = lines, name = label })
 end
 
+-- 911, the state's line, 411 and Knox County's businesses (Core/Recordings): a recording, by the day. 411 reads out the
+-- nearest town's numbers, and the journal keeps them.
+local function recordingCall(player, item, to, rec, fail)
+    if rec.kind == "notInService" then return fail("notInService") end
+    Messaging.logCall(player, item, to, false)
+    Util.log("call to", to, ":", rec.kind, "(recording)")
+    Net.toClient(player, "callScripted", { to = to, kind = rec.kind, lines = rec.lines, name = rec.name })
+    if rec.listings and KnoxMobile.Journal then
+        local parts = {}
+        for _, b in ipairs(rec.listings) do parts[#parts + 1] = b.name .. " " .. b.number end
+        KnoxMobile.Journal.add(player, "411 gave me: " .. table.concat(parts, ", ") .. ".")
+    end
+end
+
 Net.onServer("placeCall", function(player, args)
     local item, state, model = phoneOf(player, args)
     local function fail(reason)
@@ -359,6 +392,9 @@ Net.onServer("placeCall", function(player, args)
     if not State.voiceEnabled() then return fail("noVoice") end
     local located = Messaging.service(player, model)
     if not located.network then return fail("noService") end
+    local rec = Recordings.call(args.to, Util.nowDay(), Machine.town(player:getX(), player:getY()),
+        Rng.new(tostring(State.get().seed) .. ":rec:" .. args.to .. ":" .. math.floor(Util.nowDay())))
+    if rec then return recordingCall(player, item, args.to, rec, fail) end
     if WorldModel.callFails(Rng.new(Util.nowMinutes() .. ":" .. state.sim.number)) then return fail("circuitsBusy") end
     local rPlayer, rItem, _, rModel = Messaging.findNumber(args.to)
     if not rPlayer then return npcCall(player, item, state, args.to, fail) end
@@ -385,6 +421,29 @@ local function endCall(call, reason)
         if p then Net.toClient(p, "callEnd", { callId = call.id, reason = reason }) end
     end
 end
+
+-- The first week's jammed network (sandbox Network congestion): a call between players can drop mid-word.
+Server.dropCheckAt = 0
+function Server.dropCalls(rng)
+    if not Util.settings().NetworkCongestion then return end
+    local day = Util.nowDay()
+    if day >= 7 then return end
+    for _, call in pairs(State.calls.byId) do
+        if call.status == "active" and rng:chance(day < 3 and 0.05 or 0.025) then
+            Calls.hangUp(State.calls, call.id, call.from)
+            Util.log("call from", tostring(call.from), "to", tostring(call.to), "dropped (congestion)")
+            endCall(call, "dropped")
+        end
+    end
+end
+
+Tick.add("dropped calls", function()
+    if isClient() then return end
+    local t = getTimestampMs()
+    if t < Server.dropCheckAt then return end
+    Server.dropCheckAt = t + 10000
+    Server.dropCalls(Rng.new("drop:" .. tostring(t)))
+end)
 
 Net.onServer("answerCall", function(player, args)
     local key = Util.playerKey(player)
@@ -436,24 +495,55 @@ function Server.activateSim(sim)
 end
 
 -- A found phone's dead owner, made the first time it powers on (spec §5.1). The name comes from the
--- ID card the zombie carried when there was one.
-function Server.fillFoundPhone(item, state, model)
+-- ID card the zombie carried when there was one. player (optional): who turned it on, for their journal.
+function Server.fillFoundPhone(item, state, model, player)
     local md = item:getModData()
     local rng = Rng.new(tostring(State.get().seed) .. ":owner:" .. tostring(item:getID()))
-    local id = Story.identity(rng, { name = md.KnoxMobileOwnerName, female = md.KnoxMobileFemale, outfit = md.KnoxMobileOutfit })
+    -- A birth date on their ID card (a PIN clue) sets how old they were.
+    local born = tonumber(md.KnoxMobileBorn)
+    local id = Story.identity(rng, { name = md.KnoxMobileOwnerName, female = md.KnoxMobileFemale, outfit = md.KnoxMobileOutfit,
+        ageBand = born and Story.bandFor(93 - born) or nil })
     local nowDay, nowMinute = Messaging.stamp()
-    local dead = Story.deadPhone(rng, id, { family = model.family, deathDay = rng:int(-3, 0),
+    local alife = type(md.KnoxMobileALife) == "table" and md.KnoxMobileALife or nil
+    -- An A-Life NPC died just now, after weeks in the zone; an ordinary found phone's owner died around day 0.
+    local deathDay = alife and math.max(0, nowDay) or rng:int(-3, 0)
+    local dead = Story.deadPhone(rng, id, { family = model.family, deathDay = deathDay,
         foundAt = nowDay * 1440 + nowMinute })
+    if alife then
+        local extra = FactionChatter.build(rng, Story.fill, Names.male, { faction = alife.faction, owner = id.first,
+            mates = alife.mates, firstDay = math.max(0, deathDay - 6), deathDay = dead.deathDay,
+            deathMinute = dead.deathMinute, foundAt = nowDay * 1440 + nowMinute })
+        dead.groupChats = dead.groupChats or {}
+        table.insert(dead.groupChats, 1, extra.chat)
+        dead.texts = dead.texts or {}
+        for _, conv in ipairs(extra.texts) do table.insert(dead.texts, 1, conv) end
+    end
     state.contents.texts = dead.texts or {}
     state.contents.calls = dead.calls or {}
+    -- Its phone rang in its pocket (Ringing.lua): the calls nobody answered, just now, from the one who kept trying.
+    if tonumber(md.KnoxMobileMissed) then
+        local caller = dead.texts and dead.texts[1]
+        for i = 1, math.min(20, md.KnoxMobileMissed * rng:int(2, 4)) do
+            local at = math.max(0, nowDay * 1440 + nowMinute - i * rng:int(10, 40))
+            table.insert(state.contents.calls, 1, { with = caller and caller.with or "mom", name = caller and caller.name or "Mom",
+                day = math.floor(at / 1440), minute = Mod.floor(at, 1440), inbound = true, missed = true })
+        end
+    end
     state.contents.voicemails = dead.voicemails or {}
     state.contents.notes = dead.notes or {}
+    -- A number to call (Core/Recordings): a local place's, written down the way people did.
+    if rng:chance(0.4) then
+        local b = rng:pick(Recordings.listings(id.hometown))
+        local how = rng:pick({ "%s %s", "call %s %s", "%s - %s (ask for Dee)", "%s %s after 5", "refill: %s %s" })
+        table.insert(state.contents.notes, { body = string.format(how, b.name, b.number) })
+    end
     state.contents.groupChats = dead.groupChats
     state.owner = { kind = "generated", first = id.first, last = id.last, job = id.job.title, hometown = id.hometown,
         fromIdCard = md.KnoxMobileOwnerName ~= nil }
     state.story = { draft = dead.draft, lastApp = dead.lastApp, alarm = dead.alarm, photos = dead.photos, deathDay = dead.deathDay }
-    if state.security.locked then state.security.pin = id.pin end
+    if state.security.locked then state.security.pin = md.KnoxMobilePin or id.pin end
     Util.log("found phone owner:", id.first, id.last, "-", id.job.title, md.KnoxMobileOwnerName and "(from ID card)" or "")
+    if player and KnoxMobile.Journal then KnoxMobile.Journal.foundPhone(player, state) end
 end
 
 -- Phones left charging in the world (spec §6.5, §13.7) --------------------------------------------------
@@ -536,7 +626,7 @@ Net.onServer("audioProxy", function(player, args)
 end)
 
 -- The Map app (client/KnoxMobile/Apps/Map.lua): the places this player's story has named so far.
-Net.onServer("mapPlaces", function(player)
+Net.onServer("mapPlaces", function(player, args)
     local md = State.get()
     local key = Util.playerKey(player)
     local places = {}
@@ -550,6 +640,30 @@ Net.onServer("mapPlaces", function(player)
     for _, q in pairs(md.quests) do
         if q.player == key and q.state ~= "waiting" then
             places[#places + 1] = { kind = "stash", name = q.name, x = q.x, y = q.y }
+        end
+    end
+    -- Found phones on you whose family said where home was (TextBack): take them back.
+    for _, it in ipairs(Phones.inventoryPhones(player)) do
+        local st = Phones.get(it)
+        local home = st and st.story and st.story.home
+        if home and not home.returned and st.owner then
+            places[#places + 1] = { kind = "home", name = st.owner.first, x = home.x, y = home.y }
+        end
+    end
+    -- A phone off a dead A-Life NPC, on and in service (FactionWire): where its faction's people are, and where they
+    -- are going tonight when a raid is on.
+    local item = args and args.phoneId and Phones.findById(player, args.phoneId)
+    if item and KnoxMobile.FactionWire then
+        for _, p in ipairs(KnoxMobile.FactionWire.phones(player)) do
+            if p.item == item then
+                for _, m in ipairs(ALife.members(p.alife.factionId, 6)) do
+                    places[#places + 1] = { kind = "faction", name = m.name, x = m.x, y = m.y }
+                end
+                local raid = ALife.raid()
+                if raid and raid.factionId == p.alife.factionId and raid.x and raid.y then
+                    places[#places + 1] = { kind = "raid", name = p.alife.faction, x = raid.x, y = raid.y }
+                end
+            end
         end
     end
     Net.toClient(player, "mapPlaces", { places = places })
@@ -762,7 +876,8 @@ end)
 local ID_TYPES = { ["Base.IDcard"] = true, ["Base.IDcard_Female"] = true, ["Base.IDcard_Male"] = true }
 
 function Server.nameFromIdCard(cardName)
-    local person = cardName and tostring(cardName):match(":%s*(.-)%s*$")
+    -- "ID Card: Dana Price (born 03/14/61)": the birth date is a PIN clue (Story.pinClue), not part of the name.
+    local person = cardName and tostring(cardName):gsub("%s*%(born [^)]*%)%s*$", ""):match(":%s*(.-)%s*$")
     if person and person:match("%S") then return person end
     return nil
 end
@@ -771,9 +886,32 @@ local function idCardName(inv)
     local list = inv:getAllEvalRecurse(function(it) return ID_TYPES[it:getFullType()] == true end)
     for i = 0, list:size() - 1 do
         local person = Server.nameFromIdCard(list:get(i):getName())
-        if person then return person end
+        if person then return person, list:get(i) end
     end
     return nil
+end
+
+-- The PIN's clue on the body (Story.pinClue): the birth date on the ID card, or the digits on a scrap of paper in the
+-- wallet. The phone keeps the PIN for when it is first turned on.
+local function placePinClue(inv, phone, rng)
+    local clue = Story.pinClue(rng)
+    phone:getModData().KnoxMobilePin = clue.pin
+    if clue.kind == "birthday" then
+        local _, card = idCardName(inv)
+        if card then
+            phone:getModData().KnoxMobileBorn = tonumber(clue.born:sub(7, 8))
+            card:setName(card:getName() .. " (born " .. clue.born .. ")")
+            card:setCustomName(true)
+        end
+    elseif clue.kind == "note" then
+        local wallet = inv:getFirstEvalRecurse(function(it) return tostring(it:getFullType()):find("^Base%.Wallet") ~= nil end)
+        local into = wallet and wallet.getInventory and wallet:getInventory() or inv
+        local scrap = into:AddItem("Base.Note")
+        if scrap then
+            scrap:setName("Scrap of paper: " .. clue.pin)
+            scrap:setCustomName(true)
+        end
+    end
 end
 
 -- A zombie with a phone but no ID gets a wallet with one (spec §5.1), so the phone's owner has a name to match.
@@ -788,6 +926,8 @@ local zombieDeaths = 0
 
 Events.OnZombieDead.Add(Util.safe("zombie phone", function(zombie)
     if isClient() then return end
+    -- A Project A-Life NPC's body is that mod's: no found phone, wallet or ID card, and never a family member.
+    if ALife.isNPC(zombie) then return end
     -- A family member from the family hunt carries their own phone instead.
     if HuntWorld.onZombieDead(zombie) then return end
     local settings = Util.settings()
@@ -797,23 +937,60 @@ Events.OnZombieDead.Add(Util.safe("zombie phone", function(zombie)
     local rng = Rng.new(tostring(State.get().seed) .. ":z:" .. tostring(zombie:getOnlineID()) .. ":" .. tostring(Util.nowMinutes())
         .. ":" .. math.floor(zombie:getX()) .. "," .. math.floor(zombie:getY()) .. ":" .. zombieDeaths)
     local chance = (settings.ZombiePhoneChance and settings.ZombiePhoneChance / 100 or ZOMBIE_CHANCE)
-    if not rng:chance(chance * (settings.RarityMultiplier or 1)) then return end
-    local list = Phones.registry:spawnable(settings.EraLimit)
-    local weights = {}
-    -- The same mix as the houses (Loot.share): 2 or 3 smartphones in 10.
-    for _, m in ipairs(list) do weights[#weights + 1] = { m, Loot.share(m, settings, list) } end
-    local model = rng:weighted(weights)
-    if not model then return end
+    -- One whose phone rang in its pocket, or one killed where a phone rang lately (Ringing.lua), always has it.
+    local rang = KnoxMobile.Ringing and KnoxMobile.Ringing.claim(zombie, zombie:getX(), zombie:getY())
+    if not rang and not rng:chance(chance * (settings.RarityMultiplier or 1)) then return end
     local inv = zombie:getInventory()
-    local item = inv:AddItem(ItemIds.full(ItemIds.phone(model, rng:pick(model.colors))))
+    local item = Server.addFoundPhone(inv, rng, settings)
     if not item then return end
     local md = item:getModData()
-    md.KnoxMobileOrigin = "found"
     if not idCardName(inv) then pcall(giveWallet, inv, zombie:isFemale()) end
     md.KnoxMobileOwnerName = idCardName(inv)
     md.KnoxMobileOutfit = zombie.getOutfitName and zombie:getOutfitName() or nil
     md.KnoxMobileFemale = zombie:isFemale()
+    md.KnoxMobileMissed = rang
+    pcall(placePinClue, inv, item, rng)
 end))
+
+-- A found phone in a container: the same model mix as the houses (Loot.share: 2 or 3 smartphones in 10). Returns the
+-- item, or nil.
+function Server.addFoundPhone(inv, rng, settings)
+    local list = Phones.registry:spawnable(settings.EraLimit)
+    local weights = {}
+    for _, m in ipairs(list) do weights[#weights + 1] = { m, Loot.share(m, settings, list) } end
+    local model = rng:weighted(weights)
+    if not model then return nil end
+    local item = inv:AddItem(ItemIds.full(ItemIds.phone(model, rng:pick(model.colors))))
+    if item then item:getModData().KnoxMobileOrigin = "found" end
+    return item
+end
+
+-- Project A-Life NPCs carry phones of their own (0.2.0): when A-Life has put its loot on a dead NPC it calls the
+-- "loot.corpse" hook of its interop layer (docs/research/ALIFE_INTEROP.md), and some of those bodies get a phone
+-- that remembers who it was: the NPC's name, faction and squad mates. Server.fillFoundPhone tells the story.
+local ALIFE_PHONE_CHANCE = 0.35
+function Server.onALifeLoot(shell, actor)
+    if isClient() or type(actor) ~= "table" or not shell then return end
+    local settings = Util.settings()
+    local rng = Rng.new(tostring(State.get().seed) .. ":alife:" .. tostring(actor.uid) .. ":" .. tostring(actor.generation))
+    if not rng:chance(ALIFE_PHONE_CHANCE * (settings.RarityMultiplier or 1)) then return end
+    local ok, inv = pcall(function() return shell:getInventory() end)
+    if not ok or not inv then return end
+    local item = Server.addFoundPhone(inv, rng, settings)
+    if not item then return end
+    local md = item:getModData()
+    md.KnoxMobileOwnerName = ALife.name(actor)
+    md.KnoxMobileALife = { uid = tostring(actor.uid), factionId = actor.factionId,
+        faction = ALife.factionName(actor.factionId) or "The crew", mates = ALife.mates(actor, 5) }
+    Util.log("A-Life phone for", tostring(md.KnoxMobileOwnerName), "of", md.KnoxMobileALife.faction)
+end
+
+local function hookALife()
+    local interop = ALife.interop()
+    if interop then pcall(interop.on, "loot.corpse", Server.onALifeLoot) end
+end
+Events.OnGameStart.Add(Util.safe("a-life hook", hookALife))
+Events.OnServerStarted.Add(Util.safe("a-life hook", hookALife))
 
 -- Debug (spec §16.1): admins and debug mode only ---------------------------------------------------
 Net.onServer("debug", function(player, args)
@@ -850,7 +1027,7 @@ Net.onServer("debug", function(player, args)
     elseif args.action == "textMe" then
         local item, state = phoneOf(player, args)
         if item and state.sim and state.sim.number then
-            Messaging.queueStory("(502) 555-0142", state.sim.number, args.body or "Test message from the debug menu.")
+            Messaging.queueStory("(502) 555-0100", state.sim.number, args.body or "Test message from the debug menu.")
             Messaging.deliverTo(player)
         end
     elseif args.action == "setPhone" then
@@ -900,6 +1077,26 @@ Net.onServer("debug", function(player, args)
                 state.sim = sim
             end
             Phones.save(held, player)
+        end
+    elseif args.action == "textBackNow" then
+        -- Every thread texted back on the held phone answers now, as one who answers, and will say where home is
+        -- and leave a bag (both rare in play).
+        local item, state = phoneOf(player, args)
+        for _, r in pairs(item and state.story and state.story.replies or {}) do
+            r.fate, r.done = "alive", nil
+            r.home, r.stash = true, true
+            if r.sent > r.answered then r.dueAt = 0 end
+        end
+        if KnoxMobile.TextBack then KnoxMobile.TextBack.deliver(player) end
+    elseif args.action == "ringNow" then
+        if KnoxMobile.Ringing then KnoxMobile.Ringing.ring(player, Rng.new("debug:" .. getTimestampMs())) end
+    elseif args.action == "strangersNow" then
+        local mine = State.get().players[Util.playerKey(player)]
+        if mine and mine.number and KnoxMobile.Strangers then
+            local rng = Rng.new("debug:" .. getTimestampMs())
+            Messaging.queueStory(Sim.issueNumber(State.get().numbers, rng), mine.number, require("KnoxMobile/Core/Strangers").wrong(rng))
+            KnoxMobile.Strangers.rumor(player, mine.number, rng)
+            Messaging.deliverTo(player)
         end
     elseif args.action == "night" then
         getGameTime():setTimeOfDay(22.5)

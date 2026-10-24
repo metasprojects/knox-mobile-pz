@@ -74,6 +74,16 @@ Net.onServer("crewFind", function(player, args)
             end
         end
     end
+    -- Phones a Project A-Life robber took from this player (server/KnoxMobile/StolenPhones.lua): who has it and which
+    -- way, while that NPC is alive. Phones keep pinging the network, so they show like a crew member.
+    if KnoxMobile.StolenPhones then
+        for _, s in ipairs(KnoxMobile.StolenPhones.takenFrom(player)) do
+            if s.x and s.y and #list < Crew.MAX_LIST then
+                local dir, band = Crew.between(ax, ay, s.x, s.y)
+                list[#list + 1] = { stolenBy = s.byName or "?", dir = dir, band = band }
+            end
+        end
+    end
     reply({ list = list })
 end)
 

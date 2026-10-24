@@ -5,6 +5,7 @@ local Payphone = require "KnoxMobile/Core/Payphone"
 local Sim = require "KnoxMobile/Core/Sim"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 
@@ -55,12 +56,12 @@ function P.use(player, sq)
     P.pending = { player = player, sq = sq, untilMs = getTimestampMs() + 15000 }
 end
 
-Events.OnTick.Add(Util.safe("payphone walk", function()
+Tick.add("payphone walk", function()
     local p = P.pending
     if not p then return end
     if near(p.player, p.sq) then P.pending = nil; P.ask(p.player, p.sq)
     elseif getTimestampMs() > p.untilMs then P.pending = nil end
-end))
+end)
 
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("payphone menu", function(playerNum, context, worldobjects, test)
     if test then return end

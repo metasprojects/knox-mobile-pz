@@ -10,6 +10,7 @@ local SocialText = require "KnoxMobile/Game/SocialText"
 local CameraSpec = require "KnoxMobile/Core/CameraSpec"
 local Format = require "KnoxMobile/Core/Format"
 local Mod = require "KnoxMobile/Core/Mod"
+local Replies = require "KnoxMobile/Core/Replies"
 
 local T = Util.text
 local ALL = { "SegmentLCD", "MonoLCD", "ColorFeature", "Keyboard", "Stylus", "ModernAndroid", "ModernPear" }
@@ -86,9 +87,15 @@ local function liveGroup(ctx, t)
     return Social().group(ctx.phone:getID(), t.conv.group)
 end
 
+-- A found phone's own people (Core/Replies, server TextBack): its dead owner's family, friend, work or squad mate.
+local function storyThread(ctx, t)
+    return not t.story and ctx.state.owner ~= nil and ctx.state.owner.kind == "generated" and Replies.ROLES[t.conv.with] == true
+end
+
 local function canReply(ctx, t)
     if not ctx.state.sim then return false end
     if t.conv.group then return liveGroup(ctx, t) ~= nil end
+    if storyThread(ctx, t) then return true end
     return not t.story and not t.conv.carrier and Sim.normalise(t.conv.with) ~= nil
 end
 
@@ -223,6 +230,10 @@ local function drawThread(ctx, t, x, y, w, h)
         hint = T("IGUI_KnoxMobile_GroupHint", "Enter: reply   Right: people")
         if ctx:measure(hint) > w - 6 then hint = T("IGUI_KnoxMobile_GroupHintShort", "Enter: reply  >: people") end
         if ctx:measure(hint) > w - 6 then hint = T("IGUI_KnoxMobile_Reply", "Enter: reply") end
+    elseif canReply(ctx, t) and storyThread(ctx, t) then
+        hint = T("IGUI_KnoxMobile_Reply", "Enter: reply")
+    elseif storyThread(ctx, t) then
+        hint = T("IGUI_KnoxMobile_TextBackSim", "Put a SIM in to text back")
     elseif canReply(ctx, t) then
         hint = T("IGUI_KnoxMobile_ReplyCall", "Enter: reply   Right: call")
         if ctx:measure(hint) > w - 6 then hint = T("IGUI_KnoxMobile_ReplyCallShort", "Enter: reply  >: call") end
@@ -243,14 +254,23 @@ local function threadInput(ctx, t, ev)
     local onHeader = ev.type == "tap" and ev.y <= ctx:lineHeight() + 3
     if g and ((ev.type == "key" and ev.key == "right") or onHeader) then goTo(d, "info", { thread = t.key }); return end
     -- A person's thread: Right (or a tap on their name) calls them back.
-    if not g and canReply(ctx, t) and t.conv and t.conv.with and ((ev.type == "key" and ev.key == "right") or onHeader) then
+    if not g and canReply(ctx, t) and not storyThread(ctx, t) and t.conv and t.conv.with
+        and ((ev.type == "key" and ev.key == "right") or onHeader) then
         if KnoxMobile.Client then KnoxMobile.Client.placeCall(ctx.phone, t.conv.with) end
         return
     end
     if (ev.type == "key" and ev.key == "select") or ev.type == "tap" then
         if not canReply(ctx, t) then return end
         ctx:askText(T("IGUI_KnoxMobile_TypeMessage", "Message:"), "", function(text)
-            if g then sendGroup(ctx, g.id, text) else sendText(ctx, t.conv.with, text) end
+            if g then
+                sendGroup(ctx, g.id, text)
+            elseif storyThread(ctx, t) then
+                if text and text ~= "" then
+                    Net.toServer(ctx.player, "textBack", { phoneId = ctx.phone:getID(), with = t.conv.with, body = text:sub(1, 320) })
+                end
+            else
+                sendText(ctx, t.conv.with, text)
+            end
         end, 320)
     end
 end

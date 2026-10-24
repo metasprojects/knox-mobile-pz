@@ -60,6 +60,12 @@ function MessageQueue.send(q, msg, senderNet, recipientNet, settings, now)
     if not senderNet then return "failed", "noService" end
     if sameNetwork(senderNet, recipientNet) then
         q.nextId = q.nextId + 1
+        -- The first week's jammed network (settings.lagUntil): it goes out, and lands when it lands.
+        if settings and settings.lagUntil then
+            record.via, record.notBefore = snapshot(senderNet), settings.lagUntil
+            q.queued[#q.queued + 1] = record
+            return "delayed", record
+        end
         return "delivered", record
     end
     if settings and settings.queueMessages == false then return "failed", "unreachable" end
@@ -78,7 +84,8 @@ end
 function MessageQueue.deliverFor(q, number, recipientNet, now)
     local out, keep = {}, {}
     for _, rec in ipairs(q.queued) do
-        local mine = rec.to == number
+        local waiting = rec.notBefore ~= nil and now ~= nil and now < rec.notBefore
+        local mine = rec.to == number and not waiting
         if mine and (rec.carrier or (recipientNet and (rec.story or reachable(rec.via, recipientNet)))) then
             if not expired(rec, now) then out[#out + 1] = rec end -- a stale one is dropped
         elseif not (mine and expired(rec, now)) then

@@ -49,23 +49,54 @@ FamilyCall.ANSWER = {
         "{label}: Hey, kiddo. We're okay. The power keeps going out. / Do you have food? Water? / Hello? ...",
         "{label}: Don't hang up! I don't know how long this line lasts. / Stay off the roads. They're blocked. / (static)",
         "{label}: Is that you? I can't hear a thing. / If you can hear me, we're all right. Text, don't call.",
+        "{label}: {you}. Okay. Okay. You're alive. / Fill the bathtub while the water's on. / I have to go, the battery.",
+        "{label}: Did you eat today? Don't lie to me. / There's soup in the pantry if you get home. / Love you. Bye.",
+        "{label}: We heard shooting last night. Over by the school. / Keep your curtains shut at night. / (the call drops)",
+        "{label}: I keep trying the house phone. Nothing. / This is the only thing that works now. Keep it charged.",
+        "{label}: The neighbors left this morning. Just packed up and went. / Don't open the door for anybody. Promise me.",
+        "{label}: Hold on, the dog's barking at something. / ... it's nothing. I think it's nothing. / Text me tonight.",
+        "{label}: I went to the IGA. The shelves are empty, {you}. / We've got enough for a week. Then I don't know.",
+        "{label}: Your cousin called from Louisville. They're not letting anybody out. / Stay where you are.",
+        "{label}: I'm on the roof, it's the only place I get a bar. / Can you hear me? / Good. Good.",
+        "{label}: The church opened its doors to anybody who needs it. / We might go there. I'll text you. / (static)",
     },
     gather = {
         "{label}: We're at {place}. Come when it's safe. / Don't call, the lines are jammed. Text.",
         "{label}: {you}! We made it to {place}. / Bring water if you can. Be careful out there.",
+        "{label}: We're holed up at {place}. Doors locked. / Come at daylight, not after dark. / Knock and say your name.",
+        "{label}: It's crowded at {place} but it's safe. Mostly. / There's room for you. Please come.",
+        "{label}: {place}. Remember it. {place}. / Take the back roads. The highway's blocked.",
+        "{label}: We moved to {place} last night. / Somebody's got a generator. We're okay. / Hurry if you can.",
+        "{label}: I wrote it on the fridge for you too. {place}. / In case your phone dies. / Come find us.",
+        "{label}: We're at {place}. Your father boarded the windows. / Bring your blankets. It gets cold at night.",
     },
     sick = {
         "{label}: (coughing) I'm okay, honey. Just a fever. / Don't come here yet. / I need to lie down.",
         "{label}: One of them scratched me. It's nothing. / I'm so tired. Call you tomorrow, okay?",
+        "{label}: I'm burning up, {you}. It's just the flu. / Everybody's got it. / Don't worry about me.",
+        "{label}: Sorry, I fell asleep. What day is it? / ... okay. Okay. I'll call you later.",
+        "{label}: Don't come here. I mean it. / Stay where you are and keep the door locked. / I love you.",
+        "{label}: My arm hurts but it's fine. I wrapped it. / Did you eat? / I'm going to rest a little.",
+        "{label}: I can't keep anything down. / The others are staying in the other room. It's better. / Talk tomorrow.",
+        "{label}: (a long breath) Hi, sweetheart. / I'm just tired. I'm so tired. / Tell me something nice.",
     },
     dying = {
         "{label}: (breathing hard) Don't... don't come here. / Remember the good stuff, okay? / (silence)",
+        "{label}: {you}. I wanted to hear you. That's all. / Don't come. Promise. / (the line stays open, then nothing)",
+        "{label}: I'm sitting by the window. It's a pretty night. / You were always my favorite. Don't tell. / (silence)",
+        "{label}: Remember the lake? The summer you learned to swim? / Think about that, okay? Not this. / (silence)",
     },
     rescued = {
         "{label}: They've got us on a bus. The Army. I don't know where to. / I love you. Stay alive.",
+        "{label}: Soldiers came. We're in a truck. They won't say where. / I'll find you. I swear I'll find you.",
+        "{label}: We're out! They took us past the fence. / They wouldn't wait. I'm sorry, {you}. I'm so sorry.",
+        "{label}: It's a camp. Cots and a tent. They check everybody. / Stay alive. They'll come back for more.",
     },
     goodbye = {
         "{label}: We're leaving. I left you a note at {place}. / I'm sorry. Find us.",
+        "{label}: We couldn't wait any longer. There's food at {place}. / We love you. Come find us.",
+        "{label}: I left the key where we always do. At {place}. / We had to go. Please understand.",
+        "{label}: This is goodbye for now. Not forever. / Look for us. Don't stop looking.",
     },
 }
 
@@ -88,16 +119,21 @@ function FamilyCall.roll(rng, odds)
 end
 
 -- A line from a pool that nobody else in the family has said (plan.callLines: line -> member); once the pool is
--- used up, the member's own earlier lines again. Each member keeps one voicemail greeting.
+-- used up, the member's own earlier lines again, but never the one they said last time (0.1.1: "Mom repeats the
+-- same answer word for word"). Each member keeps one voicemail greeting.
 local function pickLine(rng, pool, plan, member)
     plan.callLines = plan.callLines or {}
+    plan.lastLine = plan.lastLine or {}
+    local last = plan.lastLine[member]
     local fresh, own = {}, {}
     for _, line in ipairs(pool) do
         local who = plan.callLines[line]
-        if who == nil then fresh[#fresh + 1] = line elseif who == member then own[#own + 1] = line end
+        if who == nil then fresh[#fresh + 1] = line
+        elseif who == member and line ~= last then own[#own + 1] = line end
     end
     local line = rng:pick((#fresh > 0 and fresh) or (#own > 0 and own) or pool)
     plan.callLines[line] = plan.callLines[line] or member
+    if pool ~= FamilyCall.VOICEMAIL then plan.lastLine[member] = line end
     return line
 end
 

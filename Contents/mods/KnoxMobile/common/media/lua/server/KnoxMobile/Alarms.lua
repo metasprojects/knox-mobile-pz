@@ -13,6 +13,7 @@ local Phones = require "KnoxMobile/Game/Phones"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
 local State = require "KnoxMobile/State"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local Alarms = { items = {}, ringing = {}, nextPulse = 0 }
 KnoxMobile.Alarms = Alarms
@@ -238,9 +239,9 @@ Net.onServer("alarm", function(player, args)
     if reply then reply.phoneId = item:getID(); Net.toClient(player, "alarmNotify", reply) end
 end)
 
-Events.OnTick.Add(Util.safe("alarm pulses", function()
+Tick.add("alarm pulses", function()
     if isClient() then return end
     Alarms.pulse()
-end))
+end)
 
 return Alarms

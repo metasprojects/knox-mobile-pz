@@ -9,6 +9,7 @@ local Rng = require "KnoxMobile/Core/Rng"
 local Phones = require "KnoxMobile/Game/Phones"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local ICONS = "media/ui/KnoxMobile/apps/"
@@ -254,12 +255,12 @@ KnoxMobile.Apps.register({
 })
 
 -- The safety net: if the phone closes or the app changes without onClose (an error), the character can move.
-Events.OnTick.Add(Util.safe("snake movement", function()
+Tick.add("snake movement", function()
     if not App.blocked then return end
     local panel = KnoxMobile.UI and KnoxMobile.UI.panel
     local playing = panel and panel.view == "app" and panel.appId == "snake" and panel.appData and panel.appData.mode == "play"
     if not playing or getTimestampMs() - (App.lastRender or 0) > 600 then block(nil, false) end
-end))
+end)
 
 Events.OnPlayerDeath.Add(Util.safe("snake death", function() block(nil, false) end))
 

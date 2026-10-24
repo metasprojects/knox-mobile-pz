@@ -3,6 +3,7 @@
 local Phones = require "KnoxMobile/Game/Phones"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Replies = require "KnoxMobile/Core/Replies"
 
 local T = Util.text
 
@@ -47,6 +48,17 @@ local function phoneMenu(player, context, item)
     local state, model = Phones.get(item)
     if not state then return end
     context:addOption(T("IGUI_KnoxMobile_UsePhone", "Use phone"), nil, function() KnoxMobile.UI.open(player, item) end)
+    -- Return the phone: its owner's family said where home was (server TextBack, Actions takeHome).
+    local home = state.story and state.story.home
+    if home and not home.returned and state.owner then
+        local why
+        if state.sim then why = T("IGUI_KnoxMobile_HomeSimOut", "Take your SIM out first")
+        elseif not Replies.nearHome(home, player:getX(), player:getY()) then
+            why = T("IGUI_KnoxMobile_HomeWhere", "Home is %1", home.name)
+        end
+        option(context, T("IGUI_KnoxMobile_TakeHome", "Leave %1's phone here, at home", state.owner.first),
+            function() queue(player, "takeHome", item) end, why)
+    end
     local m = sub(context, model.name)
 
     if state.power.on then
@@ -157,9 +169,18 @@ local function phoneMenu(player, context, item)
             not rice and T("IGUI_KnoxMobile_NeedRice", "You need a bag of rice") or nil)
     end
 
-    -- Somebody else's locked phone (not one of yours: you know its PIN).
-    if state.security.locked and state.power.on and not (state.owner and state.owner.kind == "player") then
-        option(m, T("IGUI_KnoxMobile_CrackPin", "Try to crack the PIN"), function() queue(player, "crackPin", item) end)
+    -- Somebody else's locked phone (not one of yours: you know its PIN). Shown greyed with the reason while it can't be
+    -- tried, so a dead found phone still tells you the way in (Workshop: "is there a way to open zombie phones?").
+    if state.security.locked and not (state.owner and state.owner.kind == "player") then
+        local until_ = state.security.lockoutUntil
+        local crackWhy = nil
+        if not state.power.on then
+            crackWhy = T("IGUI_KnoxMobile_CrackNeedsPower", "Charge it and turn it on first")
+        elseif until_ and Util.nowMinutes() < until_ then
+            crackWhy = T("IGUI_KnoxMobile_LockedOut", "Too many tries. Locked for an hour.")
+        end
+        option(m, T("IGUI_KnoxMobile_CrackPin", "Try to crack the PIN"), function() queue(player, "crackPin", item) end,
+            crackWhy)
     end
     -- A dead owner's phone you got into: make it yours (spec §5.1).
     if state.owner.kind == "generated" and not state.security.locked and state.power.on then

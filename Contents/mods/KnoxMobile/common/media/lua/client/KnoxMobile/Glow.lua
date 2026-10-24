@@ -2,8 +2,8 @@
 -- glow; only you see your own live screen). The server says whose screen is on (Server.lua "activity" ->
 -- "screenGlow"); each client keeps a small light at those players and moves it with them. Your own glow is
 -- Hold.lua's.
-local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local Glow = { on = {}, lights = {}, nextMs = 0 }
 KnoxMobile.Glow = Glow
@@ -21,7 +21,7 @@ local function drop(id)
     end
 end
 
-Events.OnTick.Add(Util.safe("screen glow", function()
+Tick.add("screen glow", function()
     local t = getTimestampMs()
     if t < Glow.nextMs or not isClient() then return end
     Glow.nextMs = t + 500
@@ -46,6 +46,6 @@ Events.OnTick.Add(Util.safe("screen glow", function()
             end
         end
     end
-end))
+end)
 
 return Glow

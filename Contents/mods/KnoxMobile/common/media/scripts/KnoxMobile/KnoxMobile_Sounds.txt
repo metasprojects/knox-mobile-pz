@@ -96,4 +96,436 @@ module KnoxMobile
             volume = 0.5,
         }
     }
+
+    sound KnoxMobileNote_c1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_c1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_cs1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_cs1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_d1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_d1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_ds1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_ds1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_e1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_e1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_f1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_f1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_fs1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_fs1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_g1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_g1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_gs1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_gs1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_a1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_a1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_as1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_as1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_b1
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_b1.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_c2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_c2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_cs2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_cs2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_d2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_d2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_ds2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_ds2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_e2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_e2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_f2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_f2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_fs2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_fs2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_g2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_g2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_gs2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_gs2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_a2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_a2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_as2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_as2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_b2
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_b2.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_c3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_c3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_cs3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_cs3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_d3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_d3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_ds3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_ds3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_e3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_e3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_f3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_f3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_fs3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_fs3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_g3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_g3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_gs3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_gs3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_a3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_a3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_as3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_as3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
+
+    sound KnoxMobileNote_b3
+    {
+        category = Item,
+        clip
+        {
+            file = media/sound/KnoxMobile/note_b3.ogg,
+            distanceMin = 1,
+            distanceMax = 20,
+            volume = 0.7,
+        }
+    }
 }

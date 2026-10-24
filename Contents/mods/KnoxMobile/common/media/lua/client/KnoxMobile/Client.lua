@@ -4,6 +4,7 @@ local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
 local Phones = require "KnoxMobile/Game/Phones"
 local Messages = require "KnoxMobile/Data/Messages"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local Client = { call = nil, unlock = {}, knownPhones = {} }
 KnoxMobile.Client = Client
@@ -71,6 +72,8 @@ Net.onClient("notify", function(args)
     Client.lastNotice, Client.lastNoticeAt, Client.lastNoticePhone = text, t, args.phoneId
     -- A text from a real person is the best thing that happens all day.
     if args.kind == "texts" and args.fromPlayer then Client.mood("UNHAPPINESS", -8) end
+    -- Taking a stranger's phone home is worth something.
+    if args.kind == "returned" then Client.mood("UNHAPPINESS", -25) end
     if KnoxMobile.Audio then KnoxMobile.Audio.onNotify(args, phoneById(args.phoneId)) end
     refresh()
 end)
@@ -162,6 +165,44 @@ Net.onClient("callStart", function(args)
     refresh()
 end)
 
+-- A phone ringing in a zombie's pocket nearby (server Ringing.lua): a few rings from where it stood, then quiet.
+Client.ringsAt = {}
+Net.onClient("ringAt", function(args)
+    if not tonumber(args.x) then return end
+    Client.ringsAt[#Client.ringsAt + 1] = { x = args.x, y = args.y, z = args.z or 0, left = args.rings or 4, at = 0 }
+end)
+
+-- The server keeps no zombie list (a dedicated server): this client picks one it sees near the player, and says where.
+Net.onClient("ringPick", function()
+    local p = me()
+    local list = p and getCell() and getCell():getZombieList()
+    if not list then return end
+    local ALife = require "KnoxMobile/Game/ALife"
+    local found = {}
+    for i = 0, list:size() - 1 do
+        local z = list:get(i)
+        local d = math.max(math.abs(z:getX() - p:getX()), math.abs(z:getY() - p:getY()))
+        if d >= 6 and d <= 35 and not z:isDead() and not ALife.isNPC(z) then found[#found + 1] = z end
+    end
+    if #found == 0 then return end
+    local z = found[ZombRand(#found) + 1]
+    Net.toServer(p, "ringPicked", { x = math.floor(z:getX()), y = math.floor(z:getY()), z = math.floor(z:getZ()) })
+end)
+
+Tick.add("rings in the dark", function()
+    if #Client.ringsAt == 0 then return end
+    local t = getTimestampMs()
+    for i = #Client.ringsAt, 1, -1 do
+        local r = Client.ringsAt[i]
+        if t >= r.at then
+            local emitter = getWorld():getFreeEmitter(r.x + 0.5, r.y + 0.5, r.z)
+            if emitter then emitter:playSound("KnoxMobileRing") end
+            r.left, r.at = r.left - 1, t + 3200
+            if r.left <= 0 then table.remove(Client.ringsAt, i) end
+        end
+    end
+end)
+
 Net.onClient("callEnd", function(args)
     if Client.payphoneCall and Client.payphoneCall.id == args.callId then Client.payphoneCall = nil end
     if KnoxMobile.Audio then KnoxMobile.Audio.stopRing(); KnoxMobile.Audio.endCall() end
@@ -169,6 +210,8 @@ Net.onClient("callEnd", function(args)
     Client.call = nil
     if args.reason == "missed" and wasIncoming then
         Client.toast(T("IGUI_KnoxMobile_MissedCall", "Missed call"), "call")
+    elseif args.reason == "dropped" then
+        Client.toast(T("IGUI_KnoxMobile_CallDropped", "Call dropped. The network is jammed."), "call")
     else
         Client.toast(T("IGUI_KnoxMobile_CallEnded", "Call ended"), "call")
     end
@@ -208,7 +251,7 @@ Net.onClient("callScripted", function(args)
     refresh()
 end)
 
-Events.OnTick.Add(Util.safe("scripted call", function()
+Tick.add("scripted call", function()
     local s = Client.scripted
     if not s then return end
     if not (Client.call and Client.call.scripted) then Client.scripted, Client.callCaption = nil, nil; return end
@@ -235,7 +278,7 @@ Events.OnTick.Add(Util.safe("scripted call", function()
             or T("IGUI_KnoxMobile_CallEnded", "Call ended"), "call")
         refresh()
     end
-end))
+end)
 
 function Client.placeCall(phone, number)
     Client.dialingPhone = phone:getID()
@@ -306,12 +349,12 @@ Events.OnCreatePlayer.Add(Util.safe("new player", function(_, player)
     if not (player and player == me()) then return end
     if isClient() then newCharacterAt = getTimestampMs() + 3000 else Net.toServer(player, "newCharacter", {}) end
 end))
-Events.OnTick.Add(Util.safe("new player (server)", function()
+Tick.add("new player (server)", function()
     if not newCharacterAt or getTimestampMs() < newCharacterAt then return end
     newCharacterAt = nil
     local p = me()
     if p then Net.toServer(p, "newCharacter", {}) end
-end))
+end)
 
 -- A phone that appears in our inventory catches up on the drain it missed while lying around.
 Events.EveryOneMinute.Add(Util.safe("picked up phones", function()

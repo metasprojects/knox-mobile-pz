@@ -12,6 +12,7 @@
 -- so a scene never spawns twice through reloads, saves and players coming and going. A square that unloads before
 -- the scene settles leaves it armed for the next load.
 local Util = require "KnoxMobile/Game/Util"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local Scenes = { kinds = {}, order = {}, pending = {}, index = nil }
 local KEY = 100000          -- anchor square key: x * KEY + y
@@ -80,7 +81,7 @@ Events.LoadGridsquare.Add(Util.safe("story scene square", function(sq)
     end
 end))
 
-Events.OnTick.Add(Util.safe("story scene spawn", function()
+Tick.add("story scene spawn", function()
     if Util.isEmpty(Scenes.pending) then return end
     for key, p in pairs(Scenes.pending) do
         if p.ticks < SETTLE_TICKS then
@@ -91,6 +92,6 @@ Events.OnTick.Add(Util.safe("story scene spawn", function()
             if kind then Util.safe("story scene " .. p.name, kind.spawn)(p.id) end
         end
     end
-end))
+end)
 
 return Scenes

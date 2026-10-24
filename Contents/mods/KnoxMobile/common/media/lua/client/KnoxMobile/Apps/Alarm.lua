@@ -9,6 +9,7 @@ local Noise = require "KnoxMobile/Core/Noise"
 local Phones = require "KnoxMobile/Game/Phones"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 local ICONS = "media/ui/KnoxMobile/apps/"
@@ -346,7 +347,7 @@ local function playRing(player, r)
     end
 end
 
-Events.OnTick.Add(Util.safe("alarm ring", function()
+Tick.add("alarm ring", function()
     if Util.isEmpty(App.ringing) then return end
     local t = getTimestampMs()
     if t < App.nextPulse then return end
@@ -362,6 +363,6 @@ Events.OnTick.Add(Util.safe("alarm ring", function()
             if dx * dx + dy * dy <= HEAR * HEAR and math.abs(player:getZ() - r.z) < 3 then playRing(player, r) end
         end
     end
-end))
+end)
 
 return App

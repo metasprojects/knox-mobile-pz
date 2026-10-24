@@ -32,6 +32,16 @@ function Sim.isIssued(reg, number) return reg.issued[number] == true end
 function Sim.issuedCount(reg) return reg.count end
 
 -- "(AAA) 555-NNNN" from any string holding 10 digits (or 7 digits, with area code 502).
+-- Short numbers that dial (Core/Recordings): 911 and 411 directory assistance.
+Sim.SHORT = { ["911"] = true, ["411"] = true }
+
+-- A number the Phone app can dial: a normalised phone number or a short one; nil otherwise.
+function Sim.dialable(text)
+    local digits = tostring(text or ""):gsub("%D", "")
+    if Sim.SHORT[digits] then return digits end
+    return Sim.normalise(text)
+end
+
 function Sim.normalise(text)
     local digits = tostring(text or ""):gsub("%D", "")
     if #digits == 7 then digits = "502" .. digits end
@@ -44,8 +54,10 @@ function Sim.issueNumber(reg, rng)
     local capacity = UNIQUE_CODES * 10000
     if reg.count >= capacity then error("phone number space exhausted") end
     while true do
-        local number = "(" .. rng:pick(AREA_CODES) .. ") 555-" .. string.format("%04d", rng:int(0, 9999))
-        if not reg.issued[number] then
+        local line = rng:int(0, 9999)
+        local number = "(" .. rng:pick(AREA_CODES) .. ") 555-" .. string.format("%04d", line)
+        -- 555-0100 to 0199 are Knox County's businesses and lines (Core/Recordings), never a SIM.
+        if not reg.issued[number] and (line < 100 or line > 199) then
             reg.issued[number] = true
             reg.count = reg.count + 1
             return number

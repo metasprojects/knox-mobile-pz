@@ -1,12 +1,13 @@
--- Client: Map (R9 worklist, 2026-10-19), on the touch and smart phones. An offline map of what your phone knows: the
--- places your family's and the survivors' texts named (once those texts have reached you) and the nearest cell sites,
--- each with its distance and direction. A small dot map on top where the screen has room. Each row keeps its
--- distance and compass point (the name gives way); Enter opens the place in full (final test: names were cut, the
--- distance dropped and Enter did nothing).
+-- Client: Map (R9 worklist, 2026-10-19; live map 0.1.1), on the touch and smart phones. The game's world map centred
+-- on you (UI/MapView.lua), marked with what your phone knows: the places your family's and the survivors' texts named
+-- (once those texts have reached you) and the nearest cell sites. Up and Down zoom; Enter lists the places with their
+-- distance and direction, and Enter on one opens it in full. Where no world map can be made (tests, previews) the
+-- app shows the list under a small dot map, as before.
 local CellSites = require "KnoxMobile/Core/CellSites"
 local TowerSites = require "KnoxMobile/Data/TowerSites"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local MapView = require "KnoxMobile/UI/MapView"
 
 local T = Util.text
 local ICONS = "media/ui/KnoxMobile/apps/"
@@ -36,9 +37,13 @@ local function places(ctx)
     return out
 end
 
-local LABEL = { family = "IGUI_KnoxMobile_MapFamily", stash = "IGUI_KnoxMobile_MapStash", site = "IGUI_KnoxMobile_MapSite" }
-local ENGLISH = { family = "Family: %1", stash = "Survivor: %1", site = "Cell site %1" }
-local DOT = { family = { 1, 0.85, 0.2 }, stash = { 1, 0.45, 0.3 }, site = { 0.4, 0.7, 1 } }
+-- faction / raid: on a phone off a dead A-Life NPC (server FactionWire), its crew now and tonight's target.
+local LABEL = { family = "IGUI_KnoxMobile_MapFamily", stash = "IGUI_KnoxMobile_MapStash", site = "IGUI_KnoxMobile_MapSite",
+    faction = "IGUI_KnoxMobile_MapFaction", raid = "IGUI_KnoxMobile_MapRaid", home = "IGUI_KnoxMobile_MapHome" }
+local ENGLISH = { family = "Family: %1", stash = "Survivor: %1", site = "Cell site %1", faction = "Their crew: %1",
+    raid = "%1: tonight", home = "Take home: %1's phone" }
+local DOT = { family = { 1, 0.85, 0.2 }, stash = { 1, 0.45, 0.3 }, site = { 0.4, 0.7, 1 }, faction = { 0.75, 0.5, 1 },
+    raid = { 1, 0.15, 0.15 }, home = { 0.55, 0.9, 0.55 } }
 
 local function drawMap(ctx, list, x, y, w, h)
     ctx:rect(x, y, w, h, { 0.07, 0.12, 0.09 }, 1)
@@ -91,13 +96,29 @@ KnoxMobile.Apps.register({
     short = function() return T("IGUI_KnoxMobile_AppShortMap", "Map") end,
     families = FAMILIES, drain = "screen", needsService = false, order = 52,
     onOpen = function(ctx) Net.toServer(ctx.player, "mapPlaces", { phoneId = ctx.phone:getID() }) end,
+    onClose = function(ctx) MapView.hide(ctx.panel) end,
     render = function(ctx, x, y, w, h)
         local list = places(ctx)
         local d = ctx.data
-        if d.open and list[d.open] then drawPlace(ctx, list[d.open], x, y, w, h); return end
+        if d.open and list[d.open] then MapView.hide(ctx.panel); drawPlace(ctx, list[d.open], x, y, w, h); return end
         d.open = nil
+        local lh = ctx:lineHeight()
+        -- The live map, unless the list was asked for (or there is no world map here).
+        if not d.list then
+            local marks = {}
+            for _, p in ipairs(list) do marks[#marks + 1] = { x = p.x, y = p.y, color = DOT[p.kind] } end
+            local service = ctx.located ~= nil and ctx.located.network ~= nil and ctx.located.network ~= false
+            local note = not service and T("IGUI_KnoxMobile_MapOffline", "No service: only places you've been") or nil
+            if MapView.show(ctx, x + 1, y, w - 2, h - lh - 3, marks, note, service) then
+                d.live = true
+                ctx:text(T("IGUI_KnoxMobile_MapKeys", "Up/Down: zoom  Enter: places"), x + 3, y + h - lh - 1, ctx.style.accent)
+                return
+            end
+            d.live = false
+        end
+        MapView.hide(ctx.panel)
         local top = y
-        if h > 180 then
+        if not d.live and h > 180 then
             local mh = math.floor(math.min(w, h * 0.45))
             drawMap(ctx, list, x + 2, y, w - 4, mh)
             top = y + mh + 4
@@ -111,9 +132,18 @@ KnoxMobile.Apps.register({
     onInput = function(ctx, ev)
         local d = ctx.data
         if d.open then
-            if (ev.type == "key" and ev.key == "back") or ev.type == "tap" then d.open, d.keepBack = nil, false end
+            if (ev.type == "key" and ev.key == "back") or ev.type == "tap" then d.open = nil; d.keepBack = d.live == true end
             return true
         end
+        -- On the live map: Up and Down zoom, Enter (or a tap) lists the places; Back leaves the app.
+        if d.live and not d.list then
+            if ev.type == "key" and ev.key == "up" then MapView.zoomBy(ctx.panel.knoxMapView, 0.5)
+            elseif ev.type == "key" and ev.key == "down" then MapView.zoomBy(ctx.panel.knoxMapView, -0.5)
+            elseif (ev.type == "key" and ev.key == "select") or ev.type == "tap" then d.list, d.keepBack = true, true end
+            return true
+        end
+        -- The list: Back returns to the live map where there is one.
+        if d.list and ev.type == "key" and ev.key == "back" then d.list, d.keepBack = nil, false; return true end
         local chosen = ctx:listInput(ev, #places(ctx))
         if chosen then d.open, d.keepBack = chosen, true end
         return true

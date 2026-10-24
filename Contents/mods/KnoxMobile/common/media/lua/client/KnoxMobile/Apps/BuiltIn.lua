@@ -20,7 +20,7 @@ local ICONS = "media/ui/KnoxMobile/apps/" -- tools/art/make_app_icons.py: <id>.p
 -- A number, or a contact's name (the Messages app has its own copy in Apps/Messages.lua) ----------------
 local function askNumber(ctx, prompt, onNumber)
     ctx:askText(prompt, "", function(text)
-        local number = Sim.normalise(text)
+        local number = Sim.dialable(text)
         if not number and ctx.state.sim then
             -- A contact name works too.
             for _, c in ipairs(ctx.state.sim.contacts) do
@@ -226,7 +226,8 @@ KnoxMobile.Apps.register({
     onClose = function() KnoxMobile.Audio.stopRadio() end,
 })
 
--- Notes: mostly what found phones' owners left behind -------------------------------------------
+-- Notes: what found phones' owners left behind, your journal (server Journal.lua) on your own phone, and notes you
+-- write yourself: on any phone, so a phone left behind can carry a message for whoever finds it. Up/Down scroll.
 KnoxMobile.Apps.register({
     id = "notes", name = "Notes", icon = ICONS .. "notes.png", glyph = ICONS .. "notes_glyph.png",
     label = function() return T("IGUI_KnoxMobile_AppNotes", "Notes") end,
@@ -237,26 +238,41 @@ KnoxMobile.Apps.register({
         local d = ctx.data
         if d.open and notes[d.open] then
             local lh = ctx:lineHeight()
-            for i, l in ipairs(ctx:wrap(notes[d.open].body, w - 8)) do
-                if i * lh > h then break end
-                ctx:text(l, x + 3, y + (i - 1) * lh)
+            local lines = ctx:wrap(notes[d.open].body, w - 8)
+            local fits = math.max(1, math.floor(h / lh))
+            d.top = math.max(0, math.min(d.top or 0, #lines - fits))
+            for i = 1, fits do
+                local l = lines[d.top + i]
+                if l then ctx:text(l, x + 3, y + (i - 1) * lh) end
             end
             return
         end
         local items = {}
-        for _, n in ipairs(notes) do items[#items + 1] = { label = Format.ellipsis(n.body, 30) } end
-        if #items == 0 then items[1] = { label = T("IGUI_KnoxMobile_NoNotes", "No notes") } end
+        for _, n in ipairs(notes) do items[#items + 1] = { label = Format.ellipsis((n.body or ""):match("^[^\n]*"), 30) } end
+        if not ctx.state.security.locked then items[#items + 1] = { label = T("IGUI_KnoxMobile_WriteNote", "Write a note") } end
         ctx:list(items, x, y, w, h)
     end,
     onInput = function(ctx, ev)
         local d = ctx.data
         if d.open then
-            if (ev.type == "key" and ev.key == "back") or ev.type == "tap" then d.open, d.keepBack = nil, false end
+            if ev.type == "key" and ev.key == "up" then d.top = math.max(0, (d.top or 0) - 1)
+            elseif (ev.type == "key" and ev.key == "down") or (ev.type == "wheel" and ev.delta > 0) then d.top = (d.top or 0) + 1
+            elseif ev.type == "wheel" then d.top = math.max(0, (d.top or 0) - 1)
+            elseif (ev.type == "key" and ev.key == "back") or ev.type == "tap" then d.open, d.keepBack = nil, false end
             return true
         end
         local notes = ctx.state.contents.notes or {}
-        local chosen = ctx:listInput(ev, #notes)
-        if chosen then d.open, d.keepBack = chosen, true end
+        local writable = not ctx.state.security.locked
+        local chosen = ctx:listInput(ev, #notes + (writable and 1 or 0))
+        if chosen and chosen > #notes then
+            ctx:askText(T("IGUI_KnoxMobile_NotePrompt", "Note:"), "", function(text)
+                if text and text ~= "" then
+                    Net.toServer(ctx.player, "writeNote", { phoneId = ctx.phone:getID(), body = text:sub(1, 600) })
+                end
+            end, 600)
+        elseif chosen then
+            d.open, d.keepBack, d.top = chosen, true, 0
+        end
         return true
     end,
 })
@@ -318,6 +334,11 @@ local function settingsRows(ctx)
         rows[#rows + 1] = { id = "crew", label = T("IGUI_KnoxMobile_CrewSetting", "Find my crew: %1",
             st.crewShare and T("IGUI_KnoxMobile_On", "on") or T("IGUI_KnoxMobile_Off", "off")) }
     end
+    if st.sim and #st.sim.contacts > 0 then
+        rows[#rows + 1] = { id = "ice", label = T("IGUI_KnoxMobile_SetIce", "Emergency contact"),
+            short = T("IGUI_KnoxMobile_SetIceShort", "ICE"),
+            value = st.ice and st.ice.name or T("IGUI_KnoxMobile_None", "None") }
+    end
     rows[#rows + 1] = { id = "info", label = T("IGUI_KnoxMobile_SetBatteryHealth", "Battery health"),
         short = T("IGUI_KnoxMobile_SetBatteryHealthShort", "Batt. health"), value = math.floor(st.battery.health) .. "%" }
     rows[#rows + 1] = { id = "size", label = T("IGUI_KnoxMobile_SetSize", "Phone size"), short = T("IGUI_KnoxMobile_SetSizeShort", "Size"),
@@ -345,7 +366,9 @@ KnoxMobile.Apps.register({
             for i, x in ipairs(VOLUMES) do if math.abs(x - v) < 0.01 then nextV = VOLUMES[Mod.floor(i, #VOLUMES) + 1] end end
             ctx:setting("volume", nextV)
         elseif row.id == "route" then ctx:setting("audioRoute", ROUTE_NEXT[st.look.audioRoute or "speaker"])
-        elseif row.id == "ringtone" then ctx:setting("ringtone", st.look.ringtone == "chiptune" and "classic" or "chiptune")
+        elseif row.id == "ringtone" then
+            local nextTone = { classic = "chiptune", chiptune = st.look.tune and "custom" or "classic", custom = "classic" }
+            ctx:setting("ringtone", nextTone[st.look.ringtone or "classic"] or "classic")
         elseif row.id == "wallpaper" then
             local now = wallpaperShown(ctx)
             ctx:setting("wallpaper", MODERN[ctx.family] and (Mod.floor(now, WALLPAPERS) + 1) or (Mod.floor((now + 1), (WALLPAPERS + 1))))
@@ -357,6 +380,13 @@ KnoxMobile.Apps.register({
                 if text:match("^%d%d%d%d$") then ctx:setting("setPin", text)
                 else ctx:toast(T("IGUI_KnoxMobile_PinDigits", "A PIN is 4 digits")) end
             end, 4, true)
+        elseif row.id == "ice" then
+            -- The next contact, then none: shown on the lock screen for whoever finds this phone.
+            local contacts, nextNumber = st.sim and st.sim.contacts or {}, nil
+            local at = 0
+            for i, c in ipairs(contacts) do if st.ice and c.number == st.ice.number then at = i end end
+            if contacts[at + 1] then nextNumber = contacts[at + 1].number end
+            ctx:setting("ice", nextNumber)
         elseif row.id == "crew" then
             Net.toServer(ctx.player, "crewShare", { phoneId = ctx.phone:getID(), on = not st.crewShare })
         elseif row.id == "join" then

@@ -10,6 +10,7 @@ local Util = require "KnoxMobile/Game/Util"
 local Format = require "KnoxMobile/Core/Format"
 local Power = require "KnoxMobile/Core/Power"
 local Frames = require "KnoxMobile/Data/Frames"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
 
@@ -95,13 +96,19 @@ function UI.wrap(text, width, f)
     -- A little room to spare: zoomed text draws a few pixels wider than it measures (final test: "batteries" lost
     -- its last letter on the Cinderblock).
     width = width - math.max(3, math.floor(width * 0.04))
-    local lines, line = {}, ""
-    for word in tostring(text):gmatch("%S+") do
-        local try = line == "" and word or (line .. " " .. word)
-        if textW(try, f) <= width or line == "" then line = try
-        else lines[#lines + 1] = line; line = word end
+    -- Line breaks start a new line; an empty line stays empty (a journal's days, a note's paragraphs).
+    local lines = {}
+    for para in (tostring(text) .. "\n"):gmatch("(.-)\n") do
+        local line = ""
+        for word in para:gmatch("%S+") do
+            local try = line == "" and word or (line .. " " .. word)
+            if textW(try, f) <= width or line == "" then line = try
+            else lines[#lines + 1] = line; line = word end
+        end
+        lines[#lines + 1] = line
     end
-    if line ~= "" then lines[#lines + 1] = line end
+    while #lines > 1 and lines[#lines] == "" do lines[#lines] = nil end
+    if #lines == 1 and lines[1] == "" then return {} end
     return lines
 end
 
@@ -537,6 +544,9 @@ function Panel:drawLock(c, top)
     elseif result == "lockedOut" then msg = T("IGUI_KnoxMobile_LockedOutShort", "Locked out") end
     self.digits = true
     self.keypad = nil
+    local state = self:state()
+    -- The first locked dead person's phone this character tries: the whole PIN system in a real popup (UI.pinHelp).
+    if state.owner and state.owner.kind == "generated" then UI.wantPinHelp(self.player) end
     -- Small LCDs: one line, "PIN **__" (number keys type it).
     if c.h - top < 4 * lineH() + 8 then
         local line = (result == "wrong" or result == "lockedOut") and msg
@@ -555,6 +565,22 @@ function Panel:drawLock(c, top)
         c:text(i <= #self.pin and "*" or "_", c.w / 2 + (i - 2.5) * slotW, cy, nil, UIFont.Medium, "center")
     end
     cy = cy + fontH(UIFont.Medium) + 6
+    -- In case of emergency (Settings): who to tell, for whoever finds this phone.
+    local ice = state.ice
+    if ice then
+        c:text(Format.ellipsis(T("IGUI_KnoxMobile_IceLine", "ICE: %1 %2", ice.name, ice.number), math.max(8, math.floor((c.w - 8) / 7))),
+            c.w / 2, cy, nil, nil, "center")
+        cy = cy + lineH() + 4
+    elseif state.owner and state.owner.kind == "generated" then
+        -- A dead owner's phone: the way in, spelled out (Workshop: "is there a way to open them?"; Meta: "players
+        -- don't understand how the PIN system works"). Wrapped, never cut (PC test: "Their wallet may ho...").
+        for i, line in ipairs(UI.wrap(T("IGUI_KnoxMobile_LockHint", "PIN clue: their wallet"), c.w - 8)) do
+            if i > 2 then break end
+            c:text(line, c.w / 2, cy, nil, nil, "center")
+            cy = cy + lineH()
+        end
+        cy = cy + 4
+    end
     -- The keypad sits at the bottom of the screen; previews of the newest unread texts (spec §8.5) only use the room
     -- left between the PIN line and the keypad (PC test r5: they were drawn over its top row).
     local rowH = lineH() + 6
@@ -838,9 +864,57 @@ function Panel:followView()
     if VP and (VP.view() == "first") ~= (self.firstPerson == true) then UI.relayout = true end
 end
 
+-- The PIN system, explained once per character the first time they try a locked found phone (Meta, 2026-10-23: "needs
+-- a popup first time you try"). Opened from the game tick, not from inside the phone's draw. It takes the mouse so its
+-- OK works in Viewpoint's views too, then hands the mouse back to the phone.
+function UI.wantPinHelp(player)
+    if UI.pinHelp or not player then return end
+    local md = player:getModData()
+    if md.KnoxMobilePinHelp then return end
+    md.KnoxMobilePinHelp = true
+    UI.pinHelp = { player = player }
+end
+
+local function pinHelpText()
+    local lines = {
+        "<SIZE:medium> " .. T("IGUI_KnoxMobile_PinHelpTitle", "A dead person's phone") .. " <LINE> <SIZE:small> ",
+        T("IGUI_KnoxMobile_PinHelp1", "It's locked with the owner's 4-digit PIN. Look for it on their body:") .. " <LINE> ",
+        T("IGUI_KnoxMobile_PinHelp2", "- Their ID card may show a birthday: 'born 03/14/61' means the PIN is 0314 (month, day)."),
+        T("IGUI_KnoxMobile_PinHelp3", "- Or their wallet holds a scrap of paper with the 4 digits.") .. " <LINE> ",
+        T("IGUI_KnoxMobile_PinHelp4", "No clue? Right-click the phone: Try to crack the PIN."),
+        T("IGUI_KnoxMobile_PinHelp5", "Electrical skill helps; a fail locks it for an hour."),
+        T("IGUI_KnoxMobile_PinHelp6", "A dead phone needs charging and turning on first."),
+    }
+    return table.concat(lines, " <LINE> ")
+end
+
+Tick.add("pin help popup", function()
+    local want = UI.pinHelp
+    if not want or want.shown then return end
+    want.shown = true
+    local sw, sh = getCore():getScreenWidth(), getCore():getScreenHeight()
+    local box = ISModalRichText:new(sw / 2 - 260, sh / 2 - 120, 520, 240, pinHelpText(), false, nil, function()
+        -- OK: the game already removed the window; let go of the mouse too, so nothing invisible keeps it.
+        if UI.pinHelpBox then UI.pinHelpBox:setCapture(false) end
+        UI.pinHelpBox = nil
+        UI.pinHelp = nil
+        local p = UI.panel
+        if p then p.captured = nil; p.nextViewCheck = 0 end
+    end, want.player:getPlayerNum())
+    box:initialise()
+    box.chatText:paginate()
+    box:setHeightToContents()
+    box:setY(sh / 2 - box:getHeight() / 2)
+    box:setAlwaysOnTop(true)
+    box:addToUIManager()
+    box:bringToTop()
+    box:setCapture(true)
+    UI.pinHelpBox = box
+end)
+
 -- The middle mouse button switches first person between using the phone and walking and looking.
 UI.walk = false
-Events.OnTick.Add(Util.safe("phone walk mode", function()
+Tick.add("phone walk mode", function()
     local down = isMouseButtonDown(2)
     local pressed = down and not UI.middleWasDown
     UI.middleWasDown = down
@@ -851,7 +925,7 @@ Events.OnTick.Add(Util.safe("phone walk mode", function()
     KnoxMobile.Client.toast(UI.walk
         and T("IGUI_KnoxMobile_WalkMode", "Walk and look: numpad 8 4 6 2 move, 5 opens, 0 goes back. Middle mouse: use the phone.")
         or T("IGUI_KnoxMobile_UseMode", "Using the phone. Middle mouse: walk and look."))
-end))
+end)
 
 -- Walking and looking, the arrows and Enter drive the phone too, read straight from the keyboard (final test: they
 -- never reached the phone there; the numpad did).
@@ -861,7 +935,7 @@ local function walkKeys()
         [Keyboard.KEY_RIGHT] = "right", [Keyboard.KEY_RETURN] = "select" }
     return WALK_KEYS
 end
-Events.OnTick.Add(Util.safe("phone walk keys", function()
+Tick.add("phone walk keys", function()
     local p = UI.panel
     if not (p and UI.walk and p.firstPerson) or p.textBox then UI.walkHeld = nil; return end
     local held = UI.walkHeld or {}
@@ -875,14 +949,14 @@ Events.OnTick.Add(Util.safe("phone walk keys", function()
         end
         held[key] = down
     end
-end))
+end)
 
-Events.OnTick.Add(Util.safe("phone relayout", function()
+Tick.add("phone relayout", function()
     if not UI.relayout then return end
     UI.relayout = false
     local p = UI.panel
     if p then UI.reopen(p.player, p.item) end
-end))
+end)
 
 -- First person on a call (the phone at the ear): a small call bar instead of the phone.
 function Panel:fpCall()
@@ -1555,6 +1629,20 @@ function UI.open(player, item, keepHold)
     p:addToUIManager()
     p:bringToTop() -- above every other window, so its screen and keys get the clicks
     UI.panel = p
+    -- Immersive first person (Options): open straight into walking and looking, where the live 3D phone is the only
+    -- phone on screen. Without the live screen (no ZombieBuddy), or with the phone in the off hand (out of Viewpoint's
+    -- first-person view), the on-screen phone stays.
+    local Live = KnoxMobile.Live
+    if p.firstPerson and KnoxMobile.Options.immersive() and Live and Live.active() and not UI.walk
+        and player:getSecondaryHandItem() ~= item then
+        UI.walk = true
+        p.nextViewCheck = 0
+        if not UI.immersiveHinted then
+            UI.immersiveHinted = true
+            KnoxMobile.Client.toast(T("IGUI_KnoxMobile_WalkMode",
+                "Walk and look: numpad 8 4 6 2 move, 5 opens, 0 goes back. Middle mouse: use the phone."))
+        end
+    end
     local joypad = JoypadState.players[player:getPlayerNum() + 1]
     if joypad then setJoypadFocus(player:getPlayerNum(), p) end
 end

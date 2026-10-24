@@ -5,6 +5,8 @@
 local Mod = require "KnoxMobile/Core/Mod"
 local Rng = require "KnoxMobile/Core/Rng"
 local Names = require "KnoxMobile/Story/Names"
+local Story = require "KnoxMobile/Core/Story"
+local Voicemail = require "KnoxMobile/Core/Voicemail"
 local TowerSites = require "KnoxMobile/Data/TowerSites"
 
 local Machine = {}
@@ -41,30 +43,48 @@ function Machine.town(x, y)
     return best
 end
 
--- The tape on the phone at (x, y, z). Returns { resident, messages = { { code, day, minute, weekday, args } } },
--- oldest first; args = { resident's first name, caller, town }.
+-- Who leaves a message made from parts (Core/Voicemail), with the odds.
+Machine.CALLERS = { { "mom", 5 }, { "dad", 3 }, { "grandma", 2 }, { "sib", 2 }, { "partner", 2 }, { "friend", 5 },
+    { "work", 2 }, { "neighbor", 2 } }
+
+-- The tape on the phone at (x, y, z). Returns { resident, messages = { { code or text, day, minute, weekday, args } } },
+-- oldest first; args = { resident's first name, caller, town }. A message is one of the translated LINES (code) or one
+-- put together from parts (text, 0.2.0: up to five on a tape, so no two houses sound alike).
 function Machine.tape(x, y, z)
     local rng = Rng.new("machine:" .. tostring(x) .. "," .. tostring(y) .. "," .. tostring(z or 0))
     local female = rng:chance(0.5)
     local resident = rng:pick(female and Names.female or Names.male)
     local town = Machine.town(x, y)
-    local n = rng:weighted({ { 1, 4 }, { 2, 4 }, { 3, 2 } })
+    local n = rng:weighted({ { 1, 2 }, { 2, 4 }, { 3, 4 }, { 4, 3 }, { 5, 2 } })
     local pool = {}
     for i, l in ipairs(Machine.LINES) do pool[i] = l end
+    local function someone()
+        local name = rng:pick(rng:chance(0.5) and Names.female or Names.male)
+        while name == resident do name = rng:pick(Names.male) end
+        return name
+    end
     local out = {}
     for _ = 1, n do
-        local line = table.remove(pool, rng:int(1, #pool))
-        local caller
-        if line.who == "family" then caller = rng:pick(Machine.FAMILY)
-        elseif line.who == "friend" then
-            caller = rng:pick(rng:chance(0.5) and Names.female or Names.male)
-            while caller == resident do caller = rng:pick(Names.male) end
-        else caller = "" end
-        local day = rng:int(line.from, line.to)
+        local day, minute, msg
+        if #pool > 0 and rng:chance(0.35) then
+            local line = table.remove(pool, rng:int(1, #pool))
+            local caller
+            if line.who == "family" then caller = rng:pick(Machine.FAMILY)
+            elseif line.who == "friend" then caller = someone()
+            else caller = "" end
+            day = rng:int(line.from, line.to)
+            msg = { code = line.code, args = { resident, caller, town } }
+        else
+            local who = rng:weighted(Machine.CALLERS)
+            local caller = (who == "friend" or who == "work" or who == "neighbor") and someone() or ""
+            day = rng:int(-9, -2)
+            msg = { text = Voicemail.compose(rng, Story.fill, { who = who, phase = Voicemail.phaseFor(day), name = resident,
+                caller = caller, town = town }), args = { resident, caller, town } }
+        end
         -- The last day: the lines went down that morning.
-        local minute = day == -2 and rng:int(6 * 60, 11 * 60 - 1) or rng:int(8 * 60, 22 * 60)
-        out[#out + 1] = { code = line.code, day = day, minute = minute, weekday = Machine.weekday(day),
-            args = { resident, caller, town } }
+        minute = day == -2 and rng:int(6 * 60, 11 * 60 - 1) or rng:int(8 * 60, 22 * 60)
+        msg.day, msg.minute, msg.weekday = day, minute, Machine.weekday(day)
+        out[#out + 1] = msg
     end
     table.sort(out, function(a, b) return a.day * 1440 + a.minute < b.day * 1440 + b.minute end)
     return { resident = resident, messages = out }
