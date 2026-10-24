@@ -309,6 +309,6 @@ Tick.add("self-test", function()
         Util.log("SELFTEST DONE " .. passed .. " passed, " .. failed .. " failed")
         if KnoxMobile.Client then KnoxMobile.Client.toast(summary) end
     end
-end)
+end, 500)
 
 return SelfTest

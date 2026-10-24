@@ -81,18 +81,54 @@ local function face(f)
     BUMP = BUMP or { [UIFont.Small] = UIFont.Medium, [UIFont.Medium] = UIFont.Large }
     return BUMP[f] or f
 end
+-- Text measuring calls into the game's Java for every string, every frame the phone is open, and a word wrap measures
+-- word by word (0.2.1). Font heights and string widths are kept (UI.resetText empties them when the phone opens, so a
+-- changed font size is picked up), and wrapped lines too.
+local FONT_H, WIDTHS, WRAPS, counted = {}, {}, {}, 0
+function UI.resetText() FONT_H, WIDTHS, WRAPS, counted = {}, {}, {}, 0 end
+local function heightOf(f)
+    local h = FONT_H[f]
+    if not h then h = getTextManager():getFontHeight(f); FONT_H[f] = h end
+    return h
+end
+local function widthOf(f, s)
+    local byFont = WIDTHS[f]
+    if not byFont then byFont = {}; WIDTHS[f] = byFont end
+    local w = byFont[s]
+    if not w then
+        if counted > 4000 then UI.resetText(); byFont = {}; WIDTHS[f] = byFont end
+        w = getTextManager():MeasureStringX(f, s)
+        byFont[s], counted = w, counted + 1
+    end
+    return w
+end
 local function zoomFor(f)
     f = face(f)
     local cap = (f == UIFont.Medium and MAX_LINE.Medium) or (f == UIFont.Large and MAX_LINE.Large) or MAX_LINE.Small
-    return math.min(1, cap / getTextManager():getFontHeight(f))
+    return math.min(1, cap / heightOf(f))
 end
-local function fontH(f) return math.floor(getTextManager():getFontHeight(face(f)) * zoomFor(f)) end
+local function fontH(f) return math.floor(heightOf(face(f)) * zoomFor(f)) end
 local function lineH() return fontH(UIFont.Small) end
-local function textW(s, f) return getTextManager():MeasureStringX(face(f), s) * zoomFor(f) end
+local function textW(s, f) return widthOf(face(f), s) * zoomFor(f) end
 UI.zoomFor, UI.fontH, UI.textW = zoomFor, fontH, textW
 
--- Word wrap to a pixel width.
+local wrapLines
+
+-- Word wrap to a pixel width. Callers get their own copy of the kept lines (some add to them).
 function UI.wrap(text, width, f)
+    local key = tostring(text) .. "\1" .. width .. "\1" .. tostring(face(f))
+    local kept = WRAPS[key]
+    if not kept then
+        if counted > 4000 then UI.resetText() end
+        kept = wrapLines(text, width, f)
+        WRAPS[key], counted = kept, counted + 1
+    end
+    local out = {}
+    for i = 1, #kept do out[i] = kept[i] end
+    return out
+end
+
+wrapLines = function(text, width, f)
     -- A little room to spare: zoomed text draws a few pixels wider than it measures (final test: "batteries" lost
     -- its last letter on the Cinderblock).
     width = width - math.max(3, math.floor(width * 0.04))
@@ -910,7 +946,7 @@ Tick.add("pin help popup", function()
     box:bringToTop()
     box:setCapture(true)
     UI.pinHelpBox = box
-end)
+end, 100)
 
 -- The middle mouse button switches first person between using the phone and walking and looking.
 UI.walk = false
@@ -925,7 +961,7 @@ Tick.add("phone walk mode", function()
     KnoxMobile.Client.toast(UI.walk
         and T("IGUI_KnoxMobile_WalkMode", "Walk and look: numpad 8 4 6 2 move, 5 opens, 0 goes back. Middle mouse: use the phone.")
         or T("IGUI_KnoxMobile_UseMode", "Using the phone. Middle mouse: walk and look."))
-end)
+end, 30)
 
 -- Walking and looking, the arrows and Enter drive the phone too, read straight from the keyboard (final test: they
 -- never reached the phone there; the numpad did).
@@ -949,14 +985,14 @@ Tick.add("phone walk keys", function()
         end
         held[key] = down
     end
-end)
+end, 30)
 
 Tick.add("phone relayout", function()
     if not UI.relayout then return end
     UI.relayout = false
     local p = UI.panel
     if p then UI.reopen(p.player, p.item) end
-end)
+end, 100)
 
 -- First person on a call (the phone at the ear): a small call bar instead of the phone.
 function Panel:fpCall()
@@ -1623,6 +1659,7 @@ function UI.isOpen() return UI.panel ~= nil end
 -- keepHold: reopening (new size or side) with the phone already in hand.
 function UI.open(player, item, keepHold)
     if UI.panel then UI.close(keepHold) end
+    UI.resetText()
     if keepHold then KnoxMobile.Hold.phone = item else KnoxMobile.Hold.raise(player, item) end
     local p = KnoxMobilePhonePanel:new(player, item)
     p:initialise()

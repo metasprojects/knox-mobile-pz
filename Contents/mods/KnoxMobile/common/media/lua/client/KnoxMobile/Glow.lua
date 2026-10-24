@@ -46,6 +46,6 @@ Tick.add("screen glow", function()
             end
         end
     end
-end)
+end, 500)
 
 return Glow

@@ -61,7 +61,7 @@ Tick.add("payphone walk", function()
     if not p then return end
     if near(p.player, p.sq) then P.pending = nil; P.ask(p.player, p.sq)
     elseif getTimestampMs() > p.untilMs then P.pending = nil end
-end)
+end, 200)
 
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("payphone menu", function(playerNum, context, worldobjects, test)
     if test then return end

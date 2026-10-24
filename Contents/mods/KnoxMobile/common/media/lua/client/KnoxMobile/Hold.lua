@@ -3,6 +3,7 @@
 local Phones = require "KnoxMobile/Game/Phones"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local Tick = require "KnoxMobile/Game/Tick"
 
 local Hold = { phone = nil, activity = nil, onFloor = false, light = nil, lightAt = nil, nextCheck = 0 }
 KnoxMobile.Hold = Hold
@@ -149,8 +150,10 @@ function Hold.onCall()
     return call ~= nil and call.status ~= "incoming"
 end
 
-Events.OnPlayerUpdate.Add(Util.safe("hold phone", function(player)
-    if player ~= getPlayer() then return end
+-- Ten times a second is plenty for the arm poses and the hold checks (0.2.1: was OnPlayerUpdate, every frame).
+Tick.add("hold phone", function()
+    local player = getPlayer()
+    if not player then return end
     local onCall = Hold.onCall()
     if onCall ~= Hold.wasOnCall then
         Hold.wasOnCall = onCall
@@ -168,7 +171,7 @@ Events.OnPlayerUpdate.Add(Util.safe("hold phone", function(player)
     if t < Hold.nextCheck then return end
     Hold.nextCheck = t + CHECK_MS
     check(player)
-end))
+end, 100)
 
 Events.OnPlayerDeath.Add(Util.safe("hold phone death", function(player)
     if player ~= getPlayer() then return end

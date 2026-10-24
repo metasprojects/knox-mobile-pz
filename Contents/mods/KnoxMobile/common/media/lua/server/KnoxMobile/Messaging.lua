@@ -101,6 +101,17 @@ function Messaging.appendTo(state, with, entry, meta)
         if meta.name then conv.name = meta.name end
         conv.group, conv.carrier = meta.group or conv.group, meta.carrier or conv.carrier
     end
+    -- Photo texts count toward their photo's file (PhotoStore.ref), and stop counting when the thread drops them.
+    local store = KnoxMobile.PhotoStore
+    if store then
+        local photo = CameraSpec.parseText(entry.body)
+        if photo then store.ref(photo, 1) end
+        local drop = #conv.messages + 1 - MessageQueue.CONVERSATION_CAP
+        for i = 1, drop do
+            local old = conv.messages[i] and CameraSpec.parseText(conv.messages[i].body)
+            if old then store.ref(old, -1) end
+        end
+    end
     MessageQueue.appendToConversation(conv.messages, entry)
     return conv
 end
@@ -123,6 +134,7 @@ function Messaging.appendRecord(state, rec, day, minute)
         for _, p in ipairs(state.contents.photos) do if p.id == photoId then have = true end end
         if not have and #state.contents.photos < spec.max then
             table.insert(state.contents.photos, { id = photoId, text = caption, day = day, minute = minute, from = rec.from })
+            if KnoxMobile.PhotoStore then KnoxMobile.PhotoStore.ref(photoId, 1) end
         end
     end
     local entry = { day = day, minute = minute, inbound = true, unread = true, body = rec.body, from = rec.from,

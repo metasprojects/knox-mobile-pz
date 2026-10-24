@@ -59,7 +59,7 @@ function PhoneState.new(model, opts)
         state.battery.charge = rng:int(sandbox.FoundPhoneChargeMin, sandbox.FoundPhoneChargeMax)
         state.battery.health = rng:int(sandbox.FoundPhoneHealthMin, sandbox.FoundPhoneHealthMax)
         state.condition = rng:weighted(PhoneState.foundOdds(PhoneState.foundKind(model), sandbox))
-        state.security.locked = true
+        state.security.locked = sandbox.PinLocks ~= false -- sandbox "Phone PINs"
         state.owner = { kind = "generated", pending = true }
     elseif origin == "start" then
         state.battery.charge = rng:int(60, 100)

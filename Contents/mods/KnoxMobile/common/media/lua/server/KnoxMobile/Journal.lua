@@ -123,6 +123,6 @@ Tick.add("journal", function()
         local list = md.journal[Util.playerKey(player)]
         if list and #list > 0 then Journal.flush(player) end
     end
-end)
+end, 1000)
 
 return Journal

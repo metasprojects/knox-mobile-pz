@@ -134,7 +134,10 @@ local function endJob()
     Camera.bgJob, Camera.hideHeld = nil, nil
 end
 
-Events.OnPreUIDraw.Add(Util.safe("camera frame", function()
+-- Runs only while the Camera needs frames (0.2.1): the camera view tick below adds it while the Camera is open or a
+-- photo is on its way, and takes it off after (OnPreUIDraw would otherwise call in every frame of the game).
+local cameraFrame = Util.safe("camera frame", function()
+    if Tick.stats then Tick.count("camera frame") end
     Camera.frame = Camera.frame + 1
     local spec, shot = Camera.want, Camera.pendingShot
     Camera.want = nil
@@ -159,7 +162,7 @@ Events.OnPreUIDraw.Add(Util.safe("camera frame", function()
     if (shot.frames or 0) > 0 then shot.frames = shot.frames - 1; return end
     Camera.pendingShot = nil
     if done or hooked() then knoxLiveShutter(shot.id, shot.spec.levels or 0) end
-end))
+end)
 
 -- The selfie camera's face: the game's own character renderer (ISUI3DModel, as in the Make-up window), facing the
 -- lens, over the viewfinder. It only draws; taps go through to the phone.
@@ -265,8 +268,14 @@ local function steerView(p)
     Camera.nextCycle = now + 350
 end
 
+local framesOn = false
 Tick.add("camera view", function()
     local p = cameraOpen()
+    local need = p ~= nil or Camera.want ~= nil or Camera.pendingShot ~= nil or Camera.bgJob ~= nil
+    if need ~= framesOn then
+        framesOn = need
+        if need then Events.OnPreUIDraw.Add(cameraFrame) else Events.OnPreUIDraw.Remove(cameraFrame) end
+    end
     if (p ~= nil) ~= (Camera.wasOpen == true) then Camera.steps, Camera.wasOpen = 0, p ~= nil end
     steerView(p)
     -- When the open Camera got to first person (Camera.blocked waits a moment after it).
@@ -303,7 +312,7 @@ Tick.add("camera view", function()
         if Camera.lastPanel then dropFace(Camera.lastPanel) end
     end
     Camera.lastPanel = p
-end)
+end, 0)
 
 -- What the photo shows, in words: the town, the time, the weather, zombies in sight.
 function Camera.caption(player)
@@ -442,6 +451,6 @@ Tick.add("camera upload", function()
             Util.log("camera: photo", id, "never came back from the shutter")
         end
     end
-end)
+end, 100)
 
 return Camera

@@ -76,7 +76,7 @@ Tick.add("phone melody", function()
         m.at, m.i = m.at + n.ms, m.i + 1
     end
     if m.i > #m.notes then Audio.melody = nil end
-end)
+end, 30)
 
 function Audio.stopRing()
     if Audio.ring and Audio.ring.tune then Audio.melody = nil end
@@ -241,7 +241,7 @@ Tick.add("phone audio tick", function()
         local route = Audio.mode == "call" and Audio.route == "speaker" and "ear" or Audio.route
         pulse(Noise.radius({ route = route, volume = volume }, noiseSettings()))
     end
-end)
+end, 100)
 
 -- After a crash or quit the hidden radio and the borrowed trait are cleaned up.
 Events.OnGameStart.Add(Util.safe("phone audio cleanup", function()

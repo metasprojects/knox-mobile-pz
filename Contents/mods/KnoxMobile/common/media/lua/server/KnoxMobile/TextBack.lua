@@ -182,6 +182,6 @@ Tick.add("text back", function()
     for _, player in ipairs(Util.players()) do
         if not player:isDead() then TextBack.deliver(player) end
     end
-end)
+end, 1000)
 
 return TextBack

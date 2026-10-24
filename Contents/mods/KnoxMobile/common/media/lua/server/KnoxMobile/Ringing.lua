@@ -119,7 +119,7 @@ Tick.add("ringing", function()
         local rng = Rng.new("ring:" .. Util.playerKey(player) .. ":" .. tostring(t))
         if not player:isDead() and rng:chance(chance) then Ringing.ring(player, rng) end
     end
-end)
+end, 1000)
 
 Ringing.fit = fit
 return Ringing

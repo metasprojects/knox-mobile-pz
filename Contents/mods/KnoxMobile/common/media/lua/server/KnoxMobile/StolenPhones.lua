@@ -119,6 +119,6 @@ Tick.add("stolen phones", function()
     for _, player in ipairs(Util.players()) do
         if not player:isDead() then Stolen.check(player) end
     end
-end)
+end, 1000)
 
 return Stolen

@@ -8,7 +8,7 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.2.0, early access (released 2026-10-23): the world rings back, and Project A-Life compatibility.
+- **Version:** 0.2.1, early access (released 2026-10-24): lighter on the game, and a sandbox switch to turn phone PINs off.
 - **Made by:** Meta
 
 Players should install it from the Steam Workshop. This repository holds the mod exactly as it ships there.
@@ -46,7 +46,7 @@ Players should install it from the Steam Workshop. This repository holds the mod
 - **1993 extras:** payphones, a numeric pager, a car phone kit, repair magazines and a Cell Tower Technician
   occupation.
 - **Multiplayer:** the server has the final say. Admin broadcasts, classifieds, "find my crew" and SOS.
-- **Sandbox:** 50 options on six pages.
+- **Sandbox:** 51 options on six pages.
 
 | | |
 |---|---|
@@ -86,7 +86,7 @@ media/        screenshots for this page
 ```
 
 Under the hood: client/server Lua for Build 42's networked multiplayer, a small Java part loaded through ZombieBuddy
-for the live screen and the camera, scripted 3D models and textures, and 50 sandbox options. The build tools and
+for the live screen and the camera, scripted 3D models and textures, and 51 sandbox options. The build tools and
 test suite are kept separately.
 
 ## Bugs and feedback

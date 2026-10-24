@@ -242,6 +242,6 @@ end)
 Tick.add("alarm pulses", function()
     if isClient() then return end
     Alarms.pulse()
-end)
+end, 250)
 
 return Alarms

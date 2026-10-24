@@ -24,10 +24,18 @@ function Scenes.register(name, kind)
     if not Scenes.kinds[name] then Scenes.order[#Scenes.order + 1] = name end
     Scenes.kinds[name] = kind
     Scenes.index = nil
+    Scenes.listen(true)
 end
 
+-- The square hook only listens while a scene waits for its chunk (0.2.1: LoadGridsquare fires for every square the
+-- game loads, thousands a second when driving). Scenes.listen is set up with the events below.
+Scenes.listen = function() end
+
 -- Called when a scene is armed or set: the anchor index is rebuilt on the next square load.
-function Scenes.invalidate() Scenes.index = nil end
+function Scenes.invalidate()
+    Scenes.index = nil
+    Scenes.listen(true)
+end
 
 function Scenes.rebuild()
     local index = {}
@@ -63,25 +71,40 @@ function Scenes.freeInside(anchor, skip)
 end
 
 -- Events (server and single player only) ---------------------------------------------------------------
-local ready = false
+local ready, listening, idle = false, false, false
+local onSquare
+
+-- Added and removed here only, never from inside the hook itself (the game is mid-dispatch then): an empty index
+-- marks the hook idle, and the tick below takes it off.
+function Scenes.listen(on)
+    on = on and ready
+    idle = false
+    if on == listening then return end
+    listening = on
+    if on then Events.LoadGridsquare.Add(onSquare) else Events.LoadGridsquare.Remove(onSquare) end
+end
+
 Events.OnInitGlobalModData.Add(Util.safe("story scenes", function()
     ready = not isClient()
     Scenes.index = nil
+    Scenes.listen(true)
 end))
 
-Events.LoadGridsquare.Add(Util.safe("story scene square", function(sq)
+onSquare = Util.safe("story scene square", function(sq)
+    if Tick.stats then Tick.count("story scene square") end
     if not ready then return end
     local index = Scenes.index or Scenes.rebuild()
-    if Util.isEmpty(index) then return end
+    if Util.isEmpty(index) then idle = true; return end
     local list = index[sq:getX() * KEY + sq:getY()]
     if not list or sq:getZ() ~= 0 then return end
     for _, s in ipairs(list) do
         local key = s.name .. "\t" .. tostring(s.id)
         if not Scenes.pending[key] then Scenes.pending[key] = { name = s.name, id = s.id, ticks = 0 } end
     end
-end))
+end)
 
 Tick.add("story scene spawn", function()
+    if idle then Scenes.listen(false) end
     if Util.isEmpty(Scenes.pending) then return end
     for key, p in pairs(Scenes.pending) do
         if p.ticks < SETTLE_TICKS then
@@ -92,6 +115,6 @@ Tick.add("story scene spawn", function()
             if kind then Util.safe("story scene " .. p.name, kind.spawn)(p.id) end
         end
     end
-end)
+end, 0)
 
 return Scenes

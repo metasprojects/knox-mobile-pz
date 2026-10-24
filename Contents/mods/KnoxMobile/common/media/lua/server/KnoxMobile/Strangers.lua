@@ -56,6 +56,6 @@ Tick.add("strangers", function()
             end
         end
     end
-end)
+end, 1000)
 
 return World

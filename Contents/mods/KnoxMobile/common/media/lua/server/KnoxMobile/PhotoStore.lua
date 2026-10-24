@@ -6,6 +6,7 @@ local CameraSpec = require "KnoxMobile/Core/CameraSpec"
 local Phones = require "KnoxMobile/Game/Phones"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
+local State = require "KnoxMobile/State"
 
 local PhotoStore = {}
 KnoxMobile.PhotoStore = PhotoStore
@@ -39,6 +40,45 @@ function PhotoStore.read(id)
     return s ~= "" and s or nil
 end
 
+-- How many places show each photo (0.2.1): entries in a phone's Photos and texts that carry it, on every phone. At
+-- zero the file is emptied, so deleted photos stop taking disk space on the server. Only photos taken since 0.2.1 are
+-- counted (they start at 0 when written); older ones may be shown in places nobody counted and are never freed.
+local function refs()
+    local md = State.get()
+    if type(md.photoRefs) ~= "table" then md.photoRefs = {} end
+    return md.photoRefs
+end
+
+function PhotoStore.ref(id, delta)
+    local r = id and refs()
+    local n = r and r[id]
+    if n == nil then return end
+    n = n + delta
+    if n > 0 then r[id] = n; return end
+    r[id] = nil
+    PhotoStore.write(id, "")
+    Util.log("photo", id, "freed: nothing shows it any more")
+end
+
+-- Every photo a phone shows, once per place: its Photos list (a wallpaper is one of those) and its photo texts.
+function PhotoStore.idsOn(state)
+    local out = {}
+    local contents = state and state.contents or {}
+    for _, p in ipairs(contents.photos or {}) do if p.id then out[#out + 1] = p.id end end
+    for _, conv in ipairs(contents.texts or {}) do
+        for _, m in ipairs(conv.messages or {}) do
+            local id = CameraSpec.parseText(m.body)
+            if id then out[#out + 1] = id end
+        end
+    end
+    return out
+end
+
+-- A phone wiped or scrapped: everything it showed stops counting.
+function PhotoStore.release(state)
+    for _, id in ipairs(PhotoStore.idsOn(state)) do PhotoStore.ref(id, -1) end
+end
+
 -- A photo entry on a phone: false when the phone has no camera or its memory is full.
 function PhotoStore.add(state, model, entry)
     local spec = CameraSpec.forFamily(model.family)
@@ -47,6 +87,7 @@ function PhotoStore.add(state, model, entry)
     if #state.contents.photos >= spec.max then return false end
     for _, p in ipairs(state.contents.photos) do if p.id == entry.id then return true end end
     table.insert(state.contents.photos, entry)
+    PhotoStore.ref(entry.id, 1)
     return true
 end
 
@@ -82,12 +123,13 @@ Net.onServer("photoChunk", function(player, args)
         Net.toClient(player, "photoSaved", { id = args.id, ok = false, reason = "write", phoneId = u.meta.phoneId })
         return
     end
+    refs()[args.id] = refs()[args.id] or 0 -- counted from now on
     local item = u.meta.phoneId and Phones.findById(player, u.meta.phoneId)
     local state, model = item and Phones.get(item), item and Phones.model(item)
     local day, minute = require("KnoxMobile/Messaging").stamp()
     local ok = state and model and PhotoStore.add(state, model, { id = args.id, text = u.meta.text, day = day, minute = minute,
         w = u.meta.w, h = u.meta.h })
-    if ok then Phones.save(item, player) end
+    if ok then Phones.save(item, player) else PhotoStore.ref(args.id, 0) end -- on no phone: freed at once
     Util.log("photo", args.id, "saved", #data, "chars,", ok and "on the phone" or "phone full or gone")
     Net.toClient(player, "photoSaved", { id = args.id, ok = ok == true, phoneId = u.meta.phoneId })
 end)
@@ -103,15 +145,17 @@ Net.onServer("photoGet", function(player, args)
     end
 end)
 
--- Deleting a photo takes it off this phone; the file stays for other phones and texts that show it.
+-- Deleting a photo takes it off this phone; the file stays while other phones and texts still show it.
 Net.onServer("photoDelete", function(player, args)
     local item = Phones.findById(player, args.phoneId)
     local state = item and Phones.get(item)
     local list = state and state.contents.photos
     local i = tonumber(args.index)
     if not (list and i and list[i]) or (args.id and list[i].id ~= args.id) then return end
-    if list[i].id and state.look.wallpaperPhoto == list[i].id then state.look.wallpaperPhoto = nil end
+    local id = list[i].id
+    if id and state.look.wallpaperPhoto == id then state.look.wallpaperPhoto = nil end
     table.remove(list, i)
+    PhotoStore.ref(id, -1)
     Phones.save(item, player)
 end)
 

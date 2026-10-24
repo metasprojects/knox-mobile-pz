@@ -187,7 +187,7 @@ Tick.add("faction wire", function()
     local live = {}
     for _, player in ipairs(Util.players()) do if not player:isDead() then live[#live + 1] = player end end
     Wire.run(live)
-end)
+end, 1000)
 
 Wire.fill = fill
 return Wire

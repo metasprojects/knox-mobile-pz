@@ -224,7 +224,7 @@ Tick.add("answering machine walk", function()
     if not p then return end
     if near(p.player, p.sq) then M.pending = nil; fetch(p.player, p.sq)
     elseif getTimestampMs() > p.untilMs then M.pending = nil end
-end)
+end, 200)
 
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("answering machine menu", function(playerNum, context, worldobjects, test)
     if test then return end

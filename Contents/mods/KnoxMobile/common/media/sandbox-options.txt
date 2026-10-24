@@ -28,6 +28,14 @@ option KnoxMobile.StartWithOwnSim
     translation = KnoxMobile_StartWithOwnSim,
 }
 
+option KnoxMobile.PinLocks
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_PinLocks,
+}
+
 option KnoxMobile.RarityMultiplier
 {
     type = double,

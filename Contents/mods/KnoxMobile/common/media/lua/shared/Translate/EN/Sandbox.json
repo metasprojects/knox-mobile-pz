@@ -57,6 +57,8 @@
     "Sandbox_KnoxMobile_NetworkCongestion_tooltip": "Early on, calls sometimes fail with \"All circuits are busy\".",
     "Sandbox_KnoxMobile_NoiseMultiplier": "Phone noise",
     "Sandbox_KnoxMobile_NoiseMultiplier_tooltip": "Multiplies how far zombies hear phone speakers and ringtones.",
+    "Sandbox_KnoxMobile_PinLocks": "Phone PINs",
+    "Sandbox_KnoxMobile_PinLocks_tooltip": "Off: no phone is ever locked. Found phones open straight away (no PIN puzzles), and nobody can set a PIN.",
     "Sandbox_KnoxMobile_PowerBankCapacity": "Power bank capacity",
     "Sandbox_KnoxMobile_PowerBankCapacity_tooltip": "How many full modern-phone charges a power bank holds.",
     "Sandbox_KnoxMobile_PristineMidPhones": "Pristine found phones: 2003-2009",

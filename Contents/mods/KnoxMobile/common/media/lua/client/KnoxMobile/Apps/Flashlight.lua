@@ -143,7 +143,7 @@ Tick.add("flashlight", function()
         if not player:isDead() then checkLocal(player) end
     end
     if isClient() then checkRemote() end
-end)
+end, 250)
 
 -- Server replies -------------------------------------------------------------------------------------
 Net.onClient("flashlightResult", function(args)

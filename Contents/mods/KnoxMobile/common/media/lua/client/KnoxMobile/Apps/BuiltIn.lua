@@ -323,11 +323,14 @@ local function settingsRows(ctx)
         rows[#rows + 1] = { id = "saver", label = T("IGUI_KnoxMobile_SetSaver", "Battery saver"),
             short = T("IGUI_KnoxMobile_SetSaverShort", "Saver"), value = onOff(st.power.saver) }
     end
-    if st.security.pin then
-        rows[#rows + 1] = { id = "lock", label = T("IGUI_KnoxMobile_LockNow", "Lock now") }
-        rows[#rows + 1] = { id = "clearPin", label = T("IGUI_KnoxMobile_RemovePin", "Remove PIN") }
-    else
-        rows[#rows + 1] = { id = "setPin", label = T("IGUI_KnoxMobile_SetPin", "Set a PIN") }
+    -- Sandbox "Phone PINs" off: no PIN rows at all.
+    if Phones.pinsOn() then
+        if st.security.pin then
+            rows[#rows + 1] = { id = "lock", label = T("IGUI_KnoxMobile_LockNow", "Lock now") }
+            rows[#rows + 1] = { id = "clearPin", label = T("IGUI_KnoxMobile_RemovePin", "Remove PIN") }
+        else
+            rows[#rows + 1] = { id = "setPin", label = T("IGUI_KnoxMobile_SetPin", "Set a PIN") }
+        end
     end
     rows[#rows + 1] = { id = "join", label = T("IGUI_KnoxMobile_JoinNetworkShort", "Join network") }
     if Util.settings().FindMyCrew and st.sim then

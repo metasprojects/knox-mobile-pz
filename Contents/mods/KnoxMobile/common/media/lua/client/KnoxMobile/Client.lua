@@ -201,7 +201,7 @@ Tick.add("rings in the dark", function()
             if r.left <= 0 then table.remove(Client.ringsAt, i) end
         end
     end
-end)
+end, 100)
 
 Net.onClient("callEnd", function(args)
     if Client.payphoneCall and Client.payphoneCall.id == args.callId then Client.payphoneCall = nil end
@@ -278,7 +278,7 @@ Tick.add("scripted call", function()
             or T("IGUI_KnoxMobile_CallEnded", "Call ended"), "call")
         refresh()
     end
-end)
+end, 100)
 
 function Client.placeCall(phone, number)
     Client.dialingPhone = phone:getID()
@@ -354,7 +354,7 @@ Tick.add("new player (server)", function()
     newCharacterAt = nil
     local p = me()
     if p then Net.toServer(p, "newCharacter", {}) end
-end)
+end, 500)
 
 -- A phone that appears in our inventory catches up on the drain it missed while lying around.
 Events.EveryOneMinute.Add(Util.safe("picked up phones", function()

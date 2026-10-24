@@ -363,6 +363,6 @@ Tick.add("alarm ring", function()
             if dx * dx + dy * dy <= HEAR * HEAR and math.abs(player:getZ() - r.z) < 3 then playRing(player, r) end
         end
     end
-end)
+end, 250)
 
 return App

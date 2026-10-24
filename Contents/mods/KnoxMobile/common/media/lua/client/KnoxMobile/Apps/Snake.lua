@@ -260,7 +260,7 @@ Tick.add("snake movement", function()
     local panel = KnoxMobile.UI and KnoxMobile.UI.panel
     local playing = panel and panel.view == "app" and panel.appId == "snake" and panel.appData and panel.appData.mode == "play"
     if not playing or getTimestampMs() - (App.lastRender or 0) > 600 then block(nil, false) end
-end)
+end, 200)
 
 Events.OnPlayerDeath.Add(Util.safe("snake death", function() block(nil, false) end))
 

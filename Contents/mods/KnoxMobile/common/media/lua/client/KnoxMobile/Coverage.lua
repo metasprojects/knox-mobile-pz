@@ -131,7 +131,7 @@ Tick.add("hookup highlight", function()
         highlighted.floor:setHighlighted(false)
         highlighted = nil
     end
-end)
+end, 250)
 
 -- Is a generator standing in the hookup area (as this client sees it)? The server checks again.
 local function generatorHere(site)

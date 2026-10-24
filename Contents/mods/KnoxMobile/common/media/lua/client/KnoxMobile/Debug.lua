@@ -33,7 +33,7 @@ Tick.add("fake call", function()
     fakeCallUntil = nil
     KnoxMobile.Client.call = nil
     if KnoxMobile.Audio then KnoxMobile.Audio.endCall() end
-end)
+end, 100)
 
 local function phoneWithSim(player)
     for _, it in ipairs(Phones.inventoryPhones(player)) do
@@ -107,6 +107,12 @@ Events.OnFillWorldObjectContextMenu.Add(Util.safe("debug menu", function(playerN
     m:addOption(KnoxMobile.Hold.fakeSprint and "Pretend to sprint: turn off" or "Pretend to sprint (phone arm down)", nil, function()
         KnoxMobile.Hold.fakeSprint = not KnoxMobile.Hold.fakeSprint or nil
     end)
+    -- 0.2.1: how much Knox Mobile asks of the game, every 5 s in console.txt ("load: N calls/s ... busiest: ...").
+    m:addOption(Tick.stats and "Knox Mobile load readout: turn off" or "Knox Mobile load readout (console.txt, every 5 s)", nil,
+        function()
+            Tick.setStats(not Tick.stats)
+            KnoxMobile.Client.toast(Tick.stats and "Load readout on: see console.txt" or "Load readout off")
+        end)
     -- A pretend outgoing call for 30 s, to see the phone-to-ear pose without anyone to call (no network involved).
     m:addOption("Fake a call for 30 seconds (ear pose)", nil, function()
         if not KnoxMobile.UI.panel then KnoxMobile.UI.toggle(player) end

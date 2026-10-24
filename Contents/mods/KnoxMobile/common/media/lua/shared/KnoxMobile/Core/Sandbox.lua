@@ -8,6 +8,8 @@ Sandbox.OPTIONS = {
     { name = "StartingPhone", type = "enum", default = "FindOnly", page = "KnoxMobilePhones",
         values = { "FindOnly", "Random", "PickAtCreation" } },
     { name = "StartWithOwnSim", type = "boolean", default = true, page = "KnoxMobilePhones" },
+    -- Off: no phone is ever locked (Workshop request, 2026-10-24: "a sandbox setting to disable the password function").
+    { name = "PinLocks", type = "boolean", default = true, page = "KnoxMobilePhones" },
     { name = "RarityMultiplier", type = "double", default = 1, page = "KnoxMobilePhones", min = 0, max = 5 },
     -- How phones turn up (2026-10-19: all of these in the sandbox settings).
     { name = "HousePhones", type = "double", default = 1, page = "KnoxMobilePhones", min = 0, max = 10 },

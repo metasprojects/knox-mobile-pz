@@ -60,12 +60,28 @@ end
 
 -- The phone's state, created on first access (found phones get random charge, health, condition, a lock).
 -- Returns the live ModData table: change it, then call Phones.save(item, player).
+-- Sandbox "Phone PINs" (PinLocks). Read straight from SandboxVars: Phones.get runs often, Util.settings() is slow.
+function Phones.pinsOn()
+    local sv = SandboxVars and SandboxVars.KnoxMobile
+    return not (sv and sv.PinLocks == false)
+end
+
+local function unlockIfPinsOff(state)
+    local sec = state.security
+    if sec and (sec.locked or sec.pin) and not Phones.pinsOn() then
+        sec.locked, sec.pin, sec.failedAttempts, sec.lockoutUntil = false, nil, 0, nil
+    end
+    return state
+end
+
 function Phones.get(item)
     local model, color = Phones.model(item)
     if not model then return nil end
     local md = item:getModData()
     local raw = md[Phones.KEY]
-    if type(raw) == "table" and raw.schema == PhoneState.SCHEMA and type(raw.battery) == "table" then return raw, model end
+    if type(raw) == "table" and raw.schema == PhoneState.SCHEMA and type(raw.battery) == "table" then
+        return unlockIfPinsOff(raw), model
+    end
     local state = raw and PhoneState.migrate(raw)
     if not state then
         local origin = md.KnoxMobileOrigin or "found"
@@ -74,7 +90,7 @@ function Phones.get(item)
         state.lastTick = Util.nowMinutes()
     end
     md[Phones.KEY] = state
-    return state, model
+    return unlockIfPinsOff(state), model
 end
 
 -- Saves after a change. On a server the owner gets the new data.

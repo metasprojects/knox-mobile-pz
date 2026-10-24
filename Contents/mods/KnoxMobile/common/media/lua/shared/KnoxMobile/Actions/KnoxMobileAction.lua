@@ -359,6 +359,7 @@ Kinds.scrap = {
     end,
     complete = function(self)
         local state = Phones.get(self.item)
+        if KnoxMobile.PhotoStore then KnoxMobile.PhotoStore.release(state) end
         for _, part in ipairs(Damage.scrapYield(rngFor(self.item, "scrap"), state)) do
             local fullType = part.item == "ElectronicsScrap" and "Base.ElectronicsScrap" or ("KnoxMobile." .. part.item)
             for _ = 1, part.count do addItem(self.character, fullType) end
@@ -517,6 +518,7 @@ Kinds.wipe = {
     end,
     complete = function(self)
         local state = Phones.get(self.item)
+        if KnoxMobile.PhotoStore then KnoxMobile.PhotoStore.release(state) end
         state.contents = { texts = {}, calls = {}, voicemails = {}, notes = {} }
         state.owner = { kind = "player" }
         state.story = nil

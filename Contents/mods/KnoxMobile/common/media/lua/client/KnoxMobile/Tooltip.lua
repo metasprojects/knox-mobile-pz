@@ -159,6 +159,6 @@ Tick.add("phone tooltips", function()
     Tooltip.nextMs = t + REFRESH_MS
     local player = getPlayer()
     if player then refresh(player) end
-end)
+end, 250)
 
 return Tooltip

@@ -99,7 +99,7 @@ Tick.add("viewpoint keys", function()
         tick = 0
         pcall(Compat.view)
     end
-end)
+end, 30)
 
 -- Is Viewpoint showing its own view (first or third person)?
 function Compat.active() return Compat.view() ~= "isometric" end

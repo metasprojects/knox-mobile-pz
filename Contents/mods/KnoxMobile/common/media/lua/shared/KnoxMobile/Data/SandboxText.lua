@@ -13,6 +13,7 @@ return {
         EraLimit = { "Phone eras", "Which phones exist. 1993 only: just the brick phones of July 1993.", { "All eras", "1993 only" } },
         StartingPhone = { "Starting phone", "Whether characters start with a phone.",
             { "None (find one)", "Random phone", "Pick when you spawn" } },
+        PinLocks = { "Phone PINs", "Off: no phone is ever locked. Found phones open straight away (no PIN puzzles), and nobody can set a PIN." },
         StartWithOwnSim = { "Start with your own SIM", "Every character starts with their SIM card (and family contacts) in their wallet." },
         RarityMultiplier = { "Phone loot amount", "Multiplies how often phones and accessories spawn (everything below too)." },
         HousePhones = { "Phones in houses and cars",

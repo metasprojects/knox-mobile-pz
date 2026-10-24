@@ -224,14 +224,14 @@ Net.onServer("phoneSetting", function(player, args)
     elseif args.key == "soundMode" and SOUND_MODES[args.value] then
         state.look.soundMode = args.value
     elseif args.key == "setPin" then
-        if state.security.locked then return end
+        if state.security.locked or not Phones.pinsOn() then return end
         if args.value == nil or args.value == "" then
             state.security.pin = nil
         elseif type(args.value) == "string" and args.value:match("^%d%d%d%d$") then
             state.security.pin = args.value
         end
     elseif args.key == "lock" then
-        if state.security.pin then state.security.locked = true end
+        if state.security.pin and Phones.pinsOn() then state.security.locked = true end
     elseif args.key == "unlock" then
         -- The PIN pad only shows on a running phone. An off found phone has no PIN yet, so "unlock" would skip it.
         if not state.power.on then return end
@@ -443,7 +443,7 @@ Tick.add("dropped calls", function()
     if t < Server.dropCheckAt then return end
     Server.dropCheckAt = t + 10000
     Server.dropCalls(Rng.new("drop:" .. tostring(t)))
-end)
+end, 1000)
 
 Net.onServer("answerCall", function(player, args)
     local key = Util.playerKey(player)
@@ -894,6 +894,7 @@ end
 -- The PIN's clue on the body (Story.pinClue): the birth date on the ID card, or the digits on a scrap of paper in the
 -- wallet. The phone keeps the PIN for when it is first turned on.
 local function placePinClue(inv, phone, rng)
+    if not Phones.pinsOn() then return end
     local clue = Story.pinClue(rng)
     phone:getModData().KnoxMobilePin = clue.pin
     if clue.kind == "birthday" then
