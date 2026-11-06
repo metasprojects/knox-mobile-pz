@@ -17,6 +17,7 @@ local State = require "KnoxMobile/State"
 local Messaging = require "KnoxMobile/Messaging"
 local Social = require "KnoxMobile/SocialData"
 local GroupChats = require "KnoxMobile/GroupChats"
+local Burners = require "KnoxMobile/Burners"
 
 local CrewServer = {}
 
@@ -32,7 +33,7 @@ end
 local function groupNumbers(player, number)
     local out, seen = {}, { [number] = true }
     GroupChats.syncAuto(player)
-    for _, g in ipairs(Groups.forMember(Social.data().groups, number, Util.playerKey(player))) do
+    for _, g in ipairs(Groups.forMember(Social.data().groups, number, Burners.key(player, number))) do
         for _, n in ipairs(Groups.recipients(g, number, Social.numberOf)) do
             if not seen[n] then seen[n] = true; out[#out + 1] = n end
         end
@@ -61,11 +62,12 @@ Net.onServer("crewFind", function(player, args)
     local located = Messaging.service(player, model)
     if not located.network then return reply({ error = "noService" }) end
     local me = state.sim.number
+    if Burners.is(me) then return reply({ error = "burner" }) end
     local ax, ay = estimate(player, me, located.via)
     local list = {}
     for _, n in ipairs(groupNumbers(player, me)) do
         local p, _, st, m = Messaging.findNumber(n)
-        if p and p ~= player and st.crewShare and #list < Crew.MAX_LIST then
+        if p and p ~= player and st.crewShare and not Burners.is(n) and #list < Crew.MAX_LIST then
             local theirs = Messaging.service(p, m)
             if theirs.network then
                 local bx, by = estimate(p, n, theirs.via)

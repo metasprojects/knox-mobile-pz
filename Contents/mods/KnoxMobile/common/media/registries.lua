@@ -4,3 +4,10 @@
 if CharacterProfession and CharacterProfession.register then
     CharacterProfession.register("knoxmobile:celltowertechnician")
 end
+-- The same for each trait id (0.3.0), before its character_trait_definition.
+if CharacterTrait and CharacterTrait.register then
+    CharacterTrait.register("knoxmobile:chatterbox")
+    CharacterTrait.register("knoxmobile:tinkerer")
+    CharacterTrait.register("knoxmobile:tinkerer_prof")
+    CharacterTrait.register("knoxmobile:technophobe")
+end

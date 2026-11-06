@@ -1,5 +1,8 @@
 {
     "BuildCellRepeater": "Construir repetidor celular",
     "BuildCellRepeaterGuided": "Construir repetidor celular (paso a paso)",
-    "RebuildPhoneBatteryCell": "Reconstruir celda de batería de teléfono"
+    "BuildSignalBooster": "Construir un amplificador de señal celular",
+    "MakePhotoBoard": "Hacer un tablero de fotos",
+    "RebuildPhoneBatteryCell": "Reconstruir celda de batería de teléfono",
+    "WireSentryAlarm": "Cablear una alarma Knox Sentry"
 }

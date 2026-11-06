@@ -86,6 +86,8 @@ KnoxMobile.Apps.register({
     label = function() return T("IGUI_KnoxMobile_AppPhone", "Phone") end,
     short = function() return T("IGUI_KnoxMobile_AppShortPhone", "Phone") end,
     families = ALL, drain = "screen", needsService = true, order = 20,
+    -- 0.3.0: the two-way pager and the tablet carry texts only.
+    available = function(model) return not Registry.hasExtra(model, "noVoice") end,
     render = function(ctx, x, y, w, h)
         if KnoxMobile.world.voice == false then
             for i, l in ipairs(ctx:wrap(T("IGUI_KnoxMobile_callFailed_noVoice", "Calls are turned off on this server"), w - 8)) do
@@ -352,6 +354,16 @@ local function settingsRows(ctx)
         rows[#rows + 1] = { id = "crew", label = T("IGUI_KnoxMobile_CrewSetting", "Find my crew: %1",
             st.crewShare and T("IGUI_KnoxMobile_On", "on") or T("IGUI_KnoxMobile_Off", "off")) }
     end
+    -- 0.3.0: Knox Cloud (server/Cloud.lua): back up this phone, or bring a backup onto it.
+    if st.sim and not st.security.locked then
+        rows[#rows + 1] = { id = "cloudBackup", label = T("IGUI_KnoxMobile_CloudBackup", "Back up to Knox Cloud") }
+        rows[#rows + 1] = { id = "cloudRestore", label = T("IGUI_KnoxMobile_CloudRestore", "Restore from Knox Cloud") }
+    end
+    -- 0.3.0: a prepaid phone's minutes (read only; cards load from the right-click menu).
+    if require("KnoxMobile/Core/Airtime").isPrepaid(ctx.model) then
+        rows[#rows + 1] = { id = "airtime", label = T("IGUI_KnoxMobile_SetAirtime", "Airtime") .. ": "
+            .. T("IGUI_KnoxMobile_AirtimeLeft", "%1 min", require("KnoxMobile/Core/Airtime").minutes(st)) }
+    end
     if st.sim and #st.sim.contacts > 0 then
         rows[#rows + 1] = { id = "ice", label = T("IGUI_KnoxMobile_SetIce", "Emergency contact"),
             short = T("IGUI_KnoxMobile_SetIceShort", "ICE"),
@@ -378,14 +390,23 @@ KnoxMobile.Apps.register({
         local row = chosen and rows[chosen]
         if not row then return true end
         local st = ctx.state
-        if row.id == "sound" then ctx:setting("soundMode", SOUND_NEXT[st.look.soundMode] or "ring")
+        if row.id == "cloudBackup" or row.id == "cloudRestore" then
+            Net.toServer(ctx.player, row.id, { phoneId = ctx.phone:getID() })
+        elseif row.id == "sound" then
+            local nextMode = SOUND_NEXT[st.look.soundMode] or "ring"
+            -- 0.3.0: no vibrate before 1996 (Registry.canVibrate): the brick goes ring -> silent.
+            if nextMode == "vibrate" and not Registry.canVibrate(ctx.model) then nextMode = "silent" end
+            ctx:setting("soundMode", nextMode)
         elseif row.id == "volume" then
             local v, nextV = st.look.volume or 0.7, VOLUMES[1]
             for i, x in ipairs(VOLUMES) do if math.abs(x - v) < 0.01 then nextV = VOLUMES[Mod.floor(i, #VOLUMES) + 1] end end
             ctx:setting("volume", nextV)
         elseif row.id == "route" then ctx:setting("audioRoute", ROUTE_NEXT[st.look.audioRoute or "speaker"])
         elseif row.id == "ringtone" then
-            local nextTone = { classic = "chiptune", chiptune = st.look.tune and "custom" or "classic", custom = "classic" }
+            -- After 0.3.0: the maker's own tune (Core/BrandTones) comes between the chiptune and yours.
+            local brand = require("KnoxMobile/Core/BrandTones").forModel(ctx.model) and "brand" or nil
+            local mine = st.look.tune and "custom" or "classic"
+            local nextTone = { classic = "chiptune", chiptune = brand or mine, brand = mine, custom = "classic" }
             ctx:setting("ringtone", nextTone[st.look.ringtone or "classic"] or "classic")
         elseif row.id == "wallpaper" then
             local now = wallpaperShown(ctx)

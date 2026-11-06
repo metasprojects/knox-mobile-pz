@@ -25,7 +25,8 @@ local function rows(ctx)
     elseif not ctx.state.crewShare then
         out[#out + 1] = { id = "share", label = T("IGUI_KnoxMobile_CrewTurnOn", "Sharing is off: turn it on") }
     elseif result and result.error then
-        out[#out + 1] = { id = "refresh", label = SocialText.reason(result.error) }
+        out[#out + 1] = { id = "refresh", label = SocialText.reason(result.error),
+            short = result.error == "burner" and T("IGUI_KnoxMobile_WhyBurnerShort", "Burner SIM: off the grid") or nil }
     elseif not result then
         out[#out + 1] = { id = "refresh", label = T("IGUI_KnoxMobile_CrewLooking", "Looking...") }
     else

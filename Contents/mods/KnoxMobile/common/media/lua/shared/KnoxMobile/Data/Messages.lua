@@ -48,12 +48,40 @@ M.notify = {
         readCode = "You know how this kind of phone works now. Its factory lock code is %1" },
     bank = { plugged = "Power bank charging", unplugged = "Power bank unplugged", full = "Power bank full" },
     wipe = { done = "Phone wiped. It's yours now." },
+    airtime = { loaded = "Airtime loaded: %1 minutes" }, -- 0.3.0 (Core/Airtime)
+    cloud = { saved = "Backed up to Knox Cloud", restored = "Restored from Knox Cloud: %1 items",
+        down = "Knox Cloud is off the air", noService = "No service: Knox Cloud can't be reached",
+        empty = "Nothing in Knox Cloud for you" }, -- 0.3.0 (server/Cloud.lua)
+    sentry = { placed = "Knox Sentry %1 is armed: it texts your phone when something moves",
+        noNumber = "Knox Sentry %1 is set, but you have no phone number for it to text",
+        on = "Knox Sentry %1 armed", off = "Knox Sentry %1 turned off" }, -- 0.3.0 (server/Sentry.lua)
+    music = { added = "Added to the phone's music: %1", already = "Already on the phone: %1",
+        full = "The phone's music is full" }, -- 0.3.0 (server/Music.lua)
+    instant = { loaded = "Film loaded: %1 photos", notEmpty = "There's still film in it: %1 photos",
+        noFilm = "You need a film pack", empty = "Out of film", printed = "The photo slides out (%1 left)" }, -- 0.3.0
+    booster = { on = "Signal booster on: indoors nearby, no bar lost",
+        noPower = "Signal booster set down: it needs power (the grid or a generator)" }, -- 0.3.0 (server/Boosters.lua)
+    admin = { gotPhone = "An admin gave you a %1, a SIM card and a charger", gave = "Phone given to %1" }, -- server/AdminTools.lua
+    wknx = { onAir = "WKNX has your message. Listen for it", tooSoon = "WKNX takes one message an hour from you" },
+    towerCast = { sent = "Sent from the tower to %1 phones", offAir = "The tower isn't on the air",
+        tooFar = "Stand at the cell site to use its radios", tooSoon = "The tower's radios need %1 more minutes",
+        badText = "That text won't go out" }, -- server/TowerBroadcast.lua
+    machine = { linked = "The machine at home takes calls for %1 now", unlinked = "The machine stops taking calls for %1" },
+    photoBoard = { full = "The board is full: %1 photos" }, -- server/PhotoBoards.lua
+    franken = { fixed = "It lives! One working phone from two dead ones.",
+        failed = "It won't come together. The donor phone is spent." }, -- Frankenphone (KnoxMobileAction)
+    burner = { opened = "A blank burner SIM. Its number stays off Find my crew, group chats and the clans.",
+        snapped = "SIM snapped. %1 is out of service." }, -- server/Burners.lua
+    findPhone = { ringing = "Your phone is ringing about %1 tiles away. It's on your Map." }, -- server/FindPhone.lua
     callFailed = {
         noService = "No service", circuitsBusy = "All circuits are busy. Try again later.",
         noPhone = "This phone isn't in your inventory", noSim = "Insert a SIM card to call", phoneOff = "The phone is off",
         unreachable = "The number you dialed can't be reached", busy = "Line busy",
         notInService = "The number you have dialed is not in service.",
         self = "You can't call yourself", noVoice = "Calls are turned off on this server",
+        noAirtime = "Out of minutes. Load an airtime card.",
+        ringsOut = "It rings and rings. Nobody picks up.",
+        machine = "An answering machine picks up.",
         noPower = "The payphone is dead. No power.",
     },
 }
@@ -83,14 +111,15 @@ M.words = {
     -- Settings values.
     Sound = { ring = "Ring", vibrate = "Vibrate", silent = "Silent" },
     Route = { speaker = "Speaker", earbuds = "Earbuds", oneEarbud = "One earbud", headphones = "Headphones" },
-    Tone = { classic = "Classic", chiptune = "Chiptune", custom = "My tune" },
+    Tone = { classic = "Classic", chiptune = "Chiptune", custom = "My tune", brand = "Brand" },
     Size = { S = "Small", M = "Medium", L = "Large" },
     Side = { right = "Right", left = "Left" },
     Switch = { on = "On", off = "Off" },
     -- "Not sent: %1" (Messaging.sendText and Core/MessageQueue reasons)
     TextFail = { noService = "no service", phoneOff = "the phone is off", locked = "the phone is locked",
         unreachable = "they have no service", notPager = "that number isn't a pager",
-        notNumeric = "a pager shows numbers only", tooLong = "a page holds 20 digits at most", empty = "nothing to send" },
+        notNumeric = "a pager shows numbers only", tooLong = "a page holds 20 digits at most", empty = "nothing to send",
+        noAirtime = "out of minutes" },
     -- Answering machine tapes (Core/Machine): %1 the resident's first name, %2 who called, %3 the nearest town.
     -- June 30 to July 7 1993, oldest first; the zone's phone lines went down on July 7-8.
     Machine = {

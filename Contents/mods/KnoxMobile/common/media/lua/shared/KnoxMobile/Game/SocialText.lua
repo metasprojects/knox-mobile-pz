@@ -94,6 +94,7 @@ local CATEGORY = {
     wanted = function() return T("IGUI_KnoxMobile_CatWanted", "Wanted") end,
     services = function() return T("IGUI_KnoxMobile_CatServices", "Services") end,
     notices = function() return T("IGUI_KnoxMobile_CatNotices", "Notices") end,
+    bounty = function() return T("IGUI_KnoxMobile_CatBounty", "Bounties") end,
 }
 function S.category(c)
     local f = CATEGORY[c]
@@ -127,6 +128,7 @@ local REASON = {
     noPost = function() return T("IGUI_KnoxMobile_WhyNoPost", "That listing is gone") end,
     off = function() return T("IGUI_KnoxMobile_WhyCrewOff", "Find my crew is off on this server") end,
     notSharing = function() return T("IGUI_KnoxMobile_WhyNotSharing", "Turn on Find my crew in Settings first") end,
+    burner = function() return T("IGUI_KnoxMobile_WhyBurner", "A burner SIM: nobody can find you, and you can't find them") end,
 }
 
 -- wait: minutes or seconds to wait, for "tooSoon", "cooldown", "hourly".

@@ -23,7 +23,8 @@ local TILE_COLORS = {
 }
 -- The dock on modern phones, in order. Everything else goes in the grid.
 -- Dock candidates by priority; the first four a phone has sit in the dock (no FM tuner: Notes takes the Radio's place).
-local DOCK = { phone = 1, messages = 2, radio = 3, notes = 4, settings = 5 }
+-- 0.3.0: Map and Photos as later fallbacks, for the PearPad (no Phone, no Radio).
+local DOCK = { phone = 1, messages = 2, radio = 3, notes = 4, settings = 5, map = 6, photos = 7 }
 local DOCK_SIZE = 4
 Shells.DOCK = DOCK
 local WHITE = { 1, 1, 1 }
@@ -765,7 +766,7 @@ local function modern(pear)
                     c:text(Shells.shortLabel(app), tx + L.dockIcon / 2, ty + L.dockIcon + 1, WHITE, nil, "center")
                 end
                 d.items[#d.items + 1] = { key = app.id, app = app, x = tx, y = ty, w = L.dockIcon, h = L.dockIcon + L.dockLabel,
-                    cx = tx + L.dockIcon / 2, cy = ty + L.dockIcon / 2 }
+                    cx = tx + L.dockIcon / 2, cy = ty + L.dockIcon / 2, docked = true }
             end
             d.main, d.dockApps = main, dock
             -- The selection may have scrolled off this page (it lives on another page): keep it valid.

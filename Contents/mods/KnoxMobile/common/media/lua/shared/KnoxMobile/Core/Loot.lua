@@ -41,25 +41,30 @@ end
 
 -- A model's part of the found phones. sandbox.SmartphoneShare (percent, default 25) sets the smartphones' part of
 -- all found phones among the models that can spawn; the others keep their ratios.
+-- 0.3.0: the tablet (form "Tablet") isn't a phone you'd find in a pocket: a rare find of its own, outside the
+-- smartphones' share.
+local function smart(model) return SMART[model.family] == true and model.form ~= "Tablet" end
+
 function Loot.share(model, sandbox, models)
     local want = sandbox and sandbox.SmartphoneShare
+    if model.form == "Tablet" then return Loot.SHARE.rare end
     if not SMART[model.family] then
         if want and want >= 100 then return 0 end
         return Loot.SHARE[model.rarity] or 0.5
     end
     if not (want and models) then return Loot.SHARE.smart end
     if want <= 0 then return 0 end
-    local others, smart = 0, 0
+    local others, smartCount = 0, 0
     for _, m in ipairs(models) do
-        if SMART[m.family] then smart = smart + 1 else others = others + (Loot.SHARE[m.rarity] or 0.5) end
+        if smart(m) then smartCount = smartCount + 1 else others = others + Loot.share(m, nil, nil) end
     end
-    if smart == 0 then return 0 end
+    if smartCount == 0 then return 0 end
     if others == 0 or want >= 100 then return 1 end
     local f = want / 100
-    return f * others / (1 - f) / smart
+    return f * others / (1 - f) / smartCount
 end
 
-function Loot.isSmart(model) return SMART[model.family] == true end
+function Loot.isSmart(model) return smart(model) end
 
 -- Vanilla ProceduralDistributions lists (read from the 42.21 files, see B42_FINDINGS.md §9).
 local ACCESSORY_STORES = { "ElectronicStoreMisc", "CrateElectronics", "GigamartHouseElectronics" }
@@ -70,7 +75,7 @@ local RADIO_STORES = { "ElectronicStoreHAMRadio", "ElectronicStoreMisc" }
 local MAGAZINE_STORES = { "ElectronicStoreMagazines", "BookstoreMisc", "BookstoreBlueCollar", "CrateMagazines" }
 
 -- Accessories that did not exist in July 1993.
-local MODERN_KINDS = { cable = true, usbSource = true, audioGear = true, protector = true }
+local MODERN_KINDS = { cable = true, usbSource = true, audioGear = true, protector = true, simKit = true }
 local MODERN_CASES = { Battery = true, Waterproof = true }
 
 -- Does this accessory fit at least one phone that can spawn? Loot never hands out a charger, cable, case or audio
@@ -97,6 +102,8 @@ function Loot.fitsSomePhone(registry, a, phones, exactChargers)
             if p.family == a.family and p.removableBattery then return true end
         elseif a.kind == "batteryCharger" then
             if p.removableBattery then return true end
+        elseif a.kind == "airtime" then
+            for _, e in ipairs(p.extras or {}) do if e == "prepaid" then return true end end
         else
             return true
         end
@@ -152,11 +159,25 @@ function Loot.entries(registry, accessories, sandbox)
 
     local models, total = {}, 0
     for _, model in ipairs(registry:spawnable(sandbox)) do models[#models + 1] = model end
-    for _, model in ipairs(models) do total = total + Loot.share(model, sandbox, models) end
+    local rarityTotal = 0
+    for _, model in ipairs(models) do
+        total = total + Loot.share(model, sandbox, models)
+        rarityTotal = rarityTotal + (Loot.SHARE[model.rarity] or 0.5)
+    end
     local houses, boxes = sandbox.HousePhones or 1, sandbox.BoxedPhones or 1
     for _, model in ipairs(models) do
         local part = Loot.share(model, sandbox, models) / math.max(total, 0.0001) * mult
-        for list, budget in pairs(Loot.BOXED) do add(out, { list }, ItemIds.box(model), budget * part * boxes) end
+        -- 0.3.0: a phone with places of its own (model.loot = { lists = { list = weight }, only = true/false }): the sat
+        -- phone in army storage only, the rugged phone in camping stores too. Weights per color, times RarityMultiplier.
+        local own = type(model.loot) == "table" and model.loot or nil
+        if own then
+            for list, w in pairs(own.lists or {}) do
+                for _, color in ipairs(model.colors) do add(out, { list }, ItemIds.phone(model, color), w * mult / #model.colors) end
+            end
+        end
+        if own and own.only then part = 0 end
+        local boxPart = (own and own.only) and 0 or (Loot.SHARE[model.rarity] or 0.5) / math.max(rarityTotal, 0.0001) * mult
+        for list, budget in pairs(Loot.BOXED) do add(out, { list }, ItemIds.box(model), budget * boxPart * boxes) end
         for list, budget in pairs(Loot.LOOSE) do
             for _, color in ipairs(model.colors) do
                 add(out, { list }, ItemIds.phone(model, color), budget * part * houses / #model.colors)
@@ -185,13 +206,20 @@ function Loot.entries(registry, accessories, sandbox)
             local w = (a.rarity == "rare" and 1 or 4) * mult
             if a.kind == "magazine" then
                 add(out, MAGAZINE_STORES, a.id, w * 0.5)
+            elseif a.kind == "catalog" then
+                -- 0.3.0: dealers' catalogs: magazine racks, phone counters, kitchen drawers.
+                add(out, MAGAZINE_STORES, a.id, w * 0.5)
+                add(out, CASE_STORES, a.id, w * 0.5)
+                add(out, HOUSE_DRAWERS, a.id, w * 0.2)
             elseif a.kind == "case" or a.kind == "protector" then
                 add(out, CASE_STORES, a.id, w * 0.5)
             elseif a.kind == "part" then
                 if a.part == "transceiver" then add(out, RADIO_STORES, a.id, w) else add(out, ACCESSORY_STORES, a.id, w * 0.5) end
             elseif a.kind ~= "repeater" then
                 add(out, ACCESSORY_STORES, a.id, w)
-                local drawers = a.kind == "charger" or a.kind == "cable" or a.kind == "sim" or a.kind == "pager"
+                local drawers = a.kind == "charger" or a.kind == "cable" or a.kind == "sim" or a.kind == "pager" or a.kind == "airtime"
+                    or a.kind == "simKit"
+                    or a.kind == "instantCamera" or a.kind == "instantFilm"
                 if drawers then add(out, HOUSE_DRAWERS, a.id, w * 0.4) end
             end
         end

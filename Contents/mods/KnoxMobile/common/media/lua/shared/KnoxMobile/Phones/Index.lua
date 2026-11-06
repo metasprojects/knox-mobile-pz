@@ -8,4 +8,17 @@ return {
     require "KnoxMobile/Phones/ExpressoMusic5320",
     require "KnoxMobile/Phones/SupernovaIV",
     require "KnoxMobile/Phones/PearPhone4",
+    -- 0.3.0
+    require "KnoxMobile/Phones/Roadbag2900",
+    require "KnoxMobile/Phones/StarJack",
+    require "KnoxMobile/Phones/Banana8110",
+    require "KnoxMobile/Phones/Orbita9505",
+    require "KnoxMobile/Phones/Bramble850",
+    require "KnoxMobile/Phones/ChirpI90",
+    require "KnoxMobile/Phones/Cockroach1100",
+    require "KnoxMobile/Phones/SlicerV3",
+    require "KnoxMobile/Phones/TracPhone",
+    require "KnoxMobile/Phones/GoldenYearsEZ",
+    require "KnoxMobile/Phones/KaijuRockface",
+    require "KnoxMobile/Phones/PearPad",
 }

@@ -6,6 +6,86 @@ module KnoxMobile
         Base
     }
 
+    item Banana8110_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.141,
+        Icon = KnoxMobile_Banana8110_Black,
+        WorldStaticModel = KnoxMobile_Banana8110_Black,
+        StaticModel = KnoxMobile_Banana8110_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Banana8110_Yellow
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.141,
+        Icon = KnoxMobile_Banana8110_Yellow,
+        WorldStaticModel = KnoxMobile_Banana8110_Yellow,
+        StaticModel = KnoxMobile_Banana8110_Yellow,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Banana8110_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.441,
+        Icon = KnoxMobile_Banana8110_Box,
+        WorldStaticModel = KnoxMobile_Banana8110_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item Bramble850_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.13,
+        Icon = KnoxMobile_Bramble850_Black,
+        WorldStaticModel = KnoxMobile_Bramble850_Black,
+        StaticModel = KnoxMobile_Bramble850_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Bramble850_Grey
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.13,
+        Icon = KnoxMobile_Bramble850_Grey,
+        WorldStaticModel = KnoxMobile_Bramble850_Grey,
+        StaticModel = KnoxMobile_Bramble850_Grey,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Bramble850_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.43,
+        Icon = KnoxMobile_Bramble850_Box,
+        WorldStaticModel = KnoxMobile_Bramble850_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
     item BrambleBend2580_Black
     {
         DisplayCategory = Electronics,
@@ -58,6 +138,46 @@ module KnoxMobile
         Weight = 0.406,
         Icon = KnoxMobile_BrambleBend2580_Box,
         WorldStaticModel = KnoxMobile_BrambleBend2580_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item ChirpI90_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.16,
+        Icon = KnoxMobile_ChirpI90_Black,
+        WorldStaticModel = KnoxMobile_ChirpI90_Black,
+        StaticModel = KnoxMobile_ChirpI90_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item ChirpI90_Silver
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.16,
+        Icon = KnoxMobile_ChirpI90_Silver,
+        WorldStaticModel = KnoxMobile_ChirpI90_Silver,
+        StaticModel = KnoxMobile_ChirpI90_Silver,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item ChirpI90_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.46,
+        Icon = KnoxMobile_ChirpI90_Box,
+        WorldStaticModel = KnoxMobile_ChirpI90_Box,
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
@@ -128,6 +248,61 @@ module KnoxMobile
         Weight = 0.433,
         Icon = KnoxMobile_Cinderblock3301_Box,
         WorldStaticModel = KnoxMobile_Cinderblock3301_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item Cockroach1100_Blue
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.086,
+        Icon = KnoxMobile_Cockroach1100_Blue,
+        WorldStaticModel = KnoxMobile_Cockroach1100_Blue,
+        StaticModel = KnoxMobile_Cockroach1100_Blue,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Cockroach1100_Grey
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.086,
+        Icon = KnoxMobile_Cockroach1100_Grey,
+        WorldStaticModel = KnoxMobile_Cockroach1100_Grey,
+        StaticModel = KnoxMobile_Cockroach1100_Grey,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Cockroach1100_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.086,
+        Icon = KnoxMobile_Cockroach1100_Black,
+        WorldStaticModel = KnoxMobile_Cockroach1100_Black,
+        StaticModel = KnoxMobile_Cockroach1100_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Cockroach1100_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.386,
+        Icon = KnoxMobile_Cockroach1100_Box,
+        WorldStaticModel = KnoxMobile_Cockroach1100_Box,
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
@@ -226,6 +401,187 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
+    item GoldenYearsEZ_Red
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = KnoxMobile_GoldenYearsEZ_Red,
+        WorldStaticModel = KnoxMobile_GoldenYearsEZ_Red,
+        StaticModel = KnoxMobile_GoldenYearsEZ_Red,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item GoldenYearsEZ_Silver
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = KnoxMobile_GoldenYearsEZ_Silver,
+        WorldStaticModel = KnoxMobile_GoldenYearsEZ_Silver,
+        StaticModel = KnoxMobile_GoldenYearsEZ_Silver,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item GoldenYearsEZ_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.4,
+        Icon = KnoxMobile_GoldenYearsEZ_Box,
+        WorldStaticModel = KnoxMobile_GoldenYearsEZ_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item KaijuRockface_Olive
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.17,
+        Icon = KnoxMobile_KaijuRockface_Olive,
+        WorldStaticModel = KnoxMobile_KaijuRockface_Olive,
+        StaticModel = KnoxMobile_KaijuRockface_Olive,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item KaijuRockface_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.17,
+        Icon = KnoxMobile_KaijuRockface_Black,
+        WorldStaticModel = KnoxMobile_KaijuRockface_Black,
+        StaticModel = KnoxMobile_KaijuRockface_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item KaijuRockface_Orange
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.17,
+        Icon = KnoxMobile_KaijuRockface_Orange,
+        WorldStaticModel = KnoxMobile_KaijuRockface_Orange,
+        StaticModel = KnoxMobile_KaijuRockface_Orange,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item KaijuRockface_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.47,
+        Icon = KnoxMobile_KaijuRockface_Box,
+        WorldStaticModel = KnoxMobile_KaijuRockface_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item Orbita9505_Graphite
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.375,
+        Icon = KnoxMobile_Orbita9505_Graphite,
+        WorldStaticModel = KnoxMobile_Orbita9505_Graphite,
+        StaticModel = KnoxMobile_Orbita9505_Graphite,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Orbita9505_Olive
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.375,
+        Icon = KnoxMobile_Orbita9505_Olive,
+        WorldStaticModel = KnoxMobile_Orbita9505_Olive,
+        StaticModel = KnoxMobile_Orbita9505_Olive,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Orbita9505_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.675,
+        Icon = KnoxMobile_Orbita9505_Box,
+        WorldStaticModel = KnoxMobile_Orbita9505_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item PearPad_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.68,
+        Icon = KnoxMobile_PearPad_Black,
+        WorldStaticModel = KnoxMobile_PearPad_Black,
+        StaticModel = KnoxMobile_PearPad_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+        TorchCone = true,
+        TorchDot = 0.55,
+        LightDistance = 9,
+    }
+
+    item PearPad_White
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.68,
+        Icon = KnoxMobile_PearPad_White,
+        WorldStaticModel = KnoxMobile_PearPad_White,
+        StaticModel = KnoxMobile_PearPad_White,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+        TorchCone = true,
+        TorchDot = 0.55,
+        LightDistance = 9,
+    }
+
+    item PearPad_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.98,
+        Icon = KnoxMobile_PearPad_Box,
+        WorldStaticModel = KnoxMobile_PearPad_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
     item PearPhone4_Black
     {
         DisplayCategory = Electronics,
@@ -272,6 +628,101 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
+    item Roadbag2900_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.2,
+        Icon = KnoxMobile_Roadbag2900_Black,
+        WorldStaticModel = KnoxMobile_Roadbag2900_Black,
+        StaticModel = KnoxMobile_Roadbag2900_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Roadbag2900_Tan
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.2,
+        Icon = KnoxMobile_Roadbag2900_Tan,
+        WorldStaticModel = KnoxMobile_Roadbag2900_Tan,
+        StaticModel = KnoxMobile_Roadbag2900_Tan,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item Roadbag2900_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.5,
+        Icon = KnoxMobile_Roadbag2900_Box,
+        WorldStaticModel = KnoxMobile_Roadbag2900_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item SlicerV3_Silver
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.095,
+        Icon = KnoxMobile_SlicerV3_Silver,
+        WorldStaticModel = KnoxMobile_SlicerV3_Silver,
+        StaticModel = KnoxMobile_SlicerV3_Silver,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item SlicerV3_Pink
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.095,
+        Icon = KnoxMobile_SlicerV3_Pink,
+        WorldStaticModel = KnoxMobile_SlicerV3_Pink,
+        StaticModel = KnoxMobile_SlicerV3_Pink,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item SlicerV3_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.095,
+        Icon = KnoxMobile_SlicerV3_Black,
+        WorldStaticModel = KnoxMobile_SlicerV3_Black,
+        StaticModel = KnoxMobile_SlicerV3_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item SlicerV3_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.395,
+        Icon = KnoxMobile_SlicerV3_Box,
+        WorldStaticModel = KnoxMobile_SlicerV3_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
     item Soapbar6606_Silver
     {
         DisplayCategory = Electronics,
@@ -309,6 +760,46 @@ module KnoxMobile
         Weight = 0.422,
         Icon = KnoxMobile_Soapbar6606_Box,
         WorldStaticModel = KnoxMobile_Soapbar6606_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item StarJack_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.088,
+        Icon = KnoxMobile_StarJack_Black,
+        WorldStaticModel = KnoxMobile_StarJack_Black,
+        StaticModel = KnoxMobile_StarJack_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item StarJack_Graphite
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.088,
+        Icon = KnoxMobile_StarJack_Graphite,
+        WorldStaticModel = KnoxMobile_StarJack_Graphite,
+        StaticModel = KnoxMobile_StarJack_Graphite,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item StarJack_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.388,
+        Icon = KnoxMobile_StarJack_Box,
+        WorldStaticModel = KnoxMobile_StarJack_Box,
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
@@ -373,6 +864,46 @@ module KnoxMobile
         Weight = 0.43,
         Icon = KnoxMobile_SupernovaIV_Box,
         WorldStaticModel = KnoxMobile_SupernovaIV_Box,
+        Tooltip = Tooltip_KnoxMobile_Box,
+    }
+
+    item TracPhone_Black
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.09,
+        Icon = KnoxMobile_TracPhone_Black,
+        WorldStaticModel = KnoxMobile_TracPhone_Black,
+        StaticModel = KnoxMobile_TracPhone_Black,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item TracPhone_Grey
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.09,
+        Icon = KnoxMobile_TracPhone_Grey,
+        WorldStaticModel = KnoxMobile_TracPhone_Grey,
+        StaticModel = KnoxMobile_TracPhone_Grey,
+        AttachmentType = Walkie,
+        Tags = base:miscelectronic;base:hasmetal,
+        Tooltip = Tooltip_KnoxMobile_Phone,
+        secondaryAnimMask = KnoxPhoneHold,
+        primaryAnimMask = KnoxPhoneHoldRight,
+    }
+
+    item TracPhone_Box
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.39,
+        Icon = KnoxMobile_TracPhone_Box,
+        WorldStaticModel = KnoxMobile_TracPhone_Box,
         Tooltip = Tooltip_KnoxMobile_Box,
     }
 
@@ -454,6 +985,26 @@ module KnoxMobile
         Icon = KnoxMobile_SimCard,
         WorldStaticModel = KnoxMobile_SimCard,
         Tooltip = Tooltip_KnoxMobile_SimCard,
+    }
+
+    item PrepaidSimKit
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.02,
+        Icon = IDcard,
+        WorldStaticModel = IDcard,
+        Tooltip = Tooltip_KnoxMobile_PrepaidSimKit,
+    }
+
+    item AirtimeCard
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.01,
+        Icon = KnoxMobile_AirtimeCard,
+        WorldStaticModel = KnoxMobile_AirtimeCard,
+        Tooltip = Tooltip_KnoxMobile_AirtimeCard,
     }
 
     item WallChargerPin
@@ -716,6 +1267,86 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_ScreenProtector,
     }
 
+    item SentryAlarm
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.6,
+        Icon = HomeAlarm,
+        WorldStaticModel = HomeAlarm,
+        Tooltip = Tooltip_KnoxMobile_SentryAlarm,
+    }
+
+    item MagMountAntenna
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.4,
+        Icon = Wire,
+        WorldStaticModel = ElectricWireNew,
+        Tooltip = Tooltip_KnoxMobile_MagMountAntenna,
+    }
+
+    item SignalBooster
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2,
+        Icon = Amplifier,
+        WorldStaticModel = Amplifier,
+        Tooltip = Tooltip_KnoxMobile_SignalBooster,
+    }
+
+    item PhotoBoard
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2,
+        Icon = PhotoAlbum,
+        WorldStaticModel = PhotoAlbum,
+        Tooltip = Tooltip_KnoxMobile_PhotoBoard,
+    }
+
+    item Catalog
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.3,
+        Icon = Catalogue,
+        WorldStaticModel = Catalogue,
+        Tooltip = Tooltip_KnoxMobile_Catalog,
+    }
+
+    item InstantCamera
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.7,
+        Icon = Camera,
+        WorldStaticModel = Camera_Ground,
+        Tooltip = Tooltip_KnoxMobile_InstantCamera,
+    }
+
+    item InstantFilm
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.15,
+        Icon = CameraFilm,
+        WorldStaticModel = CameraFilm_Ground,
+        Tooltip = Tooltip_KnoxMobile_InstantFilm,
+    }
+
+    item InstantPhoto
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.01,
+        Icon = Photo_Landscape1,
+        WorldStaticModel = Photo_Landscape1,
+        Tooltip = Tooltip_KnoxMobile_InstantPhoto,
+    }
+
     item Repeater
     {
         DisplayCategory = Electronics,
@@ -796,6 +1427,16 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_CaseSlimM,
     }
 
+    item CaseSlimL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = KnoxMobile_CaseSlim,
+        WorldStaticModel = KnoxMobile_CaseSlim,
+        Tooltip = Tooltip_KnoxMobile_CaseSlimL,
+    }
+
     item CaseSlimXL
     {
         DisplayCategory = Electronics,
@@ -824,6 +1465,16 @@ module KnoxMobile
         Icon = KnoxMobile_CaseRugged,
         WorldStaticModel = KnoxMobile_CaseRugged,
         Tooltip = Tooltip_KnoxMobile_CaseRuggedM,
+    }
+
+    item CaseRuggedL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.12,
+        Icon = KnoxMobile_CaseRugged,
+        WorldStaticModel = KnoxMobile_CaseRugged,
+        Tooltip = Tooltip_KnoxMobile_CaseRuggedL,
     }
 
     item CaseRuggedXL
@@ -856,6 +1507,16 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_CaseWaterproofM,
     }
 
+    item CaseWaterproofL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = KnoxMobile_CaseWaterproof,
+        WorldStaticModel = KnoxMobile_CaseWaterproof,
+        Tooltip = Tooltip_KnoxMobile_CaseWaterproofL,
+    }
+
     item CaseWaterproofXL
     {
         DisplayCategory = Electronics,
@@ -884,6 +1545,16 @@ module KnoxMobile
         Icon = KnoxMobile_CaseWallet,
         WorldStaticModel = KnoxMobile_CaseWallet,
         Tooltip = Tooltip_KnoxMobile_CaseWalletM,
+    }
+
+    item CaseWalletL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = KnoxMobile_CaseWallet,
+        WorldStaticModel = KnoxMobile_CaseWallet,
+        Tooltip = Tooltip_KnoxMobile_CaseWalletL,
     }
 
     item CaseWalletXL
@@ -916,6 +1587,16 @@ module KnoxMobile
         Tooltip = Tooltip_KnoxMobile_CaseBatteryM,
     }
 
+    item CaseBatteryXL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = KnoxMobile_CaseBattery,
+        WorldStaticModel = KnoxMobile_CaseBattery,
+        Tooltip = Tooltip_KnoxMobile_CaseBatteryXL,
+    }
+
     item CaseBeltHolsterS
     {
         DisplayCategory = Electronics,
@@ -934,6 +1615,16 @@ module KnoxMobile
         Icon = KnoxMobile_CaseBeltHolster,
         WorldStaticModel = KnoxMobile_CaseBeltHolster,
         Tooltip = Tooltip_KnoxMobile_CaseBeltHolsterM,
+    }
+
+    item CaseBeltHolsterL
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = KnoxMobile_CaseBeltHolster,
+        WorldStaticModel = KnoxMobile_CaseBeltHolster,
+        Tooltip = Tooltip_KnoxMobile_CaseBeltHolsterL,
     }
 
     item CaseBeltHolsterXL

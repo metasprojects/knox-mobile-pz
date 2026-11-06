@@ -5,7 +5,7 @@
 local Mod = require "KnoxMobile/Core/Mod"
 local Classifieds = {}
 
-Classifieds.CATEGORIES = { "trade", "wanted", "services", "notices" }
+Classifieds.CATEGORIES = { "trade", "wanted", "services", "notices", "bounty" }
 Classifieds.MAX_TITLE = 40
 Classifieds.MAX_TEXT = 200
 Classifieds.MAX_ACTIVE = 3   -- live listings per player
@@ -26,6 +26,25 @@ function Classifieds.clean(text, max)
     local s = text:gsub("%c", " "):gsub("%s+", " "):gsub("^ ", ""):gsub(" $", "")
     if #s == 0 or #s > max then return nil end
     return s
+end
+
+-- Bounties (after 0.3.0): a "bounty" listing's title names a player; its text is the reward. When someone kills that
+-- player, the bounties on them (any of `names`, any case) come off the board and are returned, except the killer's own.
+function Classifieds.collect(board, names, killerKey)
+    local want = {}
+    for _, n in ipairs(names) do
+        if type(n) == "string" and n ~= "" then want[n:lower()] = true end
+    end
+    local keep, got = {}, {}
+    for _, p in ipairs(board.posts) do
+        if p.category == "bounty" and want[tostring(p.title):lower()] and p.key ~= killerKey then
+            got[#got + 1] = p
+        else
+            keep[#keep + 1] = p
+        end
+    end
+    board.posts = keep
+    return got
 end
 
 -- Drops listings past their end. Returns how many went.

@@ -41,6 +41,7 @@ end
 -- Early-outbreak "All circuits are busy" chance for a call (sandbox NetworkCongestion).
 function Towers.congestionChance(nowDay, settings)
     if not settings.networkCongestion then return 0 end
+    if nowDay < 0 then return 0 end -- before the outbreak (Week One): a normal network
     if nowDay < 3 then return 0.3 end
     if nowDay < 7 then return 0.15 end
     return 0.05

@@ -455,7 +455,8 @@ function Story.deadPhone(rng, id, opts)
         if id.job.key ~= "unemployed" then content.alarm = { minute = rng:int(5 * 60, 7 * 60), label = "shift" } end
     end
     -- Colour screens (2003 on) keep a camera roll: captions only (Core/Photos, the Photos app).
-    if Photos.FAMILIES[opts.family] then
+    -- opts.camera = false (0.3.0, the caller's Photos.fits(model)): no roll on a phone that never had a camera.
+    if Photos.FAMILIES[opts.family] and opts.camera ~= false then
         content.photos = Photos.roll(rng, { id.friend.label, id.family.sib.label, id.family.partner.label, Lang.t("Mom"),
             Lang.t("Dad") },
             { lastDay = deathDay })
@@ -492,7 +493,15 @@ function Story.familyPlan(rng, me, opts)
 
     -- When each member texts, and from which stage's list.
     local slots = {}
-    local function plan(member, day, stage) slots[#slots + 1] = { member = member, day = day, stage = stage } end
+    local function plan(member, day, stage, list)
+        slots[#slots + 1] = { member = member, day = day, stage = stage, list = list }
+    end
+    -- 0.3.0, Week One: a text on most of the days before the outbreak (opts.beforeDays, at most 7) from one of them.
+    for d = math.min(7, math.floor(opts.beforeDays or 0)), 1, -1 do
+        if rng:chance(0.7) then
+            plan(rng:pick(members), start - d + rng:range(0.3, 0.85), "before", d <= 3 and "beforeLate" or "before")
+        end
+    end
     if opts.site then plan(rng:pick(members), start + rng:range(0.2, 0.9), "gather") end
     for _, member in ipairs(members) do
         local fate = fates[member]
@@ -531,7 +540,7 @@ function Story.familyPlan(rng, me, opts)
     local used = {}
     for _, s in ipairs(slots) do
         local list = {}
-        for _, e in ipairs(T[s.stage]) do if fitsSite(e, group) then list[#list + 1] = e end end
+        for _, e in ipairs(T[s.list or s.stage]) do if fitsSite(e, group) then list[#list + 1] = e end end
         local entry = rng:pick(list)
         for _ = 1, 12 do
             if not used[entry] then break end

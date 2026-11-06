@@ -32,6 +32,14 @@ end
 add({ id = "SimCard", name = "SIM Card", kind = "sim", weight = 0.01, icon = "IDcard", model = "IDcard",
     tooltip = "Holds a phone number and contacts. Move it between phones." })
 
+-- A burner (server/Burners.lua): a blank SIM whose number stays off Find my crew, group chats and the clans.
+add({ id = "PrepaidSimKit", name = "Prepaid SIM Kit", kind = "simKit", weight = 0.02, icon = "IDcard", model = "IDcard",
+    tooltip = "A sealed SIM with a number nobody knows: Find my crew, group chats and clans can't trace it. Right-click: Open." })
+
+-- 0.3.0: prepaid airtime for the TracPhone (Core/Airtime): a scratch card, 60 minutes.
+add({ id = "AirtimeCard", name = "Airtime Card (60 min)", kind = "airtime", weight = 0.01, icon = "IDcard", model = "IDcard",
+    tooltip = "60 minutes for a TracPhone prepaid. Right-click the phone: Add airtime." })
+
 -- Chargers with their own plug (spec §6.4) -----------------------------------------------------
 for _, c in ipairs({ { "Pin", "pin" }, { "Flat", "flat" } }) do
     add({ id = "WallCharger" .. c[1], name = c[1] .. " Wall Charger", kind = "charger", setup = "integrated",
@@ -88,6 +96,38 @@ add({ id = "TransceiverBoard", name = "Transceiver Board", kind = "part", part =
     icon = "Receiver", model = "RadioReceiver_Ground", rarity = "rare", tooltip = "The heart of a cell repeater." })
 add({ id = "ScreenProtector", name = "Screen Protector", kind = "protector", weight = 0.01,
     icon = "IDcard", model = "IDcard", tooltip = "Absorbs the first crack." })
+
+-- 0.3.0: the Knox Sentry cellular motion alarm (Core/Sentry, server/Sentry.lua). Set down with a battery, it texts you.
+add({ id = "SentryAlarm", name = "Knox Sentry Motion Alarm", kind = "sentry", weight = 0.6, icon = "HomeAlarm",
+    model = "HomeAlarm", rarity = "rare",
+    tooltip = "Set it down with a battery in your bags: it texts your phone when something moves near it." })
+
+-- 0.3.0: a car-roof antenna (WorldModel.antenna): carried in a vehicle, every phone reaches farther.
+add({ id = "MagMountAntenna", name = "Mag-Mount Cellular Antenna", kind = "antenna", weight = 0.4, icon = "Wire",
+    model = "ElectricWireNew", rarity = "rare",
+    tooltip = "Stick it on the car roof: in a vehicle, your phone reaches towers from farther away. Keep it in your bags." })
+
+-- 0.3.0: a home signal booster (Core/Boosters): set down and powered, no bar lost indoors nearby.
+add({ id = "SignalBooster", name = "Cellular Signal Booster", kind = "booster", weight = 2, icon = "Amplifier",
+    model = "Amplifier", rarity = "rare",
+    tooltip = "Set it down at your base and give it power: indoors nearby, your phone keeps the outside signal." })
+
+-- A cork board for your base's instant photos (server/PhotoBoards.lua). Made, not found (KnoxMobile_Recipes.txt).
+add({ id = "PhotoBoard", name = "Photo Board", kind = "photoBoard", weight = 2, icon = "PhotoAlbum", model = "PhotoAlbum",
+    loot = false, tooltip = "Set it down at your base and pin your instant photos on it. Right-click the ground by it." })
+
+-- 0.3.0: a dealer's catalog of every phone in the county (client/Catalog.lua: Read the catalog).
+add({ id = "Catalog", name = "Knox Mobile Catalog", kind = "catalog", weight = 0.3, icon = "Catalogue",
+    model = "Catalogue", tooltip = "Every phone in the county, 1993 to 2013. Right-click: Read the catalog." })
+
+-- 0.3.0: the Pollux 600 instant camera (Core/Instant): film packs of ten, photos that print as items.
+add({ id = "InstantCamera", name = "Pollux 600 Instant Camera", kind = "instantCamera", weight = 0.7, icon = "Camera",
+    model = "Camera_Ground", rarity = "rare",
+    tooltip = "Load a film pack, and every photo slides out ready to keep, give away or set down somewhere." })
+add({ id = "InstantFilm", name = "Pollux 600 Film (10 Photos)", kind = "instantFilm", weight = 0.15, icon = "CameraFilm",
+    model = "CameraFilm_Ground", tooltip = "Ten instant photos. Right-click the camera: Load film." })
+add({ id = "InstantPhoto", name = "Instant Photo", kind = "instantPhoto", weight = 0.01, icon = "Photo_Landscape1",
+    model = "Photo_Landscape1", loot = false, tooltip = "Right-click: Look at the photo." })
 
 -- Cell repeater (spec §7.3) -------------------------------------------------------------------------
 add({ id = "Repeater", name = "Cell Repeater", kind = "repeater", weight = 6, icon = "HamRadioCivilian", model = "RadioReceiver_Ground",

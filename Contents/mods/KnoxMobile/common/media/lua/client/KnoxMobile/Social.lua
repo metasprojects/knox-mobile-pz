@@ -157,6 +157,7 @@ local function askBroadcast()
     box:initialise()
     box:addToUIManager()
 end
+Social.askBroadcast = askBroadcast -- the admin menu (client/KnoxMobile/Admin.lua) opens it too
 
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("carrier menu", function(playerNum, context, _, test)
     if test then return end

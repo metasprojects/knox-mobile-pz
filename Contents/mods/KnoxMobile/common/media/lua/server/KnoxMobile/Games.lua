@@ -21,4 +21,21 @@ Net.onServer("snakeScore", function(player, args)
     end
 end)
 
+-- 0.3.0: Brick Stack's best score (Apps/Blocks.lua), kept like Snake's: state.games.blocks.
+Net.onServer("blocksScore", function(player, args)
+    if type(args.phoneId) ~= "number" or type(args.score) ~= "number" then return end
+    local score = args.score
+    if score ~= math.floor(score) or score < 1 or score > 9999999 then return end
+    local item = Phones.findById(player, args.phoneId)
+    if not item or not Phones.isPhone(item) then return end
+    local state, model = Phones.get(item)
+    local family = state and Phones.registry:family(model.family)
+    if not (family and family.features and family.features.games) then return end
+    if type(state.games) ~= "table" then state.games = {} end
+    if score > (tonumber(state.games.blocks) or 0) then
+        state.games.blocks = score
+        Phones.save(item, player)
+    end
+end)
+
 return {}

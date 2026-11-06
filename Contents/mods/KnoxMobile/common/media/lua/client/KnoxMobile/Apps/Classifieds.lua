@@ -175,9 +175,14 @@ end
 
 -- Input ------------------------------------------------------------------------------------------
 local function newListing(ctx, category)
-    ctx:askText(T("IGUI_KnoxMobile_BoardTitle", "Title:"), "", function(title)
+    -- A bounty (after 0.3.0, server Board.bountyKill): the title is the player's name, the text the reward.
+    local bounty = category == "bounty"
+    local titlePrompt = bounty and T("IGUI_KnoxMobile_BountyWho", "Bounty on (their character's name):")
+        or T("IGUI_KnoxMobile_BoardTitle", "Title:")
+    local textPrompt = bounty and T("IGUI_KnoxMobile_BountyReward", "Reward:") or T("IGUI_KnoxMobile_BoardTextPrompt", "Listing text:")
+    ctx:askText(titlePrompt, "", function(title)
         if title == "" then return end
-        ctx:askText(T("IGUI_KnoxMobile_BoardTextPrompt", "Listing text:"), "", function(text)
+        ctx:askText(textPrompt, "", function(text)
             if text == "" then return end
             Social().request("boardPost", ctx.phone, { category = category, title = title:sub(1, Classifieds.MAX_TITLE),
                 text = text:sub(1, Classifieds.MAX_TEXT) })

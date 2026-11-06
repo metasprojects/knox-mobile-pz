@@ -67,6 +67,12 @@ local function forecast(offset)
     return ok and f or nil
 end
 
+-- 0.3.0: the Weather app's three days (Apps/Weather.lua): what the forecaster has for today, tomorrow and the day after.
+CarrierAlerts.forecast = forecast
+Net.onServer("weather", function(player)
+    Net.toClient(player, "weather", { days = { forecast(0) or false, forecast(1) or false, forecast(2) or false } })
+end)
+
 -- The facts Core/Alerts needs, from the game.
 function CarrierAlerts.context(settings)
     local gt = getGameTime()

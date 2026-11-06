@@ -22,7 +22,7 @@ end
 
 -- Whether `member` answers a text sent `now` (story days): in the first two days, while they're still texting
 -- (like a call's "talking", Core/FamilyCall), and not once their story has turned (dying, rescued, gone).
-local ANSWERING = { worry = true, gather = true, sick = true }
+local ANSWERING = { worry = true, gather = true, sick = true, before = true }
 function FamilyText.answers(plan, member, now)
     local stage, last = FamilyCall.status(plan, member, now)
     return ANSWERING[stage] == true and now < FamilyText.start(plan) + FamilyText.DAYS and now <= last + 0.5
@@ -114,6 +114,17 @@ FamilyText.ABOUT = {
 
 -- Then a line from where their story is (the stage of their latest text). Parents and the sibling talk differently.
 FamilyText.LINES = {
+    -- 0.3.0, Week One: answers in the week before the outbreak.
+    before = {
+        "I'm fine, just hot. Call your grandmother",
+        "We're okay here. [The news has everybody nervous|Your dad's glued to the TV]",
+        "Stay close to home this week, okay?",
+        "Don't worry about us. [We have plenty of food|We stocked up]",
+        "Love you. Be careful out there",
+        "Your aunt says hi. She's worried about you",
+        "It's probably nothing. Probably",
+        "Call your father, he won't say it but he worries",
+    },
     worry = {
         "Are you somewhere safe? Lock every door",
         "The TV just says stay inside. Nobody knows anything",
@@ -190,12 +201,14 @@ function FamilyText.reply(rng, plan, member, asked, now)
             and (group.needs == nil or any(group.needs)) and not (group.unless and any(group.unless))
         if fits and any(group.words) then about = group; break end
     end
+    if stage == "before" then about = nil end -- nothing has happened yet: just how their week is going
     local parts = {}
     if about then parts[1] = pick(rng, plan.placeTold and about.told or about.lines, plan) end
     -- A word on what you said, and often more; or just how things are.
     if not about or rng:chance(0.6) then
         local pool = FamilyText.LINES.worry
-        if stage == "sick" then pool = FamilyText.LINES.sick
+        if stage == "before" then pool = FamilyText.LINES.before
+        elseif stage == "sick" then pool = FamilyText.LINES.sick
         elseif plan.placeTold and (stage == "gather" or rng:chance(0.3)) then pool = FamilyText.LINES.gather
         elseif member == "sib" then pool = FamilyText.LINES.sibWorry end
         parts[#parts + 1] = pick(rng, pool, plan)

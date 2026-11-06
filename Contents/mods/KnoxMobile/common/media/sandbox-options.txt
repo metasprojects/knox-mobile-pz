@@ -366,6 +366,78 @@ option KnoxMobile.TowerRestore
     translation = KnoxMobile_TowerRestore,
 }
 
+option KnoxMobile.MapTowers
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_MapTowers,
+}
+
+option KnoxMobile.JobOffers
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_JobOffers,
+}
+
+option KnoxMobile.Dispatcher
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_Dispatcher,
+}
+
+option KnoxMobile.RaidWarnings
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_RaidWarnings,
+}
+
+option KnoxMobile.TrapTexts
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_TrapTexts,
+}
+
+option KnoxMobile.ClanTracking
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_ClanTracking,
+}
+
+option KnoxMobile.WelcomeTexts
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_WelcomeTexts,
+}
+
+option KnoxMobile.RingingLandlines
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_RingingLandlines,
+}
+
+option KnoxMobile.GlobalChat
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_GlobalChat,
+}
+
 option KnoxMobile.TowerFuelUse
 {
     type = double,
@@ -384,6 +456,14 @@ option KnoxMobile.RoofSignal
     default = 1,
     page = KnoxMobileService,
     translation = KnoxMobile_RoofSignal,
+}
+
+option KnoxMobile.WeatherSignal
+{
+    type = boolean,
+    default = true,
+    page = KnoxMobileService,
+    translation = KnoxMobile_WeatherSignal,
 }
 
 option KnoxMobile.CarrierAlerts

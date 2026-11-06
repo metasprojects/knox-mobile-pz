@@ -66,16 +66,17 @@ local function hooked()
 end
 Camera.hooked = hooked
 
--- The 4:3 piece of the picture to keep, as fractions from the top left: the middle in Viewpoint's views; in the
--- isometric view, what lies ahead of you.
-function Camera.piece(player)
+-- The 4:3 piece of the picture to keep (or `want`: the instant camera's square film is 1), as fractions from the top
+-- left: the middle in Viewpoint's views; in the isometric view, what lies ahead of you.
+function Camera.piece(player, want)
+    local a = want or (4 / 3)
     local sw, sh = getCore():getScreenWidth(), getCore():getScreenHeight()
     local aspect = sw / math.max(1, sh)
-    local cw, ch = math.min(1, (4 / 3) / aspect), math.min(1, aspect / (4 / 3))
+    local cw, ch = math.min(1, a / aspect), math.min(1, aspect / a)
     local cx, cy = (1 - cw) / 2, (1 - ch) / 2
     if view() == "isometric" then
         ch = 0.6
-        cw = math.min(1, ch * (4 / 3) / aspect)
+        cw = math.min(1, ch * a / aspect)
         local px, py = 0.5, 0.5
         if player then
             local ok, x, y = pcall(function()
@@ -93,25 +94,25 @@ function Camera.piece(player)
 end
 
 -- The older copy (no FrameHook): the world buffer, which way up it is, and the piece.
-function Camera.region(player)
+function Camera.region(player, want)
     local iso = view() == "isometric"
     local source, topDown = iso and "world" or "worldScreen", iso
     if Camera.source then source = Camera.source end
     if Camera.flip then topDown = not topDown end
-    return source, topDown, Camera.piece(player)
+    return source, topDown, Camera.piece(player, want)
 end
 
 -- Asks for a copy of the picture: with FrameHook it is made as the next UI pass starts (done = false); otherwise now,
 -- from the world buffer (done = true).
 local function copyFrame(target, spec, player)
     if hooked() then
-        knoxLiveCameraWant(target, spec.w, spec.h, Camera.piece(player))
+        knoxLiveCameraWant(target, spec.w, spec.h, Camera.piece(player, spec.aspect))
         return false
     end
     if target == "background" then
-        knoxLiveCameraBackground(spec.w, spec.h, Camera.region(player))
+        knoxLiveCameraBackground(spec.w, spec.h, Camera.region(player, spec.aspect))
     else
-        knoxLiveCameraFrame(spec.w, spec.h, Camera.region(player))
+        knoxLiveCameraFrame(spec.w, spec.h, Camera.region(player, spec.aspect))
     end
     return true
 end
@@ -234,6 +235,9 @@ end
 
 -- The Camera app is open (and the phone is on it). Runs every tick.
 local function cameraOpen()
+    -- 0.3.0: the instant camera's viewfinder counts too (client/InstantCamera.lua).
+    local inst = KnoxMobile.Instant and KnoxMobile.Instant.viewfinder
+    if inst and Camera.available() then return inst end
     local p = KnoxMobile.UI and KnoxMobile.UI.panel
     if not (p and p.view == "app" and p.appId == "camera" and Camera.available()) then return nil end
     return p
@@ -367,7 +371,7 @@ end
 -- Takes the photo with the phone's camera: the shutter in the next UI pass, the upload as soon as the JPEG is ready.
 -- A selfie first catches the world behind you again, then takes the viewfinder with your face.
 local shotCount = 0
-function Camera.shoot(player, phone, spec)
+function Camera.shoot(player, phone, spec, opts)
     -- The time, a random number and this session's count: two photos never share an id (and with it a file).
     shotCount = shotCount + 1
     local id = string.format("p%d-%d-%d", math.floor(getTimestampMs()), ZombRand(100000), shotCount)
@@ -381,8 +385,8 @@ function Camera.shoot(player, phone, spec)
         Camera.pendingShot = { id = id, spec = spec, frames = flashed and Camera.FLASH_FRAMES or 0 }
     end
     Camera.uploads[id] = { player = player, phoneId = phone:getID(), caption = caption, spec = spec,
-        part = 0, since = getTimestampMs() }
-    return id, flashed
+        part = 0, since = getTimestampMs(), instant = opts and opts.instant == true or nil }
+    return id, flashed, caption
 end
 
 -- The Camera app's left/right: the selfie camera on or off.
@@ -417,6 +421,7 @@ Net.onClient("photoChunk", function(args)
 end)
 
 Net.onClient("photoSaved", function(args)
+    if args.instant then return end -- the instant camera said its own word as the photo slid out
     if args.ok then
         KnoxMobile.Client.toast(T("IGUI_KnoxMobile_PhotoTaken", "Photo saved. See it in the Photos app"))
     elseif args.reason == "write" then
@@ -444,6 +449,7 @@ Tick.add("camera upload", function()
             local args = { id = id, part = u.part, parts = parts, data = data:sub((u.part - 1) * CHUNK + 1, u.part * CHUNK) }
             if u.part == 1 then
                 args.phoneId, args.caption, args.w, args.h = u.phoneId, u.caption, u.spec.w, u.spec.h
+                args.instant = u.instant -- 0.3.0: an instant photo, already printed (server/InstantPrints.lua)
             end
             Net.toServer(u.player, "photoChunk", args)
             if u.part >= parts then Camera.uploads[id] = nil end

@@ -18,6 +18,7 @@ KnoxMobile.Ringing = Ringing
 
 -- Chance a minute (real) that one rings near a player, by game day; none after two weeks.
 function Ringing.chance(day)
+    if day < 0 then return 0 end -- before the outbreak (Week One)
     if day < 3 then return 0.2 elseif day < 7 then return 0.12 elseif day < 14 then return 0.06 end
     return 0
 end
@@ -113,7 +114,7 @@ Tick.add("ringing", function()
     local t = getTimestampMs()
     if t < Ringing.nextAt then return end
     Ringing.nextAt = t + Ringing.CHECK_MS
-    local chance = Ringing.chance(Util.nowDay())
+    local chance = Ringing.chance(Util.sinceOutbreak())
     if chance <= 0 then return end
     for _, player in ipairs(Util.players()) do
         local rng = Rng.new("ring:" .. Util.playerKey(player) .. ":" .. tostring(t))
@@ -122,4 +123,20 @@ Tick.add("ringing", function()
 end, 1000)
 
 Ringing.fit = fit
+-- After 0.3.0: a house phone rang near a player (client/Landlines.lua): the dead hear it, and so does anyone near.
+Protocol.register({ landlineRang = function(args)
+    if not (tonumber(args.x) and tonumber(args.y) and tonumber(args.z)) then return false, "x, y, z" end
+    return true
+end })
+Net.onServer("landlineRang", function(player, args)
+    local x, y, z = math.floor(args.x), math.floor(args.y), math.floor(args.z)
+    if math.abs(player:getX() - x) > 30 or math.abs(player:getY() - y) > 30 then return end
+    pcall(addSound, nil, x, y, z, 20, 20)
+    for _, p in ipairs(Util.players()) do
+        if p ~= player and math.abs(p:getX() - x) <= Ringing.HEAR and math.abs(p:getY() - y) <= Ringing.HEAR then
+            Net.toClient(p, "ringAt", { x = x, y = y, z = z, rings = 8 })
+        end
+    end
+end)
+
 return Ringing

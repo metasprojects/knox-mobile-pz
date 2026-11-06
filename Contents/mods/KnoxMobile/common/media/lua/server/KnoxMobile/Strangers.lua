@@ -36,7 +36,9 @@ end
 function World.hour(player, rng)
     local mine = State.get().players[Util.playerKey(player)]
     if not (mine and mine.number) then return end
-    local wrong, rumor = Strangers.hourly(Util.nowDay())
+    local day = Util.sinceOutbreak()
+    if day < 0 then return end -- 0.3.0, Week One: the week before, strangers' texts would give the story away
+    local wrong, rumor = Strangers.hourly(day)
     -- At a minute of its own in the hour (0.2.4): every player's hour is rolled at the same moment.
     if rng:chance(wrong) then
         Messaging.queueStory(stranger(rng), mine.number, Strangers.wrong(rng), Util.nowMinutes() + rng:int(1, 59))

@@ -192,6 +192,15 @@ local function fetch(player, sq)
     Net.toServer(player, "machineGet", { x = sq:getX(), y = sq:getY(), z = sq:getZ() })
 end
 
+-- A call you made reached someone's machine: the greeting, the beep, and your message.
+Net.onClient("machinePickup", function(args)
+    local greeting = args.greeting or T("IGUI_KnoxMobile_MachineDefaultGreeting", "You've reached %1. Leave a message.", args.to)
+    if KnoxMobile.Client then KnoxMobile.Client.toast(greeting, "call") end
+    M.askText(T("IGUI_KnoxMobile_MachineLeaveTitle", "After the beep:"), function(text)
+        Net.toServer(getSpecificPlayer(0), "machineRemote", { text = text })
+    end)
+end)
+
 Net.onClient("machineData", function(args)
     local w = M.waiting
     if not (w and w.sq:getX() == args.x and w.sq:getY() == args.y) then return end
@@ -199,7 +208,7 @@ Net.onClient("machineData", function(args)
     M.open(w.player, w.sq, args)
 end)
 
-local function askText(title, onText)
+function M.askText(title, onText)
     local w, h = 360, 150
     local box = ISTextBox:new((getCore():getScreenWidth() - w) / 2, (getCore():getScreenHeight() - h) / 2, w, h, title, "", nil,
         function(_, button)
@@ -239,20 +248,40 @@ Events.OnFillWorldObjectContextMenu.Add(Util.safe("answering machine menu", func
     if not phone then return end
     local sq = phone:getSquare()
     local at = { x = sq:getX(), y = sq:getY(), z = sq:getZ() }
+    -- After 0.3.0: a house phone ringing right now (client/Landlines.lua).
+    local LL = KnoxMobile.Landlines
+    if LL and LL.isRinging(sq) then
+        context:addOption(T("IGUI_KnoxMobile_AnswerLandline", "Answer the phone"), nil, function() LL.answer(sq) end)
+    end
     local options = {
         context:addOption(T("IGUI_KnoxMobile_MachinePlay", "Play messages"), nil, function() M.play(player, sq) end),
         -- Your own machine (0.2.0): a greeting for whoever comes, and messages for whoever lives here.
         context:addOption(T("IGUI_KnoxMobile_MachineLeave", "Leave a message on the machine"), nil, function()
-            askText(T("IGUI_KnoxMobile_MachineLeaveTitle", "After the beep:"), function(text)
+            M.askText(T("IGUI_KnoxMobile_MachineLeaveTitle", "After the beep:"), function(text)
                 Net.toServer(player, "machineLeave", { x = at.x, y = at.y, z = at.z, text = text })
             end)
         end),
         context:addOption(T("IGUI_KnoxMobile_MachineRecord", "Record a greeting"), nil, function()
-            askText(T("IGUI_KnoxMobile_MachineRecordTitle", "Your greeting:"), function(text)
+            M.askText(T("IGUI_KnoxMobile_MachineRecordTitle", "Your greeting:"), function(text)
                 Net.toServer(player, "machineGreeting", { x = at.x, y = at.y, z = at.z, text = text })
             end)
         end),
     }
+    -- After 0.3.0: take my calls here (server/Machines.lua), for the phone in your hand or the first with a SIM.
+    local Phones = require "KnoxMobile/Game/Phones"
+    local mine
+    for _, it in ipairs(Phones.inventoryPhones(player)) do
+        local st = Phones.get(it)
+        if st and st.sim and st.sim.number then mine = mine or it end
+    end
+    local link = context:addOption(T("IGUI_KnoxMobile_MachineLink", "Take my calls here"), nil, function()
+        Net.toServer(player, "machineLink", { x = at.x, y = at.y, z = at.z, phoneId = mine:getID() })
+    end)
+    local unlink = context:addOption(T("IGUI_KnoxMobile_MachineUnlink", "Stop taking my calls here"), nil, function()
+        Net.toServer(player, "machineLink", { x = at.x, y = at.y, z = at.z, phoneId = mine:getID(), off = true })
+    end)
+    if not mine then link.notAvailable, unlink.notAvailable = true, true end
+    options[#options + 1] = link
     if not Util.powered(sq) then
         for _, option in ipairs(options) do
             option.notAvailable = true

@@ -16,6 +16,7 @@ local ItemIds = require "KnoxMobile/ItemIds"
 local Messages = require "KnoxMobile/Data/Messages"
 local Replies = require "KnoxMobile/Core/Replies"
 local Clues = require "KnoxMobile/Core/Clues"
+local Traits = require "KnoxMobile/Game/Traits"
 
 KnoxMobileAction = ISBaseTimedAction:derive("KnoxMobileAction")
 local Kinds = {}
@@ -63,9 +64,10 @@ local function hasScrewdriver(character) return Phones.hasScrewdriver(character)
 -- The second item has to be what the kind needs: the server rebuilds actions from what a client sends.
 local function isType(item, fullType) return item ~= nil and item:getFullType() == fullType end
 
+-- The Electrical level phone work (cracking a PIN, repairs) is done at: Tinkerer adds, Technophobe takes away (0.3.0).
 local function electrical(character)
     local ok, level = pcall(function() return character:getPerkLevel(Perks.Electricity) end)
-    return ok and level or 0
+    return Traits.phoneSkill(character, ok and level or 0)
 end
 
 local function phoneOn(item)
@@ -131,6 +133,7 @@ Kinds.ejectSim = {
         end)
         if not simItem then return end
         state.sim = nil
+        if KnoxMobile.FindPhone then KnoxMobile.FindPhone.forget(sim.number) end
     end,
 }
 
@@ -280,6 +283,44 @@ Kinds.repair = {
     end,
 }
 
+-- Frankenphone (after 0.3.0): a dead phone and a donor of the same family make one working phone. The donor goes
+-- either way; its SIM comes back.
+local function sameFamily(a, b)
+    local _, ma = Phones.get(a)
+    local _, mb = Phones.get(b)
+    return ma ~= nil and mb ~= nil and ma.family == mb.family, ma ~= nil and mb ~= nil and ma.id == mb.id
+end
+
+Kinds.frankenphone = {
+    time = function(self) return math.max(250, 600 - 30 * electrical(self.character)) end,
+    valid = function(self)
+        local state = Phones.get(self.item)
+        local donor = self.other and Phones.get(self.other)
+        if not (state and donor and self.other ~= self.item and Damage.isDead(state)) then return false end
+        if state.power.on or donor.power.on or not hasScrewdriver(self.character) then return false end
+        return sameFamily(self.item, self.other) and carried(self.character, self.other)
+    end,
+    complete = function(self)
+        local state, model = Phones.get(self.item)
+        local donor = Phones.get(self.other)
+        local _, same = sameFamily(self.item, self.other)
+        local known = knownFamilies(self.character)[model.family] == true
+        local result = Damage.frankenphone(rngFor(self.item, "franken"), state, donor, electrical(self.character), known, same)
+        if donor.sim then
+            local sim = donor.sim
+            addItem(self.character, "KnoxMobile.SimCard", function(it)
+                it:getModData()[Phones.KEY] = sim
+                Phones.nameSim(it, sim.number)
+            end)
+        end
+        if KnoxMobile.PhotoStore then KnoxMobile.PhotoStore.release(donor) end
+        removeItem(self.other)
+        if result ~= "fixed" then addItem(self.character, "Base.ElectronicsScrap") end
+        pcall(function() addXp(self.character, Perks.Electricity, result == "fixed" and 8 or 4) end)
+        tell(self.character, { kind = "franken", event = result, phoneId = self.item:getID() })
+    end,
+}
+
 Kinds.riceIn = {
     time = 40,
     valid = function(self)
@@ -379,6 +420,110 @@ Kinds.scrap = {
         pcall(function() addXp(self.character, Perks.Electricity, 3) end)
     end,
     noSave = true,
+}
+
+-- 0.3.0: set a Knox Sentry down here with a battery in it (server/Sentry.lua). The battery's charge is its life.
+Kinds.placeSentry = {
+    time = 150,
+    anim = "Loot",
+    valid = function(self)
+        return self.character:getCurrentSquare() ~= nil and isType(self.item, "KnoxMobile.SentryAlarm")
+            and carried(self.character, self.item) and isType(self.other, "Base.Battery")
+            and carried(self.character, self.other) and self.other:getCurrentUsesFloat() > 0
+    end,
+    complete = function(self)
+        local sq = self.character:getCurrentSquare()
+        local Sentry = require "KnoxMobile/Core/Sentry"
+        local unit = KnoxMobile.SentryWorld
+            and KnoxMobile.SentryWorld.place(self.character, sq, Sentry.daysFrom(self.other:getCurrentUsesFloat()))
+        removeItem(self.other)
+        local item = self.item
+        item:getModData().KnoxMobileSentryId = unit and unit.id or nil
+        removeItem(item)
+        local placed = sq:AddWorldInventoryItem(item, 0.5, 0.5, 0, false)
+        local wo = placed and placed:getWorldItem()
+        if wo then
+            wo:setIgnoreRemoveSandbox(true)
+            wo:transmitCompleteItemToClients()
+        end
+        if unit then
+            tell(self.character, { kind = "sentry", event = unit.to and "placed" or "noNumber", source = unit.name })
+        end
+    end,
+}
+
+-- 0.3.0: set a signal booster down here (server/Boosters.lua).
+Kinds.placeBooster = {
+    time = 120,
+    anim = "Loot",
+    valid = function(self)
+        return self.character:getCurrentSquare() ~= nil and isType(self.item, "KnoxMobile.SignalBooster")
+            and carried(self.character, self.item)
+    end,
+    complete = function(self)
+        local sq = self.character:getCurrentSquare()
+        local b = KnoxMobile.BoosterWorld and KnoxMobile.BoosterWorld.place(self.character, sq)
+        local item = self.item
+        item:getModData().KnoxMobileBoosterId = b and b.id or nil
+        removeItem(item)
+        local placed = sq:AddWorldInventoryItem(item, 0.5, 0.5, 0, false)
+        local wo = placed and placed:getWorldItem()
+        if wo then
+            wo:setIgnoreRemoveSandbox(true)
+            wo:transmitCompleteItemToClients()
+        end
+        if b then tell(self.character, { kind = "booster", event = b.powered and "on" or "noPower" }) end
+    end,
+}
+
+-- A photo board set down here (server/PhotoBoards.lua). It keeps its id, so its photos come along when moved.
+Kinds.placePhotoBoard = {
+    time = 80,
+    anim = "Loot",
+    valid = function(self)
+        return self.character:getCurrentSquare() ~= nil and isType(self.item, "KnoxMobile.PhotoBoard")
+            and carried(self.character, self.item)
+    end,
+    complete = function(self)
+        local sq = self.character:getCurrentSquare()
+        local item = self.item
+        local b = KnoxMobile.PhotoBoards and KnoxMobile.PhotoBoards.place(self.character, sq, item:getModData().KnoxMobilePhotoBoardId)
+        item:getModData().KnoxMobilePhotoBoardId = b and b.id or nil
+        removeItem(item)
+        local placed = sq:AddWorldInventoryItem(item, 0.5, 0.5, 0, false)
+        local wo = placed and placed:getWorldItem()
+        if wo then
+            wo:setIgnoreRemoveSandbox(true)
+            wo:transmitCompleteItemToClients()
+        end
+    end,
+}
+
+-- A Prepaid SIM Kit: tear it open, a blank burner SIM inside (server/Burners.lua).
+Kinds.openSimKit = {
+    time = 40,
+    valid = function(self) return isType(self.item, "KnoxMobile.PrepaidSimKit") and carried(self.character, self.item) end,
+    complete = function(self)
+        addItem(self.character, "KnoxMobile.SimCard", function(it)
+            local sim = Sim.newSim()
+            sim.burner = true
+            it:getModData()[Phones.KEY] = sim
+        end)
+        removeItem(self.item)
+        tell(self.character, { kind = "burner", event = "opened" })
+    end,
+}
+
+-- Snap a SIM card: it's gone, and its number goes out of service.
+Kinds.snapSim = {
+    time = 30,
+    valid = function(self) return Phones.isSim(self.item) and carried(self.character, self.item) end,
+    complete = function(self)
+        local number = Phones.simData(self.item).number
+        if KnoxMobile.Burners then KnoxMobile.Burners.retire(number) end
+        removeItem(self.item)
+        tell(self.character, { kind = "burner", event = "snapped", number = number or "" })
+    end,
 }
 
 -- Cracking a PIN: slow, better with Electrical skill; failure locks the phone out for an hour.

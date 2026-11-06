@@ -48,7 +48,7 @@ KnoxMobile.Apps.register({
                 else ctx:toast(T("IGUI_KnoxMobile_ComposerBad", "Can't play that: %1", tostring(why))) end
             end, 240)
         elseif row.id == "play" and KnoxMobile.Audio then
-            KnoxMobile.Audio.playTune(Composer.parse(tune(ctx)), Phones.inBag(ctx.player, ctx.phone))
+            KnoxMobile.Audio.playTune(Composer.parse(tune(ctx)), Phones.inBag(ctx.player, ctx.phone), ctx.state.look.volume)
         elseif row.id == "save" then
             ctx:setting("tune", tune(ctx))
         end

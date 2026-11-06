@@ -7,6 +7,9 @@ local Signal = require "KnoxMobile/Core/Signal"
 local TowerSites = require "KnoxMobile/Data/TowerSites"
 local CellSites = require "KnoxMobile/Core/CellSites"
 local Util = require "KnoxMobile/Game/Util"
+local Registry = require "KnoxMobile/Core/Registry"
+local Boosters = require "KnoxMobile/Core/Boosters"
+local Weather = require "KnoxMobile/Core/Weather"
 
 local WorldModel = {}
 
@@ -17,9 +20,10 @@ local function collapseSettings(s)
     }
 end
 
+-- Vanilla Kentucky, or near a town of another map (0.3.0: Game/MapNetwork). Off both: medium service, as before.
+local MapNetwork = require "KnoxMobile/Game/MapNetwork"
 function WorldModel.knownMap(x, y)
-    local b = TowerSites.bounds
-    return x >= b.minX and x <= b.maxX and y >= b.minY and y <= b.maxY
+    return MapNetwork.knows(x, y)
 end
 
 -- Is this tower up on its own schedule (grid, backup batteries, the collapse)? The debug menu can force all
@@ -28,8 +32,8 @@ function WorldModel.scheduledAlive(site, settings)
     local forced = KnoxMobile.world.debugTowers
     if forced == "dead" then return false end
     if forced == "alive" then return true end
-    return Towers.isAlive(site, Util.nowDay(), collapseSettings(settings or Util.settings()), KnoxMobile.world.seed or 1,
-        Util.gridOffDay())
+    return Towers.isAlive(site, Util.sinceOutbreak(), collapseSettings(settings or Util.settings()), KnoxMobile.world.seed or 1,
+        Util.gridOffSinceOutbreak())
 end
 
 -- Is this site on the air on a player's generator (server/KnoxMobile/SiteRestore.lua)?
@@ -102,14 +106,64 @@ function WorldModel.spot(player)
     return { indoors = (sq ~= nil and not outside) or z < 0, z = z, onRoof = outside and z >= 1 }
 end
 
+-- 0.3.0: a mag-mount antenna on the car roof (KnoxMobile.MagMountAntenna, carried) gives any phone more reach while
+-- you sit in a vehicle.
+WorldModel.MAG_MOUNT = 1.5
+function WorldModel.antenna(player, model)
+    local a = model and model.antenna or 1
+    local ok, inCar = pcall(function() return player:getVehicle() ~= nil end)
+    if ok and inCar and player:getInventory():containsTypeRecurse("KnoxMobile.MagMountAntenna") then
+        a = a + WorldModel.MAG_MOUNT
+    end
+    return a
+end
+
+-- The weather now, for the network (Core/Weather). The game's climate is the same everywhere.
+function WorldModel.weather()
+    if KnoxMobile.debugStorm then return { thunder = true, precip = 0.8, wind = 0.7 } end -- debug menu
+    local ok, w = pcall(function()
+        local c = getClimateManager()
+        return { thunder = c:getIsThunderStorming(), precip = c:getPrecipitationIntensity(),
+            snow = c:getPrecipitationIsSnow(), wind = c:getWindIntensity() }
+    end)
+    return ok and w or nil
+end
+
+function WorldModel.weatherOn(settings) return (settings or Util.settings()).WeatherSignal ~= false end
+
 function WorldModel.locatePlayer(player, model, knownPasswords)
     local settings = Util.settings()
     local spot = WorldModel.spot(player)
+    -- 0.3.0: a powered signal booster nearby carries the outside signal in (Core/Boosters).
+    if spot.indoors and Boosters.covers(KnoxMobile.world.boosters, player:getX(), player:getY()) then
+        spot.indoors, spot.boosted = false, true
+    end
     local boost = Signal.heightBoost(spot.z, spot.onRoof, settings.RoofSignal)
-    local located, descriptor = WorldModel.locate(player:getX(), player:getY(), model and model.antenna or 1, spot.indoors,
-        knownPasswords, settings, boost)
+    local located, descriptor = WorldModel.locate(player:getX(), player:getY(), WorldModel.antenna(player, model),
+        spot.indoors, knownPasswords, settings, boost)
     located.indoors = spot.indoors
+    -- 0.3.0: a satellite phone needs no tower, only open sky. Indoors it finds no satellite, towers or not.
+    if model and Registry.hasExtra(model, "satellite") then
+        located, descriptor = WorldModel.satellite(located, descriptor, spot.indoors)
+    end
+    -- Storms cost a bar, satellites too (rain fade).
+    if WorldModel.weatherOn(settings) then
+        located = Weather.apply(located, WorldModel.weather())
+        if not located.network then descriptor = nil end
+    end
     return located, descriptor
+end
+
+-- The satellite phone's service: the world network from anywhere under open sky (two bars: a slow, narrow link),
+-- nothing indoors. A tower's own bars are better, so a tower in reach wins outdoors.
+WorldModel.SATELLITE_BARS = 2
+function WorldModel.satellite(located, descriptor, indoors)
+    if indoors then
+        return { network = nil, bars = 0, via = "satelliteSky", indoors = true }, nil
+    end
+    if located.network == "world" and (located.bars or 0) >= WorldModel.SATELLITE_BARS then return located, descriptor end
+    return { network = "world", bars = WorldModel.SATELLITE_BARS, via = "satellite", indoors = false },
+        { id = "world", world = true, members = {} }
 end
 
 -- At 0-1 bars indoors: would two floors up, out on a roof, do better? (the phone's "Try higher ground" hint)
@@ -124,7 +178,7 @@ end
 
 function WorldModel.callFails(rng, settings)
     settings = settings or Util.settings()
-    return Towers.callFails(rng, Util.nowDay(), collapseSettings(settings))
+    return Towers.callFails(rng, Util.sinceOutbreak(), collapseSettings(settings))
 end
 
 return WorldModel

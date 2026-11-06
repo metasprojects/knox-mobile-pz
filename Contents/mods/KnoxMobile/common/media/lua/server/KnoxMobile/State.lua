@@ -47,7 +47,8 @@ function State.worldMessage()
     local reps = {}
     for i, rep in ipairs(md.repeaters) do reps[i] = Repeaters.publicCopy(rep) end -- no passwords to clients
     return { seed = md.seed, repeaters = reps, debugTowers = md.debugTowers, storyShift = md.storyShift,
-        voice = State.voiceEnabled(), sites = CellSites.publicCopy(md.sites) }
+        voice = State.voiceEnabled(), sites = CellSites.publicCopy(md.sites), mapSites = md.mapSites,
+        boosters = require("KnoxMobile/Core/Boosters").publicCopy(md.boosters) } -- 0.3.0
 end
 
 return State

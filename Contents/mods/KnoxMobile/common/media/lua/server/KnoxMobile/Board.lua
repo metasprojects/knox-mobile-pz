@@ -56,6 +56,45 @@ Net.onServer("boardPost", function(player, args)
     Board.sendList(player, item)
 end)
 
+-- Bounties (after 0.3.0, Core/Classifieds.collect): a player killed by another player. The bounties on them close;
+-- the poster and the killer each get a text from the CLASSIFIEDS line. The reward is between them.
+local function names(p)
+    local out = {}
+    pcall(function()
+        local d = p:getDescriptor()
+        out[#out + 1] = tostring(d:getForename() or "") .. " " .. tostring(d:getSurname() or "")
+        out[#out + 1] = tostring(d:getForename() or "")
+    end)
+    pcall(function() out[#out + 1] = p:getUsername() end)
+    return out
+end
+
+function Board.bountyKill(victim, killer)
+    local killerKey = Util.playerKey(killer)
+    local got = Classifieds.collect(board(), names(victim), killerKey)
+    if #got == 0 then return 0 end
+    local who = names(killer)[1] or "?"
+    local killerNumber = Social.track(killer) or Social.numberOf(killerKey)
+    local now = Util.nowMinutes()
+    for _, p in ipairs(got) do
+        Messaging.queueStory("CLASSIFIEDS", p.number, "BOUNTY: " .. who .. " collected your bounty on " .. p.title
+            .. ". Pay up: " .. p.text, now)
+        if killerNumber then
+            Messaging.queueStory("CLASSIFIEDS", killerNumber, "BOUNTY: you collected the bounty on " .. p.title
+                .. ". Reward: " .. p.text .. " Text " .. tostring(p.number) .. " to collect.", now)
+        end
+        Util.log("bounty", p.id, "on", p.title, "collected by", killerKey)
+    end
+    if Messaging.deliverDue then Messaging.deliverDue() end
+    return #got
+end
+
+Events.OnCharacterDeath.Add(Util.safe("bounties", function(victim)
+    if isClient() or not instanceof(victim, "IsoPlayer") then return end
+    local ok, killer = pcall(function() return victim:getAttackedBy() end)
+    if ok and killer and killer ~= victim and instanceof(killer, "IsoPlayer") then Board.bountyKill(victim, killer) end
+end))
+
 Net.onServer("boardRemove", function(player, args)
     local item = ready(player, args)
     if not item then return end

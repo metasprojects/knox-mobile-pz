@@ -41,7 +41,11 @@ local MULTITIP_FITS = { Pin = true, Flat = true }
 
 local CAMERAS = { none = true, basic = true, good = true, great = true }
 local RARITIES = { common = true, uncommon = true, rare = true, veryrare = true }
-local EXTRAS = { fmRadio = true, flashlight = true, games = true, keyboard = true, outerScreen = true, stylus = true, gps = true }
+local EXTRAS = { fmRadio = true, flashlight = true, games = true, keyboard = true, outerScreen = true, stylus = true, gps = true,
+    -- 0.3.0: vibrate (silent alerts), satellite (no towers), directConnect (push-to-talk), bigButtons, prepaid
+    -- (airtime), compass, barometer, noVoice (texts only: the pager and the tablet).
+    vibrate = true, satellite = true, directConnect = true, bigButtons = true, prepaid = true, compass = true,
+    barometer = true, noVoice = true }
 local CASE_SIZES = { S = true, M = true, L = true, XL = true }
 
 local familyById, connectorSet = {}, {}
@@ -146,6 +150,13 @@ function Registry:spawnable(settings)
         out[1] = fallback
     end
     return out
+end
+
+-- 0.3.0: a vibrating alert came to phones in 1996 (the StarJack's year); the brick, the car phone and the bag phone
+-- can only ring or stay silent.
+Registry.VIBRATE_YEAR = 1996
+function Registry.canVibrate(phoneDef)
+    return phoneDef ~= nil and ((phoneDef.year or 0) >= Registry.VIBRATE_YEAR or Registry.hasExtra(phoneDef, "vibrate"))
 end
 
 function Registry.hasExtra(phoneDef, extra)

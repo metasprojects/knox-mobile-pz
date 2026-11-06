@@ -111,7 +111,7 @@ Net.onServer("photoChunk", function(player, args)
     if u.key ~= key or u.parts ~= parts then return end
     if part == 1 then
         u.meta = { phoneId = args.phoneId, text = type(args.caption) == "string" and args.caption:sub(1, 160) or "",
-            w = tonumber(args.w), h = tonumber(args.h) }
+            w = tonumber(args.w), h = tonumber(args.h), instant = args.instant == true }
     end
     if not u.chunks[part] then u.got = u.got + 1 end
     u.chunks[part] = args.data
@@ -124,6 +124,12 @@ Net.onServer("photoChunk", function(player, args)
         return
     end
     refs()[args.id] = refs()[args.id] or 0 -- counted from now on
+    -- 0.3.0: an instant photo was printed at the shutter (server/InstantPrints.lua); no phone keeps it.
+    if u.meta.instant then
+        Util.log("photo", args.id, "saved", #data, "chars, an instant photo")
+        Net.toClient(player, "photoSaved", { id = args.id, ok = true, instant = true })
+        return
+    end
     local item = u.meta.phoneId and Phones.findById(player, u.meta.phoneId)
     local state, model = item and Phones.get(item), item and Phones.model(item)
     local day, minute = require("KnoxMobile/Messaging").stamp()

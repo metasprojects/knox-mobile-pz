@@ -6,6 +6,428 @@ module KnoxMobile
         Base
     }
 
+    model KnoxMobile_Banana8110_Black
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Black_home
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Black_messages
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Black_call
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Black_game
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Black_hidden
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow_home
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow_messages
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow_call
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow_game
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Yellow_hidden
+    {
+        mesh = KnoxMobile/Banana8110,
+        texture = KnoxMobile/Banana8110_Yellow,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Banana8110_Box
+    {
+        mesh = KnoxMobile/Banana8110_Box,
+        texture = KnoxMobile/Banana8110_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_Bramble850_Black
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Black_home
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Black_messages
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Black_call
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Black_game
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Black_hidden
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey_home
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey_messages
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey_call
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey_game
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Grey_hidden
+    {
+        mesh = KnoxMobile/Bramble850,
+        texture = KnoxMobile/Bramble850_Grey,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Bramble850_Box
+    {
+        mesh = KnoxMobile/Bramble850_Box,
+        texture = KnoxMobile/Bramble850_Box,
+        scale = 1.0,
+    }
+
     model KnoxMobile_BrambleBend2580_Black
     {
         mesh = KnoxMobile/BrambleBend2580,
@@ -316,6 +738,217 @@ module KnoxMobile
     {
         mesh = KnoxMobile/BrambleBend2580_Box,
         texture = KnoxMobile/BrambleBend2580_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_ChirpI90_Black
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Black_home
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Black_messages
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Black_call
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Black_game
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Black_hidden
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver_home
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver_messages
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver_call
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver_game
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Silver_hidden
+    {
+        mesh = KnoxMobile/ChirpI90,
+        texture = KnoxMobile/ChirpI90_Silver,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_ChirpI90_Box
+    {
+        mesh = KnoxMobile/ChirpI90_Box,
+        texture = KnoxMobile/ChirpI90_Box,
         scale = 1.0,
     }
 
@@ -731,6 +1364,319 @@ module KnoxMobile
     {
         mesh = KnoxMobile/Cinderblock3301_Box,
         texture = KnoxMobile/Cinderblock3301_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_Cockroach1100_Blue
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Blue_home
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Blue_messages
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Blue_call
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Blue_game
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Blue_hidden
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Blue,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey_home
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey_messages
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey_call
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey_game
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Grey_hidden
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Grey,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black_home
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black_messages
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black_call
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black_game
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Black_hidden
+    {
+        mesh = KnoxMobile/Cockroach1100,
+        texture = KnoxMobile/Cockroach1100_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Cockroach1100_Box
+    {
+        mesh = KnoxMobile/Cockroach1100_Box,
+        texture = KnoxMobile/Cockroach1100_Box,
         scale = 1.0,
     }
 
@@ -1224,6 +2170,952 @@ module KnoxMobile
         scale = 1.0,
     }
 
+    model KnoxMobile_GoldenYearsEZ_Red
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Red_home
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Red_messages
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Red_call
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Red_game
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Red_hidden
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Red,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver_home
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver_messages
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver_call
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver_game
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Silver_hidden
+    {
+        mesh = KnoxMobile/GoldenYearsEZ,
+        texture = KnoxMobile/GoldenYearsEZ_Silver,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_GoldenYearsEZ_Box
+    {
+        mesh = KnoxMobile/GoldenYearsEZ_Box,
+        texture = KnoxMobile/GoldenYearsEZ_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_KaijuRockface_Olive
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Olive_home
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Olive_messages
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Olive_call
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Olive_game
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Olive_hidden
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Olive,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black_home
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black_messages
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black_call
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black_game
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Black_hidden
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange_home
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange_messages
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange_call
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange_game
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Orange_hidden
+    {
+        mesh = KnoxMobile/KaijuRockface,
+        texture = KnoxMobile/KaijuRockface_Orange,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_KaijuRockface_Box
+    {
+        mesh = KnoxMobile/KaijuRockface_Box,
+        texture = KnoxMobile/KaijuRockface_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_Orbita9505_Graphite
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Graphite_home
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Graphite_messages
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Graphite_call
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Graphite_game
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Graphite_hidden
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Graphite,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive_home
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive_messages
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive_call
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive_game
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Olive_hidden
+    {
+        mesh = KnoxMobile/Orbita9505,
+        texture = KnoxMobile/Orbita9505_Olive,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Orbita9505_Box
+    {
+        mesh = KnoxMobile/Orbita9505_Box,
+        texture = KnoxMobile/Orbita9505_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_PearPad_Black
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Black_home
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Black_messages
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Black_call
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Black_game
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Black_hidden
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White_home
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White_messages
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White_call
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White_game
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_White_hidden
+    {
+        mesh = KnoxMobile/PearPad,
+        texture = KnoxMobile/PearPad_White,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_PearPad_Box
+    {
+        mesh = KnoxMobile/PearPad_Box,
+        texture = KnoxMobile/PearPad_Box,
+        scale = 1.0,
+    }
+
     model KnoxMobile_PearPhone4_Black
     {
         mesh = KnoxMobile/PearPhone4,
@@ -1435,6 +3327,496 @@ module KnoxMobile
         scale = 1.0,
     }
 
+    model KnoxMobile_Roadbag2900_Black
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Black_home
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Black_messages
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Black_call
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Black_hidden
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Tan
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Tan,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Tan_home
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Tan_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Tan_messages
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Tan_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Tan_call
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Tan_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Tan_hidden
+    {
+        mesh = KnoxMobile/Roadbag2900,
+        texture = KnoxMobile/Roadbag2900_Tan,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_Roadbag2900_Box
+    {
+        mesh = KnoxMobile/Roadbag2900_Box,
+        texture = KnoxMobile/Roadbag2900_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_SlicerV3_Silver
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Silver_home
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Silver_messages
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Silver_call
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Silver_game
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Silver_hidden
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Silver,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink_home
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink_messages
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink_call
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink_game
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Pink_hidden
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Pink,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black_home
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black_messages
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black_call
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black_game
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Black_hidden
+    {
+        mesh = KnoxMobile/SlicerV3,
+        texture = KnoxMobile/SlicerV3_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_SlicerV3_Box
+    {
+        mesh = KnoxMobile/SlicerV3_Box,
+        texture = KnoxMobile/SlicerV3_Box,
+        scale = 1.0,
+    }
+
     model KnoxMobile_Soapbar6606_Silver
     {
         mesh = KnoxMobile/Soapbar6606,
@@ -1643,6 +4025,217 @@ module KnoxMobile
     {
         mesh = KnoxMobile/Soapbar6606_Box,
         texture = KnoxMobile/Soapbar6606_Box,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_StarJack_Black
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Black_home
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Black_messages
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Black_call
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Black_game
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Black_hidden
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite_home
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite_messages
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite_call
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite_game
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Graphite_hidden
+    {
+        mesh = KnoxMobile/StarJack,
+        texture = KnoxMobile/StarJack_Graphite,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_StarJack_Box
+    {
+        mesh = KnoxMobile/StarJack_Box,
+        texture = KnoxMobile/StarJack_Box,
         scale = 1.0,
     }
 
@@ -1959,6 +4552,217 @@ module KnoxMobile
         scale = 1.0,
     }
 
+    model KnoxMobile_TracPhone_Black
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Black_home
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Black_messages
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Black_call
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Black_game
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Black_hidden
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Black,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey_home
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey_home,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey_messages
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey_messages,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey_call
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey_call,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey_game
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey_game,
+        scale = 1.0,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Grey_hidden
+    {
+        mesh = KnoxMobile/TracPhone,
+        texture = KnoxMobile/TracPhone_Grey,
+        scale = 0.001,
+        attachment Bip01_Prop2
+        {
+            offset = 0.0177 0.0107 0.0062,
+            rotate = -11.7984 87.0744 -81.8605,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0177 -0.0107 0.0062,
+            rotate = 11.7984 87.0744 -98.1395,
+        }
+    }
+
+    model KnoxMobile_TracPhone_Box
+    {
+        mesh = KnoxMobile/TracPhone_Box,
+        texture = KnoxMobile/TracPhone_Box,
+        scale = 1.0,
+    }
+
     model KnoxMobile_Manual_SegmentLCD
     {
         mesh = KnoxMobile/Manual_SegmentLCD,
@@ -2012,6 +4816,13 @@ module KnoxMobile
     {
         mesh = KnoxMobile/SimCard,
         texture = KnoxMobile/SimCard,
+        scale = 1.0,
+    }
+
+    model KnoxMobile_AirtimeCard
+    {
+        mesh = KnoxMobile/AirtimeCard,
+        texture = KnoxMobile/AirtimeCard,
         scale = 1.0,
     }
 

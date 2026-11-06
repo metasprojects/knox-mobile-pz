@@ -72,6 +72,53 @@ local function phoneMenu(player, context, item)
         option(m, T("IGUI_KnoxMobile_PowerOn", "Power on"), function() queue(player, "powerOn", item) end, why)
     end
 
+    -- 0.3.0: airtime cards on a prepaid phone (Core/Airtime, server loadAirtime).
+    if require("KnoxMobile/Core/Airtime").isPrepaid(model) then
+        local cards = findAll(player, function(it) return it:getFullType() == "KnoxMobile.AirtimeCard" end)
+        if #cards == 0 then
+            option(m, T("IGUI_KnoxMobile_AddAirtime", "Add airtime"), nil, T("IGUI_KnoxMobile_NeedAirtime", "You need an airtime card"))
+        else
+            option(m, T("IGUI_KnoxMobile_AddAirtime", "Add airtime"), function()
+                require("KnoxMobile/Game/Net").toServer(player, "loadAirtime", { phoneId = item:getID(), cardId = cards[1]:getID() })
+            end)
+        end
+    end
+
+    -- 0.3.0: songs you carry (True Moozic cassettes, records, discs) onto a music phone (Core/Music).
+    local Music = require "KnoxMobile/Core/Music"
+    if Music.capacity(model) and Music.available() then
+        local tracks = findAll(player, function(it) return Music.isTrack(it:getType()) end)
+        if #tracks > 0 then
+            local mm = sub(m, T("IGUI_KnoxMobile_MusicAdd", "Add music"))
+            for _, song in ipairs(tracks) do
+                option(mm, song:getDisplayName(), function()
+                    Net.toServer(player, "musicCopy", { phoneId = item:getID(), itemId = song:getID() })
+                end, not state.power.on and T("IGUI_KnoxMobile_PowerOn", "Power on") or nil)
+            end
+        end
+    end
+
+    -- 0.3.0: quick texts to the last person you texted with, without opening the phone.
+    local last = nil
+    for _, conv in ipairs(state.sim and state.contents and state.contents.texts or {}) do
+        local n = #(conv.messages or {})
+        local at = n > 0 and ((conv.messages[n].day or 0) * 1440 + (conv.messages[n].minute or 0)) or -1
+        if not conv.group and not conv.carrier and not conv.story and conv.with and conv.with:match("^%(%d%d%d%) %d%d%d%-%d%d%d%d$")
+            and (not last or at > last.at) then
+            last = { conv = conv, at = at }
+        end
+    end
+    if last and state.power.on and not state.security.locked then
+        local qm = sub(m, T("IGUI_KnoxMobile_QuickText", "Quick text to %1", last.conv.name or last.conv.with))
+        local function quick(body)
+            return function() Net.toServer(player, "sendText", { phoneId = item:getID(), to = last.conv.with, body = body }) end
+        end
+        option(qm, T("IGUI_KnoxMobile_QuickOnMyWay", "On my way"), quick(T("IGUI_KnoxMobile_QuickOnMyWay", "On my way")))
+        option(qm, T("IGUI_KnoxMobile_QuickNeedHelp", "Need help"), quick(T("IGUI_KnoxMobile_QuickNeedHelp", "Need help")))
+        option(qm, T("IGUI_KnoxMobile_QuickAllClear", "All clear"), quick(T("IGUI_KnoxMobile_QuickAllClear", "All clear")))
+        option(qm, T("IGUI_KnoxMobile_QuickLoc", "Share my location"), quick(require("KnoxMobile/Core/Locate").ASK))
+    end
+
     -- SIM cards.
     if state.sim then
         local label = state.sim.number and T("IGUI_KnoxMobile_EjectSimNumber", "Remove SIM: %1", state.sim.number)
@@ -159,6 +206,22 @@ local function phoneMenu(player, context, item)
         why or (not cell and T("IGUI_KnoxMobile_NeedCell", "You need a phone battery cell")) or nil)
     option(rm, T("IGUI_KnoxMobile_RepairWater", "Open up and dry the insides"), function() queue(player, "repair", item, nil, "water") end,
         why or (state.wetness == "dry" and T("IGUI_KnoxMobile_NotWet", "It isn't wet")) or nil)
+    -- Frankenphone (after 0.3.0): a dead phone rebuilt with a donor of the same family.
+    if require("KnoxMobile/Core/Damage").isDead(state) then
+        local donors = findAll(player, function(it)
+            local _, dm = Phones.get(it)
+            return it ~= item and dm ~= nil and dm.family == model.family
+        end)
+        local fm = sub(rm, T("IGUI_KnoxMobile_Franken", "Rebuild it with a donor phone"))
+        if #donors == 0 then
+            option(fm, T("IGUI_KnoxMobile_FrankenNone", "No donor"), nil,
+                T("IGUI_KnoxMobile_NeedDonor", "You need another phone of the same family to take parts from"))
+        end
+        for _, d in ipairs(donors) do
+            local dWhy = why or (Phones.get(d).power.on and T("IGUI_KnoxMobile_TurnOffDonor", "Turn the donor off first")) or nil
+            option(fm, d:getName(), function() queue(player, "frankenphone", item, d) end, dWhy)
+        end
+    end
     -- Scrapping destroys the phone, so it sits on its own, not among the repairs.
     option(m, T("IGUI_KnoxMobile_Scrap", "Scrap for parts"), function() queue(player, "scrap", item) end, why)
 
@@ -224,6 +287,18 @@ Events.OnFillInventoryObjectContextMenu.Add(Util.safe("phone menu", function(pla
     elseif item:getFullType() == "KnoxMobile.Repeater" then
         local text = T("IGUI_KnoxMobile_PlaceRepeater", "Place repeater here")
         context:addOption(text, nil, function() queue(player, "placeRepeater", item) end)
+    elseif item:getFullType() == "KnoxMobile.SignalBooster" then
+        context:addOption(T("IGUI_KnoxMobile_PlaceBooster", "Set up the signal booster here"), nil,
+            function() queue(player, "placeBooster", item) end)
+    elseif item:getFullType() == "KnoxMobile.SentryAlarm" then
+        -- 0.3.0: the battery with the most charge goes in.
+        local battery, best = nil, 0
+        for _, b in ipairs(findAll(player, function(it) return it:getFullType() == "Base.Battery" end)) do
+            if b:getCurrentUsesFloat() > best then battery, best = b, b:getCurrentUsesFloat() end
+        end
+        option(context, T("IGUI_KnoxMobile_PlaceSentry", "Set up the motion alarm here"),
+            function() queue(player, "placeSentry", item, battery) end,
+            not battery and T("IGUI_KnoxMobile_NeedBattery", "You need a battery") or nil)
     elseif item:getFullType() == "KnoxMobile.PowerBank" then
         bankMenu(player, context, item)
     elseif Phones.isSim(item) then
@@ -231,6 +306,17 @@ Events.OnFillInventoryObjectContextMenu.Add(Util.safe("phone menu", function(pla
         local o = context:addOption(data and data.number and T("IGUI_KnoxMobile_SimNumber", "SIM number: %1", data.number)
             or T("IGUI_KnoxMobile_BlankSim", "blank SIM"), nil, nil)
         o.notAvailable = true
+        if data and data.burner then
+            local b = context:addOption(T("IGUI_KnoxMobile_BurnerSim", "Burner: off Find my crew and the clans"), nil, nil)
+            b.notAvailable = true
+        end
+        context:addOption(T("IGUI_KnoxMobile_SnapSim", "Snap the SIM (its number goes dead)"), nil,
+            function() queue(player, "snapSim", item) end)
+    elseif item:getFullType() == "KnoxMobile.PhotoBoard" then
+        context:addOption(T("IGUI_KnoxMobile_PlacePhotoBoard", "Set the photo board down here"), nil,
+            function() queue(player, "placePhotoBoard", item) end)
+    elseif item:getFullType() == "KnoxMobile.PrepaidSimKit" then
+        context:addOption(T("IGUI_KnoxMobile_OpenSimKit", "Open the SIM kit"), nil, function() queue(player, "openSimKit", item) end)
     end
 end))
 
@@ -324,9 +410,38 @@ local function repeaterMenu(player, context, rep)
     end, why)
 end
 
+-- 0.3.0: a Knox Sentry set down here: its owner can turn it off and on (the server checks it's theirs).
+local function placedSentries(worldobjects)
+    local out, seenSquares = {}, {}
+    for _, obj in ipairs(worldobjects) do
+        local sq = obj.getSquare and obj:getSquare()
+        if sq and not seenSquares[sq] then
+            seenSquares[sq] = true
+            local list = sq:getWorldObjects()
+            for i = 0, list:size() - 1 do
+                local item = list:get(i):getItem()
+                local id = item and item:getFullType() == "KnoxMobile.SentryAlarm" and item:getModData().KnoxMobileSentryId
+                if id then out[#out + 1] = id end
+            end
+        end
+    end
+    return out
+end
+
+local function sentryMenu(player, context, id)
+    local m = sub(context, T("IGUI_KnoxMobile_SentryTitle", "Knox Sentry %1", (tostring(id):gsub("^S", ""))))
+    option(m, T("IGUI_KnoxMobile_SentryOff", "Turn off"), function()
+        Net.toServer(player, "sentrySet", { id = id, armed = false })
+    end)
+    option(m, T("IGUI_KnoxMobile_SentryOn", "Arm"), function()
+        Net.toServer(player, "sentrySet", { id = id, armed = true })
+    end)
+end
+
 Events.OnFillWorldObjectContextMenu.Add(Util.safe("repeater menu", function(playerNum, context, worldobjects, test)
     if test then return end
     local player = getSpecificPlayer(playerNum)
     if not player then return end
     for _, rep in ipairs(placedRepeaters(worldobjects)) do repeaterMenu(player, context, rep) end
+    for _, id in ipairs(placedSentries(worldobjects)) do sentryMenu(player, context, id) end
 end))

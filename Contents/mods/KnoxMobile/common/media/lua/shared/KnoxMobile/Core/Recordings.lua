@@ -54,11 +54,14 @@ local CLOSED = {
 Recordings.OPEN, Recordings.CLOSED = OPEN, CLOSED
 
 Recordings.NINE = {
+    -- 0.3.0, Week One: more than three days before the outbreak, 911 still answers like any night.
+    { to = -3, kind = "answer", lines = "Nine-one-one, what is the address of your emergency? / Hello? Is anyone there? / (the dispatcher hangs up)" },
     { to = 1, kind = "answer", lines = "Nine-one-one, please hold. / All of our dispatchers are on other calls. / Please stay on the line. Do not hang up." },
     { to = 3, kind = "answer", lines = "You have reached Knox County Emergency Communications. / Because of the number of calls, units cannot be sent to every address. / Stay inside. Lock your doors. Do not go near anyone who is sick." },
     { to = 7, kind = "answer", lines = "This is a recorded message from the Kentucky Division of Emergency Management. / Emergency services in the Knox County area are suspended. / Shelter in place. Listen to the Emergency Broadcast System for instructions." },
 }
 Recordings.INFO = {
+    { to = -3, kind = "notInService" }, -- 0.3.0, Week One: the state's line opens when the roads close
     { to = 2, kind = "answer", lines = "Thank you for calling the Kentucky public information line. / If someone in your home has a fever or has been bitten, keep them in a separate room. / Do not travel. Checkpoints are in place on 31W and the interstate." },
     { to = 10, kind = "answer", lines = "This is the Kentucky public information line. / The Knox County exclusion zone is closed. No one will be allowed to leave. / Do not approach the fence. This message will be updated." },
 }
@@ -85,7 +88,7 @@ function Recordings.call(number, day, town, rng)
     end
     if number == Recordings.HOTLINE then
         local e = byDay(Recordings.INFO, day)
-        if not e then return { kind = "notInService" } end
+        if not e or e.kind == "notInService" then return { kind = "notInService" } end
         return { kind = e.kind, lines = Lang.t(e.lines), name = Lang.t("Kentucky info line") }
     end
     if number == Recordings.DIRECTORY then

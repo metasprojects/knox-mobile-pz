@@ -105,7 +105,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_c1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -117,7 +117,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_cs1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -129,7 +129,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_d1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -141,7 +141,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_ds1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -153,7 +153,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_e1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -165,7 +165,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_f1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -177,7 +177,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_fs1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -189,7 +189,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_g1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -201,7 +201,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_gs1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -213,7 +213,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_a1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -225,7 +225,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_as1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -237,7 +237,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_b1.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -249,7 +249,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_c2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -261,7 +261,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_cs2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -273,7 +273,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_d2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -285,7 +285,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_ds2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -297,7 +297,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_e2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -309,7 +309,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_f2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -321,7 +321,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_fs2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -333,7 +333,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_g2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -345,7 +345,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_gs2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -357,7 +357,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_a2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -369,7 +369,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_as2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -381,7 +381,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_b2.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -393,7 +393,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_c3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -405,7 +405,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_cs3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -417,7 +417,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_d3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -429,7 +429,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_ds3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -441,7 +441,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_e3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -453,7 +453,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_f3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -465,7 +465,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_fs3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -477,7 +477,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_g3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -489,7 +489,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_gs3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -501,7 +501,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_a3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -513,7 +513,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_as3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 
@@ -525,7 +525,7 @@ module KnoxMobile
             file = media/sound/KnoxMobile/note_b3.ogg,
             distanceMin = 1,
             distanceMax = 20,
-            volume = 0.7,
+            volume = 1,
         }
     }
 }

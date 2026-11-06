@@ -40,7 +40,16 @@ if PZAPI and PZAPI.ModOptions then
     opts:addTickBox("immersive", T("IGUI_KnoxMobile_OptImmersive", "First person: read the phone in your hand"), true,
         T("IGUI_KnoxMobile_OptImmersiveTip",
             "Viewpoint first person: no on-screen phone; read the one in your main hand. Middle mouse switches. Needs ZombieBuddy."))
+    -- 0.3.0: hands-free calls (the Java part's HandsFree): on Push to talk, the talk key counts as held during a call.
+    opts:addTickBox("handsFree", T("IGUI_KnoxMobile_OptHandsFree", "Hands-free calls"), true,
+        T("IGUI_KnoxMobile_OptHandsFreeTip",
+            "With voice chat on Push to talk, just talk during a call: no key to hold. Needs ZombieBuddy."))
+    opts:addTickBox("phoneLine", T("IGUI_KnoxMobile_OptPhoneLine", "Phone-line voice on calls"), true,
+        T("IGUI_KnoxMobile_OptPhoneLineTip",
+            "The other caller sounds like a 1990s cell line: narrow, and gritty when the signal is weak. Needs ZombieBuddy."))
     opts:addTickBox("bigText", T("IGUI_KnoxMobile_OptBigText", "Bigger text on phone screens"), false)
+    opts:addTickBox("hud", T("IGUI_KnoxMobile_OptHud", "Phone status on screen"), true,
+        T("IGUI_KnoxMobile_OptHudTip", "With the phone put away: new texts, bars and battery, small, top right."))
     opts:addTickBox("highContrast", T("IGUI_KnoxMobile_OptContrast", "High-contrast phone screens"), false,
         T("IGUI_KnoxMobile_OptContrastTip", "White on black, for the small LCD phones especially."))
 end
@@ -53,14 +62,23 @@ end
 
 function Options.openKey() return value("phoneKey", Keyboard.KEY_0) end
 function Options.viewKey() return value("viewKey", Keyboard.KEY_NONE) end
-function Options.size() return SIZES[value("size", 2)] or "M" end
+-- After 0.3.0: in VR (client/KnoxMobile/Vr.lua) the medium default reads as large; a small phone picked on purpose stays.
+local function vr() return KnoxMobile.Vr and KnoxMobile.Vr.active() end
+function Options.size()
+    local s = SIZES[value("size", 2)] or "M"
+    if s == "M" and vr() then return "L" end
+    return s
+end
 function Options.side() return SIDES[value("side", 1)] or "right" end
 function Options.popups() return value("popups", true) end
 function Options.clock24() return value("clock24", false) end
 function Options.hand() return HANDS[value("hand", 1)] or "off" end
 function Options.liveScreen() return value("liveScreen", true) end
 function Options.immersive() return value("immersive", true) end
-function Options.bigText() return value("bigText", false) end
+function Options.bigText() return value("bigText", false) or vr() == true end
+function Options.handsFree() return value("handsFree", true) end
+function Options.phoneLine() return value("phoneLine", true) end
 function Options.highContrast() return value("highContrast", false) end
+function Options.hud() return value("hud", true) end
 
 return Options

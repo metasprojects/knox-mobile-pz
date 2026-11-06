@@ -114,6 +114,19 @@ function Util.clockMinute(stampMinute)
 end
 function Util.nowDay() return getGameTime():getWorldAgeHours() / 24 end
 
+-- 0.3.0: days since the outbreak. The same as nowDay unless Week One started the game before it (Game/WeekOne):
+-- then it's negative through the week before. The network's schedule (towers, congestion, dropped calls) runs on it.
+function Util.sinceOutbreak()
+    return Util.nowDay() - require("KnoxMobile/Game/WeekOne").outbreakDay()
+end
+
+-- The grid's shut-off counted from the outbreak (nil if it never shuts off).
+function Util.gridOffSinceOutbreak()
+    local off = Util.gridOffDay()
+    if not off then return nil end
+    return math.max(0, off - require("KnoxMobile/Game/WeekOne").outbreakDay())
+end
+
 -- Days the outbreak had run when play began: sandbox "time since the apocalypse" (1 = 0 months), as the game's
 -- GameTime.getWorldAgeDaysSinceBegin adds it.
 function Util.sinceBegin()

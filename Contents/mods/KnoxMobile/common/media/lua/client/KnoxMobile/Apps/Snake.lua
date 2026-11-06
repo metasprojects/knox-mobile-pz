@@ -9,6 +9,7 @@ local Rng = require "KnoxMobile/Core/Rng"
 local Phones = require "KnoxMobile/Game/Phones"
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local Traits = require "KnoxMobile/Game/Traits"
 local Tick = require "KnoxMobile/Game/Tick"
 
 local T = Util.text
@@ -58,6 +59,7 @@ local function newGame(ctx, w, h)
     d.rng = Rng.new(tostring(getTimestampMs()) .. ":" .. tostring(ctx.phone:getID()))
     d.game = SnakeGame.new(cols, rows, d.rng, { wrap = classic })
     d.mode, d.last, d.newRecord = "play", getTimestampMs(), false
+    d.playingSince = d.last
     d.keepBack = true
 end
 
@@ -65,6 +67,11 @@ local function finish(ctx)
     local d = ctx.data
     d.mode, d.keepBack = "over", false
     block(ctx.player, false)
+    -- A game passes the time (0.3.0; none for a Technophobe).
+    if d.playingSince and KnoxMobile.Client then
+        KnoxMobile.Client.relieve(Traits.gameRelief(ctx.player, (getTimestampMs() - d.playingSince) / 1000))
+        d.playingSince = nil
+    end
     local score = d.game and d.game.score or 0
     if SnakeGame.isRecord(score, d.best or best(ctx)) then
         d.newRecord, d.best = true, score

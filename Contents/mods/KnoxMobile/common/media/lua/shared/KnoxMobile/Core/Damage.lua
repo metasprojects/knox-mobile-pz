@@ -146,6 +146,30 @@ function Damage.attemptRepair(rng, state, kind, skill, hasManual)
     return "failed"
 end
 
+-- Frankenphone (after 0.3.0): a dead phone rebuilt with a donor of the same family. Is this phone past the usual
+-- repairs, so it needs one?
+function Damage.isDead(state)
+    return state ~= nil and (state.condition == "broken"
+        or (state.wetness == "waterDamaged" and (state.waterDamageMinutes or 0) > Damage.MINOR_WATER_DAMAGE))
+end
+
+function Damage.frankenChance(skill, hasManual, sameModel)
+    local chance = 0.45 + 0.08 * (skill or 0) + (hasManual and 0.15 or 0) + (sameModel and 0.1 or 0)
+    return math.max(0.1, math.min(0.95, chance))
+end
+
+-- Rolls the build. On "fixed" the dead phone works again (scratched, dry, the better of the two batteries); either
+-- way the donor is spent. Returns "fixed" or "failed".
+function Damage.frankenphone(rng, state, donor, skill, hasManual, sameModel)
+    if not rng:chance(Damage.frankenChance(skill, hasManual, sameModel)) then return "failed" end
+    state.condition, state.screenCracked = "scratched", nil
+    state.wetness, state.wetMinutes, state.waterDamageMinutes = "dry", 0, 0
+    if donor and donor.battery and state.battery and (donor.battery.health or 0) > (state.battery.health or 0) then
+        state.battery.health, state.battery.cycles = donor.battery.health, donor.battery.cycles or 0
+    end
+    return "fixed"
+end
+
 -- Parts from scrapping a phone: electronics scrap, plus the screen and battery when they're usable.
 function Damage.scrapYield(rng, state)
     local parts = { { item = "ElectronicsScrap", count = rng:int(1, 2) } }

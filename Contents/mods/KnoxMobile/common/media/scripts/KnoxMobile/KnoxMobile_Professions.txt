@@ -10,5 +10,6 @@ module Base
         IconPathName = profession_electrician,
         XPBoosts = Electricity=3;Fitness=1,
         GrantedRecipes = Generator;BuildCellRepeaterGuided;RebuildPhoneBatteryCell,
+        GrantedTraits = knoxmobile:tinkerer_prof,
     }
 }

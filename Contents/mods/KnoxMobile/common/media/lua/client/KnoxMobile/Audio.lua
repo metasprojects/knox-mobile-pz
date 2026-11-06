@@ -24,7 +24,16 @@ end
 -- How loud a phone sounds to you from a bag (0.2.0): muffled through the canvas; a buzz in a bag is barely felt.
 Audio.BAG_VOLUME, Audio.BAG_BUZZ = 0.35, 0.4
 
-local function play(sound, inBag)
+-- The phone's Volume setting (30 to 100 %, 70 by default) as a gain on its sounds: the default plays the sounds as
+-- made, 100 % about 3 dB louder, 30 % about 7 dB quieter (PC re-check R11: the setting changed nothing you could
+-- hear). A bag muffles on top. volume nil: as made.
+function Audio.gain(volume, inBag)
+    local v = volume and math.max(0.1, math.min(1.5, volume / 0.7)) or 1
+    if inBag then v = v * Audio.BAG_VOLUME end
+    return v
+end
+
+local function play(sound, inBag, volume)
     local p = me()
     if not p then return nil end
     -- Vibration is a cue only the player feels (spec §8.6); everything else is a sound in the world.
@@ -34,7 +43,8 @@ local function play(sound, inBag)
     end
     local emitter = p:getEmitter()
     local id = emitter:playSound(sound)
-    if inBag and id and id ~= 0 then pcall(function() emitter:setVolume(id, Audio.BAG_VOLUME) end) end
+    local v = Audio.gain(volume, inBag)
+    if v ~= 1 and id and id ~= 0 then pcall(function() emitter:setVolume(id, v) end) end
     return id
 end
 
@@ -50,20 +60,29 @@ local function look(phone)
 end
 
 -- Ringing ---------------------------------------------------------------------------------------
+-- 0.3.0: one sound now (a voice memo's crackle); inBag muffles it.
+function Audio.playSound(sound, inBag) play(sound, inBag) end
+
 function Audio.startRing(phone)
     local mode, volume, _, tone = look(phone)
     if mode == "silent" then return end
     local inBag = phone ~= nil and Phones.inBag(me(), phone)
-    Audio.ring = { mode = mode, radius = Noise.ringRadius(mode, volume, inBag, noiseSettings()), next = 0,
+    Audio.ring = { mode = mode, volume = volume, radius = Noise.ringRadius(mode, volume, inBag, noiseSettings()), next = 0,
         untilMs = now() + 60000, sound = tone == "chiptune" and "KnoxMobileRingtone" or "KnoxMobileRing", inBag = inBag }
     -- Your own tune (the Composer app): played through, then again while it rings.
     local state = phone and Phones.get(phone)
     if tone == "custom" and state and state.look.tune then Audio.ring.tune = Composer.parse(state.look.tune) end
+    -- After 0.3.0: the maker's own tune (Core/BrandTones).
+    if tone == "brand" and phone then
+        local _, model = Phones.get(phone)
+        local tune = require("KnoxMobile/Core/BrandTones").forModel(model)
+        if tune then Audio.ring.tune = Composer.parse(tune) end
+    end
 end
 
 -- A tune, note by note (the Composer app, a custom ringtone). notes: Composer.parse's list.
-function Audio.playTune(notes, inBag)
-    Audio.melody = notes and { notes = notes, i = 1, at = now(), inBag = inBag } or nil
+function Audio.playTune(notes, inBag, volume)
+    Audio.melody = notes and { notes = notes, i = 1, at = now(), inBag = inBag, volume = volume } or nil
 end
 
 Tick.add("phone melody", function()
@@ -72,7 +91,7 @@ Tick.add("phone melody", function()
     local t = now()
     while m.i <= #m.notes and t >= m.at do
         local n = m.notes[m.i]
-        if n.sound then play(n.sound, m.inBag) end
+        if n.sound then play(n.sound, m.inBag, m.volume) end
         m.at, m.i = m.at + n.ms, m.i + 1
     end
     if m.i > #m.notes then Audio.melody = nil end
@@ -90,11 +109,11 @@ function Audio.onNotify(args, phone)
     local inBag = phone ~= nil and Phones.inBag(me(), phone)
     if mode == "vibrate" then play("KnoxMobileVibrate", inBag); return end
     if args.kind == "texts" then
-        play("KnoxMobileText", inBag)
+        play("KnoxMobileText", inBag, volume)
         pulse(Noise.ringRadius(mode, volume, inBag, noiseSettings()) * 0.6)
     elseif args.kind == "battery" and (args.event == "low15" or args.event == "low5") then
         -- The low-battery beep is a noise like any other (spec §6.6).
-        play("KnoxMobileLowBattery", inBag)
+        play("KnoxMobileLowBattery", inBag, volume)
         pulse(Noise.ringRadius(mode, volume, inBag, noiseSettings()) * 0.3)
     end
 end
@@ -221,10 +240,10 @@ Tick.add("phone audio tick", function()
         elseif t >= r.next then
             r.next = t + Noise.PULSE_SECONDS * 1000
             if r.tune and r.mode ~= "vibrate" then
-                Audio.playTune(r.tune, r.inBag)
+                Audio.playTune(r.tune, r.inBag, r.volume)
                 r.next = t + math.max(Noise.PULSE_SECONDS * 1000, Composer.length(r.tune) + 700)
             else
-                play(r.mode == "vibrate" and "KnoxMobileVibrate" or r.sound, r.inBag)
+                play(r.mode == "vibrate" and "KnoxMobileVibrate" or r.sound, r.inBag, r.volume)
             end
             if r.mode == "ring" then pulse(r.radius) end
         end

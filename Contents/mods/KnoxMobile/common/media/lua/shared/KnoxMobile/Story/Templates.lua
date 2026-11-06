@@ -130,6 +130,36 @@ return {
     -- {place} is where they are: a real building (Story/Sites.lua, Core/Hunt), or "the house in <hometown>" when the
     -- family hunt is off. `site` limits an entry to a "house" or a "shelter" (church, school).
     family = {
+        -- 0.3.0, Week One: the week before the outbreak, while life is still mostly normal (Core/News has the same
+        -- days): before for 7 to 4 days out, beforeLate for the last three (roads closed, the fence, the curfew).
+        before = {
+            "It's supposed to hit 100 again. [Drink water|Keep the fan on], {first}",
+            "Are you coming for the Fourth? [Your dad's doing burgers|We're going to the fireworks at the river]",
+            "Did you see the news? Some flu going around Louisville. [Wash your hands|Take your vitamins]",
+            "Your aunt says the hospitals in Louisville are full. [Probably nothing|You know how she worries]. You feeling all right?",
+            "Some man bit a cop in Louisville, it was on the news. [People are crazy|What is wrong with people]",
+            "Call your grandmother this week. [She asked about you|She'd like that]",
+            "The pool's closed. Something about the water. In this heat, {first}",
+            "Your cousin's flight got cancelled. Louisville isn't letting planes in. [Isn't that strange|Did you hear about that]?",
+            "Church is collecting canned goods for the hospital in Louisville. Bring some Sunday",
+            "There was a fight at the Fourth of July thing. Man bit somebody. [Drunk probably|Can you believe it]",
+            "Your dad's been listening to the scanner all night. Says the ambulances don't stop",
+            "Stopped at the store. They're out of bottled water. In July. [Weird|Strange week]",
+        },
+        beforeLate = {
+            "They closed the roads out of the county this morning. [Army trucks on 31W|Nobody's saying why]",
+            "The line at the pharmacy is out the door. [Get what you need now|I picked up your prescription]",
+            "The house phone is dead. [Text me on this|This thing still works]. Are you home?",
+            "There's a curfew tonight. [Be home before dark|Don't go out after dark], please",
+            "They're putting up a fence on the highway. A fence, {first}. [What is going on|Nobody tells us anything]",
+            "Fill your tub and some jugs with water. [Just in case|Your dad says just in case]",
+            "The army's at the bridge. They turned your aunt around. She's staying with us",
+            "School says don't bring the kids tomorrow. No reason given",
+            "Mrs. Hale next door is sick. Real sick. Her husband won't let anybody in",
+            "Helicopters all night. I counted six. Are you seeing this where you are?",
+            "They're saying on the radio it's a quarantine. Just a precaution. [Stay home|Don't go anywhere]",
+            "Your dad got the generator running. Just in case, he says. He keeps saying that",
+        },
         -- Where the family is holed up: one text early on, so the player knows where to look (Core/Hunt).
         gather = {
             { site = "house", body = "We're all at {place}. [Doors locked, curtains shut|Plenty of canned food]. Come if you can" },

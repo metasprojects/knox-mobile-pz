@@ -27,7 +27,10 @@ function FamilyCall.status(plan, member, now)
             elseif m.stage == "goodbye" then fate = "goodbye" end
         end
     end
-    return stage or "worry", last, fate
+    -- 0.3.0, Week One: before the outbreak (plan.start) they're living their week; from it on, worried.
+    local started = plan.start == nil or now >= plan.start
+    if stage == "before" and started then stage = nil end
+    return stage or (started and "worry" or "before"), last, fate
 end
 
 -- How a call goes, by where they are: weights.
@@ -37,6 +40,7 @@ FamilyCall.ODDS = {
     rescued = { { "unreachable", 60 }, { "voicemail", 20 }, { "busy", 20 } },
     goodbye = { { "unreachable", 50 }, { "voicemail", 50 } },
     silence = { { "voicemail", 50 }, { "unreachable", 40 }, { "busy", 10 } },
+    before = { { "answer", 60 }, { "voicemail", 35 }, { "busy", 5 } }, -- 0.3.0: the lines aren't jammed yet
 }
 FamilyCall.OTHER = { { "voicemail", 45 }, { "unreachable", 45 }, { "busy", 10 } }
 
@@ -44,6 +48,17 @@ FamilyCall.OTHER = { { "voicemail", 45 }, { "unreachable", 45 }, { "busy", 10 } 
 -- {label}: their name on your phone (Mom); {first}: their own first name; {you}: your first name; {place}: where
 -- the family is.
 FamilyCall.ANSWER = {
+    -- 0.3.0, Week One: calls in the week before the outbreak.
+    before = {
+        "{label}: Hey, {you}! I'm at the store, can I call you back? / Love you. Bye.",
+        "{label}: Hi, sweetheart. Hot enough for you? / Are you eating okay? / Okay. Call your grandmother.",
+        "{label}: Did you see the news about Louisville? / Your aunt is worried sick. / I'm sure it's nothing.",
+        "{label}: They closed the roads. Did you hear? / Nobody's telling us anything. / Stay close to home, okay?",
+        "{label}: I can't talk long, the line at the pharmacy is crazy. / Do you need anything? / I'll call you tonight.",
+        "{label}: Hi, it's me. Nothing's wrong. / I just wanted to hear your voice. / Okay. Call me tomorrow.",
+        "{label}: {you}! Did you see the helicopters? / Your father says it's the National Guard. / I don't like it. Stay home tonight.",
+        "{label}: I'm in line at the bank. They're only giving out two hundred dollars. / Two hundred! / I'll call you back.",
+    },
     worry = {
         "{label}: {you}? Oh thank God. Where are you? / Hello? You're breaking up. / Text me. Texts get through.",
         "{label}: Are you okay? The TV says stay inside and lock the doors. / I can barely hear you. / I love you. Text me.",
@@ -153,6 +168,7 @@ function FamilyCall.outcome(rng, plan, member, now, fill, noBusy)
     local stage, last, fate = FamilyCall.status(plan, member, now)
     local talking = now <= last + 0.5
     local odds = FamilyCall.ODDS[talking and "talking" or fate] or FamilyCall.ODDS.silence
+    if stage == "before" then odds = FamilyCall.ODDS.before end
     if noBusy then odds = FamilyCall.withoutBusy(odds) end
     local kind = FamilyCall.roll(rng, odds)
     if kind == "answer" then

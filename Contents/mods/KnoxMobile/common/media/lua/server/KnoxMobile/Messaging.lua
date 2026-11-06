@@ -201,8 +201,8 @@ end
 -- land late and out of order. Returns the game minute it may arrive, or nil for right away.
 function Messaging.lag(now)
     if not Util.settings().NetworkCongestion then return nil end
-    local day = Util.nowDay()
-    if day >= 7 then return nil end
+    local day = Util.sinceOutbreak()
+    if day < 0 or day >= 7 then return nil end -- before the outbreak (Week One) the network is quiet
     local rng = Rng.new("lag:" .. tostring(now) .. ":" .. tostring(State.get().queue.nextId))
     if not rng:chance(day < 3 and 0.35 or 0.2) then return nil end
     return now + (day < 3 and rng:int(20, 240) or rng:int(10, 90))
@@ -237,6 +237,10 @@ function Messaging.appendOwn(player, item, state, with, body, status, meta, even
     Phones.save(item, player)
 end
 
+-- Numbers that answer for themselves (0.3.0): each hook(player, item, state, to, body) returns true when `to` is
+-- its own (the Knox Sentry, server/Sentry.lua), and has put the text in the sender's thread.
+Messaging.textHooks = {}
+
 -- A player sends a text from one of their phones. Returns "delivered", "queued" or "failed" plus a reason.
 function Messaging.sendText(player, item, to, body)
     local state, model = Phones.get(item)
@@ -244,6 +248,9 @@ function Messaging.sendText(player, item, to, body)
     if state.security.locked then return "failed", "locked" end
     local located, senderNet = Messaging.service(player, model)
     if not located.network then return "failed", "noService" end
+    for _, hook in ipairs(Messaging.textHooks) do
+        if hook(player, item, state, to, body) then return "delivered" end
+    end
     -- Your family's phones are out there (Core/FamilyCall): a text to them goes out, it never waits in the queue.
     -- In the first two days they answer it (Core/FamilyText, sent by releaseStory).
     local md = State.get()
@@ -325,13 +332,17 @@ function Messaging.setupOwnSim(player, sim)
     end
     Sim.addContact(sim, me.friend.label, Sim.issueNumber(md.numbers, rng))
     local settings = Util.settings()
+    -- 0.3.0: with Week One the game starts days before the outbreak; the story starts with it (and the week before
+    -- gets its own texts). Without Week One, outbreakDay is 0 and the story starts now.
+    local storyStart = math.max(Util.nowDay(), require("KnoxMobile/Game/WeekOne").outbreakDay())
+    local beforeDays = math.max(0, storyStart - Util.nowDay())
     if settings.FamilyStoryline then
         -- The family hunt: the texts name a real building no other player's family has (Core/Hunt).
         local site = settings.FamilyHunt and Hunt.pickSite(rng, me.hometown, md.huntTaken) or nil
-        local plan = Story.familyPlan(rng, me, { darkness = settings.StoryDarkness, startDay = Util.nowDay(),
-            site = site and Hunt.siteGroup(site.kind) or nil })
+        local plan = Story.familyPlan(rng, me, { darkness = settings.StoryDarkness, startDay = storyStart,
+            site = site and Hunt.siteGroup(site.kind) or nil, beforeDays = beforeDays })
         md.story[sim.number] = { messages = plan.messages, next = 1, family = family, hometown = me.hometown,
-            start = Util.nowDay() }
+            start = storyStart }
         if site then
             md.huntTaken[site.id] = key
             md.story[sim.number].hunt = Hunt.new(rng, site, me, plan, family, sim.number)
@@ -340,11 +351,11 @@ function Messaging.setupOwnSim(player, sim)
         end
     end
     if settings.SurvivorTexts then
-        local list = Story.survivorTexts(rng, rng:int(2, 4), { startDay = Util.nowDay() + 1, endDay = Util.nowDay() + 20 })
+        local list = Story.survivorTexts(rng, rng:int(2, 4), { startDay = storyStart + 1, endDay = storyStart + 20 })
         -- One or two point to a stash (Core/Quests), never at a place another of this player's texts names.
         local used = {}
         for _, m in ipairs(list) do if m.place.site then used[m.place.site] = true end end
-        local quests = Quests.make(rng, rng:int(1, 2), { startDay = Util.nowDay() + 1, endDay = Util.nowDay() + 20,
+        local quests = Quests.make(rng, rng:int(1, 2), { startDay = storyStart + 1, endDay = storyStart + 20,
             trapChance = settings.QuestTrapChance, used = used })
         for _, q in ipairs(quests) do list[#list + 1] = q end
         table.sort(list, function(a, b) return a.day < b.day end)
@@ -354,6 +365,13 @@ function Messaging.setupOwnSim(player, sim)
         md.players[key] = { number = sim.number, survivors = list, nextSurvivor = 1 }
     else
         md.players[key] = { number = sim.number }
+    end
+    -- After 0.3.0: the welcome guide, a few KNOX MOBILE texts over the first days (Core/Guide).
+    if settings.WelcomeTexts ~= false then
+        local now = Util.nowMinutes()
+        for _, tip in ipairs(require("KnoxMobile/Core/Guide").TIPS) do
+            Messaging.queueStory("KNOX MOBILE", sim.number, Lang.t(tip.text), now + tip.after)
+        end
     end
     Util.log("own SIM for", key, "number", sim.number)
 end

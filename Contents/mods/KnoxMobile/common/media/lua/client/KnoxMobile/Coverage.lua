@@ -156,6 +156,19 @@ function Coverage.siteMenu(player, context, site)
         m:addOption(T("IGUI_KnoxMobile_SiteDisconnect", "Unhook the generator"), nil, function()
             Net.toServer(player, "siteDisconnect", { code = site.code })
         end)
+        -- After 0.3.0: text every phone this tower serves (server/TowerBroadcast.lua).
+        m:addOption(T("IGUI_KnoxMobile_SiteBroadcast", "Text every phone on this tower"), nil, function()
+            local w, h = 360, 150
+            local box = ISTextBox:new((getCore():getScreenWidth() - w) / 2, (getCore():getScreenHeight() - h) / 2, w, h,
+                T("IGUI_KnoxMobile_SiteBroadcastTitle", "To every phone on tower %1:", site.code), "", nil,
+                function(_, button)
+                    if button.internal ~= "OK" then return end
+                    local text = button.parent.entry:getText()
+                    if text and text ~= "" then Net.toServer(player, "siteBroadcast", { code = site.code, body = text:sub(1, 160) }) end
+                end)
+            box:initialise()
+            box:addToUIManager()
+        end)
     else
         local o = m:addOption(T("IGUI_KnoxMobile_SiteConnect", "Hook up the generator"), nil, function()
             Net.toServer(player, "siteConnect", { code = site.code })
@@ -192,7 +205,19 @@ local nextHint = 0
 -- Called by the open phone (UI/Phone.lua) after it works out the signal, about once a second.
 function Coverage.signalHint(player, model, located)
     local now = getTimestampMs()
+    -- After 0.3.0: the weather took a bar (Core/Weather).
+    if now >= nextHint and located and located.storm and (located.bars or 0) <= 1 then
+        nextHint = now + HINT_EVERY_MS
+        KnoxMobile.Client.toast(T("IGUI_KnoxMobile_StormSignal", "The storm is eating your signal."))
+        return
+    end
     if now < nextHint or not located or not located.indoors or (located.bars or 0) > 1 then return end
+    -- 0.3.0: the satellite phone indoors: no roof helps, only the sky.
+    if located.via == "satelliteSky" then
+        nextHint = now + HINT_EVERY_MS
+        KnoxMobile.Client.toast(T("IGUI_KnoxMobile_SatelliteSky", "No satellite. Go outside, under open sky."))
+        return
+    end
     if WorldModel.higherHelps(player, model, player:getModData().KnoxMobilePasswords or {}, located) then
         nextHint = now + HINT_EVERY_MS
         KnoxMobile.Client.toast(T("IGUI_KnoxMobile_TryHigher", "Weak signal. Try higher ground."))

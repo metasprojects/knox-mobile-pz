@@ -50,7 +50,7 @@ return {
     ["[Your father|Dad] went to the [gun store|hank's] in irvington yesterday. hasn't said what for"] = "[Tu papá|Papá] fue ayer a [la armería|lo de hank] en irvington. no ha dicho para q",
     ["bobby [didn't show|never came] for his shift at the [lumberyard|yard]. tammy says he quit"] = "bobby [no llegó|nunca vino] a su turno en [el aserradero|el patio]. tammy dice q renunció",
     ["[went up|climbed] on the [roof|water tower] for one bar. nothing. where r u"] = "[me subí|trepé] [al techo|al tanque de agua] por una rayita. nada. dnd estás",
-    ["[carl|trish] called out [sick|again]. third day. we're short at {jobPlace}"] = "[carl|trish] se reportó [enfermo|otra vez]. tercer día. nos falta gente en {jobPlace}",
+    ["[Carl|Trish] called out [sick|again]. Third day. We're short at {jobPlace}"] = "[Carl|Trish] se reportó [enfermo|otra vez]. Tercer día. Nos falta gente en {jobPlace}",
     ["the [truck|car] [won't start|died] at the gas station. walking home. dont wait"] = "[la camioneta|el auto] [no arranca|se murió] en la gasolinera. me voy a pie a casa. no me esperes",
     ["Grandma's [fever|temp] [spiked|went up] last night. dr sato said stay put. we're watching"] = "A la abuela se le [disparó|subió] la [fiebre|temperatura] anoche. dr sato dijo q no nos movamos. la estamos cuidando",
     ["jimmy at twiggys says [back door's|side door's] [locked|open] now. knock three times. he's got the shotgun"] = "jimmy de twiggys dice q la puerta [de atrás|lateral] ahora está [cerrada|abierta]. toquen tres veces. tiene la escopeta",

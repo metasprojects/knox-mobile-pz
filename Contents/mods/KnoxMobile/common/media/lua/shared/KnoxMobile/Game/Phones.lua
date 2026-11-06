@@ -88,6 +88,12 @@ function Phones.get(item)
         local rng = Rng.new(tostring(Phones.worldSeed()) .. ":" .. tostring(item:getID()))
         state = PhoneState.new(model, { origin = origin, rng = rng, sandbox = Util.settings(), color = color })
         state.lastTick = Util.nowMinutes()
+        -- 0.3.0: a prepaid phone's minutes (Core/Airtime): a full card new, whatever was left when found.
+        if require("KnoxMobile/Core/Airtime").isPrepaid(model) then
+            state.airtime = require("KnoxMobile/Core/Airtime").starting(origin, rng)
+        end
+        -- 0.3.0: a bandit clan's phone (server banditPhone) was never locked: whoever takes it reads it.
+        if md.KnoxMobileNoLock and state.security then state.security.locked = false end
     end
     md[Phones.KEY] = state
     return unlockIfPinsOff(state), model

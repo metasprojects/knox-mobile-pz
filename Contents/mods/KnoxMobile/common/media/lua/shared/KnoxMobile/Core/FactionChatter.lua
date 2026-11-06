@@ -60,6 +60,8 @@ FactionChatter.MATE = {
 -- foundAt (minutes, optional) }. Returns { chat = { name, messages }, texts = { { with, name, messages } } }.
 function FactionChatter.build(rng, fill, names, opts)
     local mates = opts.mates or {}
+    -- 0.3.0: another crew's words (Core/ClanChatter for a bandit clan); the same shape as these tables.
+    local L = opts.lines or FactionChatter
     -- A crew member other than the given ones (the speaker, the first mate named): never "Ricardo: Ricardo got
     -- scratched" (PC test 2026-10-23).
     local function mate(skip, skip2)
@@ -88,7 +90,7 @@ function FactionChatter.build(rng, fill, names, opts)
     end
     -- While they were alive: four to eight messages from the crew, some from the owner.
     for _ = 1, rng:int(4, 8) do
-        local t = pickFresh(FactionChatter.GROUP)
+        local t = pickFresh(L.GROUP)
         local when = opts.firstDay * 1440 + rng:int(0, math.max(1, deathAt - opts.firstDay * 1440 - 30))
         if t and when < deathAt then
             local from = rng:chance(0.2) and "self" or mate()
@@ -98,7 +100,7 @@ function FactionChatter.build(rng, fill, names, opts)
     end
     -- After: two to four unread.
     for _ = 1, rng:int(2, 4) do
-        local t = pickFresh(FactionChatter.AFTER)
+        local t = pickFresh(L.AFTER)
         local when = deathAt + rng:int(30, 2 * 1440)
         if t and when < stop then
             local from = mate()
@@ -117,14 +119,14 @@ function FactionChatter.build(rng, fill, names, opts)
             if when < deathAt then
                 local mine = rng:chance(0.4)
                 conv.messages[#conv.messages + 1] = { day = math.floor(when / 1440), minute = Mod.floor(when, 1440),
-                    inbound = not mine, body = Lang.t(rng:pick(FactionChatter.MATE.alive)) }
+                    inbound = not mine, body = Lang.t(rng:pick(L.MATE.alive)) }
             end
         end
         for _ = 1, rng:int(1, 3) do
             local when = deathAt + rng:int(20, 2 * 1440)
             if when < stop then
                 conv.messages[#conv.messages + 1] = { day = math.floor(when / 1440), minute = Mod.floor(when, 1440),
-                    inbound = true, unread = true, body = Lang.t(rng:pick(FactionChatter.MATE.after)) }
+                    inbound = true, unread = true, body = Lang.t(rng:pick(L.MATE.after)) }
             end
         end
         table.sort(conv.messages, function(a, b) return a.day * 1440 + a.minute < b.day * 1440 + b.minute end)

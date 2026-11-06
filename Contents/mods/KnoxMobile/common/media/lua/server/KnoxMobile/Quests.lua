@@ -46,7 +46,8 @@ function QuestsWorld.spawn(id)
         for _, t in ipairs(q.loot) do inv:AddItem(t) end
         stashSq:AddWorldInventoryItem(bag, 0.5, 0.5, 0)
     end
-    if q.trap == "dead" then
+    if q.trap == "ambush" and KnoxMobile.TrapTexts then KnoxMobile.TrapTexts.sprung(q) end
+    if q.trap == "dead" or q.trap == "ambush" then
         -- The survivor who sent it, dead by what is left of the stash.
         local body = createRandomDeadBody(Scenes.freeInside(anchor, 1), 10)
         if body and isServer() then body:transmitCompleteItemToClients() end

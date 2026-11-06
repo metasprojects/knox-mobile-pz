@@ -1,5 +1,8 @@
 {
     "BuildCellRepeater": "Build Cell Repeater",
     "BuildCellRepeaterGuided": "Build Cell Repeater (Step by Step)",
-    "RebuildPhoneBatteryCell": "Rebuild Phone Battery Cell"
+    "BuildSignalBooster": "Build a Cellular Signal Booster",
+    "MakePhotoBoard": "Make a Photo Board",
+    "RebuildPhoneBatteryCell": "Rebuild Phone Battery Cell",
+    "WireSentryAlarm": "Wire a Knox Sentry Alarm"
 }

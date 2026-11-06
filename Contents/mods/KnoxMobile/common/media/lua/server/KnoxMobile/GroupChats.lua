@@ -11,6 +11,7 @@ local Net = require "KnoxMobile/Game/Net"
 local SocialText = require "KnoxMobile/Game/SocialText"
 local Messaging = require "KnoxMobile/Messaging"
 local Social = require "KnoxMobile/SocialData"
+local Burners = require "KnoxMobile/Burners"
 
 local GroupChats = {}
 
@@ -25,13 +26,24 @@ function GroupChats.syncAuto(player)
     local changed = {}
     for _, id in ipairs(Groups.syncAuto(reg(), "faction", key, Social.faction(player))) do changed[#changed + 1] = id end
     for _, id in ipairs(Groups.syncAuto(reg(), "safehouse", key, Social.safehouse(player))) do changed[#changed + 1] = id end
+    -- After 0.3.0: the server-wide "Everyone" chat, every player online (sandbox Community > Global chat).
+    for _, id in ipairs(Groups.syncAuto(reg(), "everyone", key, GroupChats.everyone())) do changed[#changed + 1] = id end
     return changed
+end
+
+-- Everyone online, on a server with Global chat on (GroupChats.EVERYONE_IN_SP lets tests have it in single player).
+GroupChats.EVERYONE_IN_SP = false
+function GroupChats.everyone()
+    if not (isServer() or GroupChats.EVERYONE_IN_SP) or Util.settings().GlobalChat == false then return nil end
+    local keys = {}
+    for _, p in ipairs(Util.players()) do keys[#keys + 1] = Util.playerKey(p) end
+    return { id = "all", name = "Everyone", keys = keys }
 end
 
 -- The groups one phone belongs to, as the phone sees them.
 function GroupChats.listFor(player, number)
     local out = {}
-    for _, g in ipairs(Groups.forMember(reg(), number, Util.playerKey(player))) do
+    for _, g in ipairs(Groups.forMember(reg(), number, Burners.key(player, number))) do
         out[#out + 1] = Groups.publicCopy(g, Social.numberOf)
     end
     return out
@@ -52,7 +64,7 @@ function GroupChats.push(ids)
             if st and st.sim and st.sim.number then
                 -- Members now, and anyone whose thread still names a changed group (they may have just left it).
                 local touched = false
-                for _, g in ipairs(Groups.forMember(reg(), st.sim.number, Util.playerKey(p))) do
+                for _, g in ipairs(Groups.forMember(reg(), st.sim.number, Burners.key(p, st.sim.number))) do
                     if wanted[g.id] then touched = true end
                 end
                 for _, conv in ipairs(st.contents.texts or {}) do
@@ -151,6 +163,10 @@ Net.onServer("groupText", function(player, args)
     local group = reg().byId[args.group]
     if not group then return result(player, args, "failed", { reason = "noGroup" }) end
     if not Groups.isMember(group, me, Util.playerKey(player)) then return result(player, args, "failed", { reason = "notMember" }) end
+    -- 0.3.0: Share my location to the group (Core/Locate): the sender's real spot.
+    local Locate = require "KnoxMobile/Core/Locate"
+    local note = Locate.isAsk(args.body)
+    if note then args.body = Locate.text(player:getX(), player:getY(), note) end
     local counts = { delivered = 0, queued = 0, failed = 0 }
     for _, n in ipairs(Groups.recipients(group, me, Social.numberOf)) do
         local status = Messaging.route({ from = me, to = n, body = args.body, group = group.id, groupName = group.name }, net)

@@ -56,7 +56,8 @@ function Social.track(player)
     local best = nil
     for _, item in ipairs(Phones.inventoryPhones(player)) do
         local st = Phones.get(item)
-        if Messaging.usable(st) then
+        -- A burner SIM (server/Burners.lua) never becomes the number you're known by.
+        if Messaging.usable(st) and not st.sim.burner then
             if st.sim.number == own then best = own; break end
             best = best or st.sim.number
         end

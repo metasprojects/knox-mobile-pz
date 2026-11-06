@@ -212,6 +212,29 @@ Events.OnFillWorldObjectContextMenu.Add(Util.safe("debug menu", function(playerN
         end
     end)
 
+    -- After 0.3.0: set up a shot or a test row now (docs/rounds/AFTER_030_PC_PROMPT.md).
+    local shots = sub(m, "After 0.3.0: set up now")
+    shots:addOption("Send a trap text now (a rescue at a real place)", nil, function() debug(player, { action = "trapText" }) end)
+    shots:addOption("Ring a house phone near me", nil, function()
+        local LL = KnoxMobile.Landlines
+        local sq = LL and LL.find(player, require("KnoxMobile/Core/Rng").new("dbgll:" .. getTimestampMs()))
+        if sq then LL.ring(player, sq) else KnoxMobile.Client.toast("No house phone within 20 squares") end
+    end)
+    local stormLabel = KnoxMobile.debugStorm and "Storm for the signal: turn off"
+        or "Storm for the signal (bars only; the sky: the game's Climate debug)"
+    shots:addOption(stormLabel, nil, function() KnoxMobile.debugStorm = not KnoxMobile.debugStorm or nil end)
+    shots:addOption("A clan locks onto my phone (Clans track phones)", nil, function() debug(player, { action = "clanTrace" }) end)
+    shots:addOption("Break the held phone (for a Frankenphone)", nil, function()
+        -- The open phone (a phone opened with the phone key is in neither hand: PC test), else the one in hand.
+        local open = KnoxMobile.UI and KnoxMobile.UI.panel
+        debug(player, { action = "breakPhone", phoneId = open and open.item and open.item:getID() or nil })
+    end)
+    local kit = { "KnoxMobile.PrepaidSimKit", "KnoxMobile.PhotoBoard", "KnoxMobile.InstantCamera", "KnoxMobile.InstantFilm",
+        "Base.Screwdriver" }
+    shots:addOption("Give a burner kit, a photo board, an instant camera, film, a screwdriver", nil, function()
+        for _, it in ipairs(kit) do debug(player, { action = "give", item = it }) end
+    end)
+
     local towers = sub(m, "Towers")
     towers:addOption("Kill all towers", nil, function() debug(player, { action = "towers", mode = "dead" }) end)
     towers:addOption("Revive all towers", nil, function() debug(player, { action = "towers", mode = "alive" }) end)

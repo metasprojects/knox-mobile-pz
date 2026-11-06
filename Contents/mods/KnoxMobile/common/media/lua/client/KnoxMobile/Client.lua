@@ -2,6 +2,7 @@
 -- (spec §8.4, §9.7, §13.2). Also says hello on join and asks for a new character's own SIM.
 local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
+local Traits = require "KnoxMobile/Game/Traits"
 local Phones = require "KnoxMobile/Game/Phones"
 local Messages = require "KnoxMobile/Data/Messages"
 local Tick = require "KnoxMobile/Game/Tick"
@@ -59,6 +60,30 @@ function Client.mood(stat, amount)
     end)
 end
 
+-- Several lifts at once ({ stat = amount taken away }, Traits.callRelief / gameRelief).
+function Client.relieve(lifts)
+    for stat, amount in pairs(lifts or {}) do
+        if amount > 0 then Client.mood(stat, -amount) end
+    end
+end
+
+-- 0.3.0: hands-free calls (Java part 0.8, HandsFree): while a call is connected the Push to talk key counts as held.
+-- Without ZombieBuddy, or with the option off, the talk key works as always.
+function Client.handsFree(on)
+    if not knoxHandsFree then return false end
+    local want = on == true and KnoxMobile.Options ~= nil and KnoxMobile.Options.handsFree()
+    local ok = pcall(knoxHandsFree, want)
+    return ok and want
+end
+
+-- 0.3.0: the phone-line voice (Java part, CallVoice): the caller's voice through a narrow, gritty 1990s line.
+function Client.phoneLine(partner, quality)
+    if not knoxCallVoice then return false end
+    local on = tonumber(partner) and partner >= 0 and KnoxMobile.Options ~= nil and KnoxMobile.Options.phoneLine()
+    local ok = pcall(knoxCallVoice, on and partner or -1, tonumber(quality) or 1)
+    return ok and on == true
+end
+
 function Client.toast(text, kind)
     if text and KnoxMobile.UI.toast then KnoxMobile.UI.toast(text, kind) end
 end
@@ -113,7 +138,7 @@ Net.onClient("notify", function(args)
     if not same then Client.toast(text, args.kind) end
     Client.lastNotice, Client.lastNoticeAt, Client.lastNoticePhone = text, t, args.phoneId
     -- A text from a real person is the best thing that happens all day.
-    if args.kind == "texts" and args.fromPlayer then Client.mood("UNHAPPINESS", -8) end
+    if args.kind == "texts" and args.fromPlayer then Client.mood("UNHAPPINESS", -8 * Traits.moodScale(me(), "talk")) end
     -- Taking a stranger's phone home is worth something.
     if args.kind == "returned" then Client.mood("UNHAPPINESS", -25) end
     if KnoxMobile.Audio then KnoxMobile.Audio.onNotify(args, phoneById(args.phoneId)) end
@@ -128,6 +153,9 @@ Net.onClient("world", function(args)
     KnoxMobile.world.storyShift = args.storyShift or 0
     KnoxMobile.world.voice = args.voice ~= false
     KnoxMobile.world.sites = args.sites or {} -- cell sites on generator power (Core/CellSites)
+    KnoxMobile.world.boosters = args.boosters or {} -- 0.3.0: home signal boosters (Core/Boosters)
+    -- 0.3.0: the server's sites for maps beyond vanilla Kentucky (the server already applied them in single player).
+    if isClient() then require("KnoxMobile/Game/MapNetwork").apply(args.mapSites) end
     refresh()
 end)
 
@@ -225,6 +253,9 @@ Net.onClient("callStart", function(args)
     end
     Client.call.status = "active"
     Client.call.channel = args.channel
+    Client.call.talkingSince = getTimestampMs() -- a talk lifts the mood when it ends (Traits.callRelief)
+    Client.handsFree(true)
+    Client.phoneLine(args.partner, args.quality)
     if KnoxMobile.Audio then
         KnoxMobile.Audio.stopRing()
         KnoxMobile.Audio.startCall(args.channel, phoneById(Client.call.phoneId))
@@ -274,11 +305,17 @@ Net.onClient("callEnd", function(args)
     if Client.payphoneCall and Client.payphoneCall.id == args.callId then Client.payphoneCall = nil end
     if KnoxMobile.Audio then KnoxMobile.Audio.stopRing(); KnoxMobile.Audio.endCall() end
     local wasIncoming = Client.call and Client.call.status == "incoming"
+    local since = Client.call and Client.call.talkingSince
     Client.call = nil
+    Client.handsFree(false)
+    Client.phoneLine(-1, 1)
+    if since then Client.relieve(Traits.callRelief(me(), (getTimestampMs() - since) / 1000)) end
     if args.reason == "missed" and wasIncoming then
         Client.toast(T("IGUI_KnoxMobile_MissedCall", "Missed call"), "call")
     elseif args.reason == "dropped" then
         Client.toast(T("IGUI_KnoxMobile_CallDropped", "Call dropped. The network is jammed."), "call")
+    elseif args.reason == "storm" then
+        Client.toast(T("IGUI_KnoxMobile_CallStorm", "Call dropped. The storm took the signal."), "call")
     else
         Client.toast(T("IGUI_KnoxMobile_CallEnded", "Call ended"), "call")
     end
@@ -314,7 +351,7 @@ Net.onClient("callScripted", function(args)
     local t = getTimestampMs()
     local ring = args.kind == "answer" and (2500 + ZombRand(3000)) or (7000 + ZombRand(5000))
     Client.scripted = { connectAt = args.kind ~= "noAnswer" and t + ring or nil, endAt = args.kind == "noAnswer" and t + 25000 or nil,
-        lines = lines, kind = args.kind }
+        lines = lines, kind = args.kind, ask = args.ask }
     refresh()
 end)
 
@@ -344,11 +381,26 @@ Tick.add("scripted call", function()
     end
     if s.endAt and t >= s.endAt then
         Client.scripted, Client.call, Client.callCaption = nil, nil, nil
+        -- After 0.3.0: WKNX's request line takes your message after the beep (server/Wknx.lua).
+        if s.ask == "wknx" and s.kind ~= "noAnswer" then Client.askWknx() end
         Client.toast(s.kind == "noAnswer" and T("IGUI_KnoxMobile_NoAnswer", "No answer")
             or T("IGUI_KnoxMobile_CallEnded", "Call ended"), "call")
         refresh()
     end
 end, 100)
+
+function Client.askWknx()
+    local w, h = 360, 150
+    local box = ISTextBox:new((getCore():getScreenWidth() - w) / 2, (getCore():getScreenHeight() - h) / 2, w, h,
+        T("IGUI_KnoxMobile_WknxAsk", "After the beep (a song request or a message for the county):"), "", nil,
+        function(_, button)
+            if button.internal ~= "OK" then return end
+            local text = button.parent.entry:getText()
+            if text and text ~= "" then Net.toServer(me(), "wknxMessage", { text = text:sub(1, 200) }) end
+        end)
+    box:initialise()
+    box:addToUIManager()
+end
 
 function Client.placeCall(phone, number)
     Client.dialingPhone = phone:getID()

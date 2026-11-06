@@ -8,6 +8,7 @@ local Net = require "KnoxMobile/Game/Net"
 local Util = require "KnoxMobile/Game/Util"
 local SocialText = require "KnoxMobile/Game/SocialText"
 local CameraSpec = require "KnoxMobile/Core/CameraSpec"
+local Locate = require "KnoxMobile/Core/Locate"
 local Format = require "KnoxMobile/Core/Format"
 local Mod = require "KnoxMobile/Core/Mod"
 local Replies = require "KnoxMobile/Core/Replies"
@@ -99,12 +100,30 @@ local function canReply(ctx, t)
     return not t.story and not t.conv.carrier and Sim.normalise(t.conv.with) ~= nil
 end
 
+-- 0.3.0: a shared location reads as how far and which way it is from where you stand now.
+local DIRS = {
+    n = function() return T("IGUI_KnoxMobile_DirShortN", "N") end, ne = function() return T("IGUI_KnoxMobile_DirShortNE", "NE") end,
+    e = function() return T("IGUI_KnoxMobile_DirShortE", "E") end, se = function() return T("IGUI_KnoxMobile_DirShortSE", "SE") end,
+    s = function() return T("IGUI_KnoxMobile_DirShortS", "S") end, sw = function() return T("IGUI_KnoxMobile_DirShortSW", "SW") end,
+    w = function() return T("IGUI_KnoxMobile_DirShortW", "W") end, nw = function() return T("IGUI_KnoxMobile_DirShortNW", "NW") end,
+}
+local function locationText(ctx, body)
+    local x, y, note = Locate.parse(body)
+    if not x then return body end
+    local m, dir = Locate.from(ctx.player:getX(), ctx.player:getY(), x, y)
+    local s
+    if dir == "here" then s = T("IGUI_KnoxMobile_LocHere", "[Location] right here")
+    else s = T("IGUI_KnoxMobile_LocLine", "[Location] %1 %2", Locate.distance(m), DIRS[dir] and DIRS[dir]() or dir) end
+    if note and note ~= "" then s = s .. " " .. note end
+    return s
+end
+
 local function lineText(ctx, t, m)
     if m.event then
         local who = Social().nameFor(ctx.state, m.from)
         return "* " .. SocialText.event(m.event, who, t.conv.name) .. " *", true
     end
-    local body = CameraSpec.shown(m.body or "")
+    local body = locationText(ctx, CameraSpec.shown(m.body or ""))
     -- Short screens get the one-line SOS; the thread's header already says "SOS: name".
     if m.sos then body = (small(ctx) or ctx.h < 120) and SocialText.sosShort(m.sos) or SocialText.sos(m.sos) end
     if m.page then body = T("IGUI_KnoxMobile_PageLine", "Page: %1", body) end
@@ -164,6 +183,7 @@ local function listRows(ctx)
         short = T("IGUI_KnoxMobile_NewMessageShort", "+ New") } }
     if ctx.state.sim then rows[#rows + 1] = { id = "group", label = T("IGUI_KnoxMobile_NewGroup", "+ New group") } end
     if ctx.state.sim then rows[#rows + 1] = { id = "page", label = T("IGUI_KnoxMobile_SendPage", "+ Send page") } end
+    if ctx.state.sim then rows[#rows + 1] = { id = "loc", label = T("IGUI_KnoxMobile_ShareLoc", "+ Share my location") } end
     local list = threads(ctx)
     for _, t in ipairs(list) do
         local n = unreadCount(t.conv)
@@ -258,6 +278,12 @@ local function threadInput(ctx, t, ev)
     local g = liveGroup(ctx, t)
     local onHeader = ev.type == "tap" and ev.y <= ctx:lineHeight() + 3
     if g and ((ev.type == "key" and ev.key == "right") or onHeader) then goTo(d, "info", { thread = t.key }); return end
+    -- 0.3.0: Left shares where you are with this thread (a person or a group).
+    if ev.type == "key" and ev.key == "left" and canReply(ctx, t) and not storyThread(ctx, t) then
+        if g then sendGroup(ctx, g.id, Locate.ASK) else sendText(ctx, t.conv.with, Locate.ASK) end
+        ctx:toast(T("IGUI_KnoxMobile_LocSent", "Location sent"))
+        return
+    end
     -- A person's thread: Right (or a tap on their name) calls them back.
     if not g and canReply(ctx, t) and not storyThread(ctx, t) and t.conv and t.conv.with
         and ((ev.type == "key" and ev.key == "right") or onHeader) then
@@ -284,8 +310,11 @@ end
 local function infoRows(ctx, g)
     local d = ctx.data
     local rows = {}
+    -- After 0.3.0: a conference call to everyone online (server/Conference.lua).
+    rows[#rows + 1] = { id = "call", label = T("IGUI_KnoxMobile_GroupCall", "Call the group") }
     if g.auto then
         rows[#rows + 1] = { id = "kind", label = g.auto == "faction" and T("IGUI_KnoxMobile_GroupFaction", "Your faction")
+            or g.auto == "everyone" and T("IGUI_KnoxMobile_GroupEveryone", "Everyone on the server")
             or T("IGUI_KnoxMobile_GroupSafehouse", "Your safehouse") }
     else
         rows[#rows + 1] = { id = "add", label = T("IGUI_KnoxMobile_GroupAdd", "+ Add someone") }
@@ -318,7 +347,10 @@ local function infoInput(ctx, t, g, ev)
     local row = rows[ctx:listInput(ev, #rows) or 0]
     if not row then return end
     local mine = ctx.state.sim and ctx.state.sim.number
-    if row.id == "add" then
+    if row.id == "call" then
+        if KnoxMobile.Client then KnoxMobile.Client.dialingPhone = ctx.phone:getID() end
+        Social().request("groupCall", ctx.phone, { group = g.id })
+    elseif row.id == "add" then
         askNumber(ctx, T("IGUI_KnoxMobile_GroupAddPrompt", "Add (number or contact):"), function(number)
             Social().request("groupAdd", ctx.phone, { group = g.id, number = number })
         end)
@@ -429,6 +461,10 @@ KnoxMobile.Apps.register({
             if not ctx.state.sim then ctx:toast(T("IGUI_KnoxMobile_NoSim", "No SIM card")); return true end
             askNumber(ctx, T("IGUI_KnoxMobile_To", "To (number or contact):"), function(number)
                 ctx:askText(T("IGUI_KnoxMobile_TypeMessage", "Message:"), "", function(text) sendText(ctx, number, text) end, 320)
+            end)
+        elseif row.id == "loc" then
+            askNumber(ctx, T("IGUI_KnoxMobile_To", "To (number or contact):"), function(number)
+                sendText(ctx, number, Locate.ASK)
             end)
         elseif row.id == "group" then
             goTo(d, "pick", { picked = {} })

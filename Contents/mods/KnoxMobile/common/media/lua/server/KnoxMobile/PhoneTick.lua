@@ -12,6 +12,7 @@ local Net = require "KnoxMobile/Game/Net"
 local Alarm = require "KnoxMobile/Core/Alarm"
 local Alarms = require "KnoxMobile/Alarms"
 local Flashlight = require "KnoxMobile/Flashlight"
+local FindPhone = require "KnoxMobile/FindPhone"
 
 local PhoneTick = {}
 
@@ -228,6 +229,9 @@ function PhoneTick.run()
             local env = Env.snapshot(player)
             for _, item in ipairs(phones) do
                 Util.safe("phone tick", tickPhone)(player, item, env, settings, ps, 1)
+                -- Find my phone: where each SIM was last carried.
+                local st = Phones.get(item)
+                if st and st.sim and st.sim.number then FindPhone.note(player, st.sim.number, st.power and st.power.on) end
             end
             Util.safe("power bank tick", tickBanks)(player, env, ps, 1)
             Util.safe("spare battery tick", tickSpares)(player, env, ps, 1)

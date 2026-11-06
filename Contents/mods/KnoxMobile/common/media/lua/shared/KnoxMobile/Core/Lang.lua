@@ -12,7 +12,8 @@ Lang.GAME = { ES = "es", ES_MX = "es", ES_CL = "es", AR = "es" }
 -- Each language's dictionaries ({ [english] = translation }), searched in this order.
 Lang.DICTS = { es = { "KnoxMobile/Lang/es/Story", "KnoxMobile/Lang/es/Voices", "KnoxMobile/Lang/es/Library1",
     "KnoxMobile/Lang/es/Library2", "KnoxMobile/Lang/es/Library3", "KnoxMobile/Lang/es/Library4",
-    "KnoxMobile/Lang/es/Library5" } }
+    "KnoxMobile/Lang/es/Library5", "KnoxMobile/Lang/es/Library6",
+    "KnoxMobile/Lang/es/Network" } }
 
 local current = "en"
 local provider = nil

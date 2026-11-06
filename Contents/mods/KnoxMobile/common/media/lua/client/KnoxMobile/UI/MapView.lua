@@ -75,10 +75,17 @@ local function class()
     return Class
 end
 
+-- view: the world map view, or true when there is none yet (the 3D phone's map zooms on the same level).
 function MapView.zoomBy(view, step)
-    if not (view and view.mapAPI) then return end
+    if not view then return end
     MapView.level = math.max(MIN_ZOOM, math.min(MAX_ZOOM, MapView.level + step))
-    view.mapAPI:setZoom(MapView.level)
+    if type(view) == "table" and view.mapAPI then view.mapAPI:setZoom(MapView.level) end
+end
+
+-- Tiles from the centre to the edge at the current zoom, for the app's own map on the 3D phone: about 600 at the
+-- default level, doubling with each step out.
+function MapView.range()
+    return math.floor(600 * 2 ^ (17.5 - MapView.level))
 end
 
 -- Shows the map over the screen rect (x, y, w, h in the app's own coordinates). places: { x, y, color }; note: a line

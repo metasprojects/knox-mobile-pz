@@ -4,6 +4,7 @@
 require "ISUI/ISPanelJoypad"
 require "ISUI/ISTextEntryBox"
 local Mod = require "KnoxMobile/Core/Mod"
+local Registry = require "KnoxMobile/Core/Registry"
 local Phones = require "KnoxMobile/Game/Phones"
 local WorldModel = require "KnoxMobile/Game/WorldModel"
 local Util = require "KnoxMobile/Game/Util"
@@ -35,6 +36,15 @@ local STYLES = {
     ModernPear = { bg = { 0.08, 0.08, 0.1 }, fg = { 1, 1, 1 }, accent = { 0.2, 0.55, 1 }, layout = "grid", cols = 4 },
 }
 UI.STYLES = STYLES
+-- Text in the accent colour, readable: on a dark screen a dark accent (the Pear's and the Keyboard's blue, the brick's
+-- red) is mixed halfway to the text colour (PC re-check: blue headers and distances read as black on the phone in
+-- your hand, at night most). Highlight bars keep the accent itself.
+local function lum(c) return 0.2126 * c[1] + 0.7152 * c[2] + 0.0722 * c[3] end
+for _, st in pairs(STYLES) do
+    if lum(st.bg) < 0.3 and lum(st.accent) < 0.55 then
+        st.accentText = { (st.accent[1] + st.fg[1]) / 2, (st.accent[2] + st.fg[2]) / 2, (st.accent[3] + st.fg[3]) / 2 }
+    end
+end
 
 -- Keypad phones beep on every key press (spec §4.6 "beeps").
 local KEYPAD = { SegmentLCD = true, MonoLCD = true, ColorFeature = true, Keyboard = true }
@@ -54,7 +64,10 @@ local KEY_PRINT = {
 }
 local KEY_MARK = { Call = "handset", End = "handset", Soft1 = "dash", Soft2 = "dash", Rocker = "updown" }
 -- The DoorStop is a narrow brick: drawn half as large again so its keys are big enough to read and click (r8).
-local MODEL_SCALE = { DoorStop8000 = 1.5 }
+-- Tall phones draw bigger, so their screens come out the size of a candybar's (the frame art is always 512 px tall).
+-- 0.3.0: the open flips, the bag phone and the satellite phone (its antenna makes it the tallest of all).
+local MODEL_SCALE = { DoorStop8000 = 1.5, Roadbag2900 = 1.6, StarJack = 1.5, Banana8110 = 1.25, Orbita9505 = 1.8,
+    ChirpI90 = 1.5, SlicerV3 = 1.6, TracPhone = 1.5, GoldenYearsEZ = 1.5, KaijuRockface = 1.5 }
 local KEY_LETTERS = { Key2 = "abc", Key3 = "def", Key4 = "ghi", Key5 = "jkl", Key6 = "mno", Key7 = "pqrs", Key8 = "tuv",
     Key9 = "wxyz" }
 -- What a front button is called, shown while the mouse rests on it.
@@ -63,7 +76,7 @@ local KEY_NAMES = {
     FFCN = "FCN (select)", BPWR = "PWR (power)", BVOL = "VOL (sound mode)", BLOCK = "LOCK (lock the phone)", Call = "Call / select",
     End = "End / back", Soft1 = "Select", Soft2 = "Back", Joy = "Joystick", Navi = "Navi (select)", Rocker = "Up / down",
     C = "C (back)", Fn1 = "Select", Fn2 = "Home", Fn3 = "Back", Fn4 = "Back", Trackpad = "Select", Menu = "Menu (home)",
-    Home = "Home", Back = "Back",
+    Home = "Home", Back = "Back", Fn = "HELP (calls your emergency contact, or 911)",
 }
 local CRACK_MISS = 15 -- percent of taps a cracked screen swallows (spec §9.3)
 
@@ -155,6 +168,7 @@ Ctx.__index = Ctx
 local function color(c, default) return c or default end
 
 function Ctx:text(s, x, y, c, f, align)
+    if c ~= nil and c == self.style.accent and self.style.accentText then c = self.style.accentText end
     c = color(c, self.style.fg)
     local p = self.panel
     local base = f or font()
@@ -296,6 +310,7 @@ function Panel:new(player, item)
     local o = ISPanelJoypad.new(self, x, y, w, h)
     o.firstPerson = firstPerson
     o.bigText = Options.bigText() or scale / (MODEL_SCALE[artIdOf(model)] or 1) >= SCALES.L
+        or Registry.hasExtra(model, "bigButtons") -- 0.3.0: the Golden Years EZ's giant text
     o.player, o.item, o.model = player, item, model
     o.family = model.family
     o.style = STYLES[model.family] or STYLES.ModernAndroid
@@ -393,7 +408,7 @@ function Panel:askText(prompt, initial, onDone, maxLen, masked)
     if maxLen then pcall(function() box:setMaxTextLength(maxLen) end) end
     -- A new PIN shows as stars (r8: it showed the digits).
     if masked then pcall(function() box:setMasked(true) end) end
-    box.knoxMaxLen = maxLen
+    box.knoxMaxLen, box.knoxMasked, box.knoxX = maxLen, masked == true, s.x + 2
     local panel = self
     box.onCommandEntered = function(b)
         local text = boxText(b)
@@ -841,10 +856,31 @@ function Panel:drawScreen()
         -- Typing: the screen clears behind the box (second pass: on the Cinderblock the settings rows and a thread's
         -- "Enter: reply" showed through), the prompt sits just above it.
         c:rect(0, 0, s.w, s.h, self.style.bg, 1)
-        -- The prompt wraps upward from just above the box (r8: "Who's in the gro..." was cut on the Cinderblock).
         local promptLines = UI.wrap(self.textPrompt or "", s.w - 8)
-        for i, l in ipairs(promptLines) do
-            c:text(l, 4, s.h - (#promptLines - i + 2) * lineH() - 13, self.style.fg)
+        local Live = KnoxMobile.Live
+        if Live and Live.capturing then
+            -- The 3D phone's copy. The box is its own element, drawn outside the copy (PC test 22q: the dial
+            -- "Number:" box hung off the phone in walk mode), so the copy draws what's typed, near the top: the
+            -- bottom of the phone in your hand sits under Viewpoint Interface's hotbar (PC re-check R4).
+            local y0 = (top or 0) + 4
+            for i, l in ipairs(promptLines) do c:text(l, 4, y0 + (i - 1) * lineH(), self.style.fg) end
+            local boxH = lineH() + 8
+            local bx, by = 2, y0 + #promptLines * lineH() + 4
+            c:rect(bx, by, s.w - 4, boxH, { 0, 0, 0 }, 0.85)
+            c:border(bx, by, s.w - 4, boxH, self.style.accent, 0.9)
+            local typed = boxText(self.textBox)
+            if self.textBox.knoxMasked then typed = string.rep("*", #typed) end
+            while #typed > 1 and c:measure(typed) > s.w - 18 do typed = typed:sub(2) end
+            c:text(typed, bx + 4, by + 4, { 1, 1, 1 })
+            -- A block cursor, blinking (a thin "_" vanished in the 3D phone's smaller copy: PC re-check R4).
+            if Mod.floor(math.floor(getTimestampMs() / 500), 2) == 0 then
+                c:rect(bx + 5 + (typed ~= "" and c:measure(typed) or 0), by + 3, 3, boxH - 6, { 1, 1, 1 }, 0.9)
+            end
+        else
+            -- The prompt wraps upward from just above the box (r8: "Who's in the gro..." was cut on the Cinderblock).
+            for i, l in ipairs(promptLines) do
+                c:text(l, 4, s.h - (#promptLines - i + 2) * lineH() - 13, self.style.fg)
+            end
         end
     end
     self:drawBanner(c, top)
@@ -1055,9 +1091,12 @@ function Panel:drawCameraMarks()
 end
 
 -- First person, walking and looking, with the live screen on the 3D phone: no 2D phone at all (vision #1).
+-- Sneaking lowers the held phone below the view (PC re-check), so the 2D phone shows while you sneak.
 function Panel:hiddenInWalk()
     local Live = KnoxMobile.Live
-    return self.firstPerson == true and UI.walk == true and Live ~= nil and Live.active()
+    if not (self.firstPerson == true and UI.walk == true and Live ~= nil and Live.active()) then return false end
+    local p = self.player
+    return not (p and p.isSneaking and p:isSneaking())
 end
 
 function Panel:drawCallBar()
@@ -1291,6 +1330,13 @@ function Panel:drawAll()
     -- First person: on a call only a small bar shows; walking and looking with the live 3D screen, nothing (the phone
     -- in the hand is the screen), or with the Camera open the photo's corners.
     if self:fpCall() then self:drawCallBar(); return end
+    -- Walking with the phone in hand there is no 2D phone, so its text box goes out of sight (it keeps the
+    -- keyboard; the 3D phone shows what's typed) and comes back when the 2D phone does.
+    local box = self.textBox
+    if box and box.knoxX then
+        local bx = self:hiddenInWalk() and -20000 or box.knoxX
+        if box:getX() ~= bx then box:setX(bx) end
+    end
     if self:hiddenInWalk() then
         if camera then self:drawCameraMarks() end
         return
@@ -1436,6 +1482,7 @@ end
 local BUTTON_KEYS = {
     Call = "select", FSND = "select", Fn1 = "select", Soft1 = "select", Navi = "select", Trackpad = "select",
     FFCN = "select",
+    Soft = "select", Fn = "help", -- 0.3.0: the Bramble 850's and Slicer V3's soft key; the Golden Years HELP key
     End = "back", FEND = "back", Fn4 = "back", Fn3 = "back", Soft2 = "back", C = "back", Back = "back", FCLR = "back",
     Home = "home", Menu = "home", Fn2 = "home",
     FRCL = "up", FSTO = "down",
@@ -1486,7 +1533,15 @@ function Panel:pressButton(r, x, y)
         if state.power.on then KnoxMobile.Client.setting(self.item, "lock", true) end
     elseif key == "BVOL" then
         if state.power.on then
-            KnoxMobile.Client.setting(self.item, "soundMode", SOUND_NEXT[state.look.soundMode] or "ring")
+            local nextMode = SOUND_NEXT[state.look.soundMode] or "ring"
+            if nextMode == "vibrate" and not Registry.canVibrate(self.model) then nextMode = "silent" end -- 0.3.0
+            KnoxMobile.Client.setting(self.item, "soundMode", nextMode)
+        end
+    elseif key == "help" and Registry.hasExtra(self.model, "bigButtons") then
+        -- 0.3.0: the Golden Years EZ's red HELP key calls the emergency contact (Settings), or 911.
+        if state.power.on then
+            local to = state.ice and state.ice.number or "911"
+            KnoxMobile.Client.placeCall(self.item, to)
         end
     elseif key == "home" then
         if self:mode(state) == "app" then self:goHome() end
@@ -1672,10 +1727,26 @@ function Panel:onKeyRelease(key)
     self:input({ type = "key", key = k })
 end
 
+-- A controller (after 0.3.0; handhelds too): A selects, B goes back, the D-pad moves. X answers a ringing call or hangs
+-- up a live one, and otherwise goes to the home screen; Y puts the phone away; the bumpers page through long lists.
 function Panel:onJoypadDown(button)
     if button == Joypad.AButton then self:input({ type = "key", key = "select" })
-    elseif button == Joypad.BButton then self:input({ type = "key", key = "back" }) end
+    elseif button == Joypad.BButton then self:input({ type = "key", key = "back" })
+    elseif button == Joypad.XButton then
+        local call = KnoxMobile.Client and KnoxMobile.Client.call
+        if call and call.status == "incoming" then KnoxMobile.Client.answer()
+        elseif call then KnoxMobile.Client.hangUp()
+        else
+            local st = Phones.get(self.item)
+            if st and self:mode(st) == "app" then self:goHome() end
+        end
+    elseif button == Joypad.YButton then UI.close()
+    elseif button == Joypad.LBumper or button == Joypad.RBumper then
+        local key = button == Joypad.LBumper and "up" or "down"
+        for _ = 1, UI.PAGE_STEPS do self:input({ type = "key", key = key }) end
+    end
 end
+UI.PAGE_STEPS = 5
 
 function Panel:onJoypadDirUp() self:input({ type = "key", key = "up" }) end
 function Panel:onJoypadDirDown() self:input({ type = "key", key = "down" }) end
@@ -1803,7 +1874,13 @@ Events.OnKeyPressed.Add(Util.safe("phone key", function(key)
     local openKey = Options.openKey()
     local want = openKey
     if VP then want = VP.phoneKey(openKey, Options.viewKey()) end
-    if want and key == want then UI.toggle(player); return end
+    if want and key == want then
+        -- A house phone ringing beside you is answered first (Landlines.answerNear), unless the cell phone is open.
+        local LL = KnoxMobile.Landlines
+        if not UI.panel and LL and LL.answerNear(player) then return end
+        UI.toggle(player)
+        return
+    end
     -- In Viewpoint's views the phone key may belong to Viewpoint Interface's build list: say once how to set one.
     if not want and key == openKey and not UI.viewKeyHinted then
         UI.viewKeyHinted = true

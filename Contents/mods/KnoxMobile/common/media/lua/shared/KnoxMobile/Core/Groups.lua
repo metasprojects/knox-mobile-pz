@@ -10,6 +10,7 @@ local Groups = {}
 Groups.MAX_NAME = 24       -- characters in a group name
 Groups.MAX_MEMBERS = 12    -- people in a group made by players, the creator included
 Groups.MAX_AUTO = 24       -- a text to a faction or safehouse group reaches at most this many members
+Groups.MAX_EVERYONE = 64   -- after 0.3.0: the server-wide "Everyone" chat
 Groups.MAX_PER_NUMBER = 8  -- groups made by players that one number can belong to
 Groups.THREAD = "grp:"     -- conversation key prefix on the phone: "grp:<group id>"
 
@@ -121,7 +122,7 @@ end
 -- Keeps the automatic group of one kind in step with what the game says about this player.
 -- info = nil (no faction or safehouse) or { id, name, keys = { player keys } }. Returns the ids that changed.
 function Groups.syncAuto(reg, kind, key, info)
-    local prefix = kind == "faction" and "f:" or "s:"
+    local prefix = ({ faction = "f:", safehouse = "s:", everyone = "e:" })[kind] or "s:"
     local wanted = info and (prefix .. tostring(info.id)) or nil
     local changed = {}
     for id, g in pairs(reg.byId) do
@@ -140,7 +141,7 @@ function Groups.syncAuto(reg, kind, key, info)
             if type(k) == "string" and k ~= "" and not indexOf(keys, k) then keys[#keys + 1] = k end
         end
         if not indexOf(keys, key) then keys[#keys + 1] = key end
-        local name = Groups.cleanName(info.name) or (kind == "faction" and "Faction" or "Safehouse")
+        local name = Groups.cleanName(info.name) or ({ faction = "Faction", everyone = "Everyone" })[kind] or "Safehouse"
         local g = reg.byId[wanted]
         local same = g and g.name == name and #g.keys == #keys
         if same then
@@ -171,7 +172,7 @@ end
 
 function Groups.recipients(group, from, numberOf)
     local out = {}
-    local cap = group.auto and Groups.MAX_AUTO or Groups.MAX_MEMBERS
+    local cap = group.auto == "everyone" and Groups.MAX_EVERYONE or (group.auto and Groups.MAX_AUTO or Groups.MAX_MEMBERS)
     for _, n in ipairs(Groups.numbers(group, numberOf)) do
         if n ~= from and #out < cap then out[#out + 1] = n end
     end

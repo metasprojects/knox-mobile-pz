@@ -9,6 +9,7 @@ KnoxMobile.Toasts = Toasts
 KnoxMobile.UI = KnoxMobile.UI or {}
 
 local SHOW_MS = 7000
+local HINT_MS = 14000 -- how-to hints (kind "hint"): long enough to read twice (PC re-check: the landline hint faded fast)
 local MAX = 4
 local WIDTH = 340
 local MAX_LINES = 2
@@ -42,9 +43,11 @@ function KnoxMobileToasts:render()
     local y = 0
     for _, toast in ipairs(Toasts.list) do
         local age = t - toast.at
-        if age < SHOW_MS and not toast.onScreen then
-            local a = age > SHOW_MS - 1000 and (SHOW_MS - age) / 1000 or 1
-            toast.lines = toast.lines or wrap(toast.text, WIDTH - 16, font, toast.kind == "caption" and CAPTION_LINES or nil)
+        local show = toast.kind == "hint" and HINT_MS or SHOW_MS
+        if age < show and not toast.onScreen then
+            local a = age > show - 1000 and (show - age) / 1000 or 1
+            local cap = (toast.kind == "caption" or toast.kind == "hint") and CAPTION_LINES or nil
+            toast.lines = toast.lines or wrap(toast.text, WIDTH - 16, font, cap)
             local rowH = #toast.lines * fontH + 10
             self:drawRect(0, y, WIDTH, rowH - 2, 0.75 * a, 0.05, 0.06, 0.08)
             self:drawRectBorder(0, y, WIDTH, rowH - 2, 0.8 * a, 0.35, 0.55, 0.75)
