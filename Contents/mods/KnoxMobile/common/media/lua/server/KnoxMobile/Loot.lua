@@ -45,10 +45,15 @@ end
 -- (second pass: the tester found no adapter in seven houses).
 local Phones = require "KnoxMobile/Game/Phones"
 local Rng = require "KnoxMobile/Core/Rng"
+-- 0.2.7: only a real ItemContainer is asked for its items. When a bag rolls inside a container, Build 42 fires
+-- OnFillContainer("Container", bag type, the bag's ItemPickerContainer) (ItemPickerJava.doRollItemInternal), a class
+-- Lua can't index. The old pcall caught that, but the game still logs every error raised inside a pcall, so
+-- Thelonestander's console showed "getItems of non-table ... Loot.lua:50" each time a bag spawned.
 local function itemsOf(a)
-    if a == nil or type(a) == "string" then return nil end
-    local ok, items = pcall(function() return a:getItems() end)
-    if ok and items and items.size then return items end
+    if a == nil or type(a) ~= "userdata" and type(a) ~= "table" then return nil end
+    if not instanceof(a, "ItemContainer") then return nil end
+    local items = a:getItems()
+    if items and items.size then return items end
     return nil
 end
 

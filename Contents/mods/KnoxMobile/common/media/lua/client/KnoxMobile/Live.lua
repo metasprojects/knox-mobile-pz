@@ -202,8 +202,15 @@ function Live.texture() return Live.available() and knoxLiveCaptureTexture() or 
 -- The magenta-framed copy beside the phone: only when the debug menu turned the capture on.
 function Live.showCopy() return Live.capture == true and Live.available() end
 
+-- 0.2.7: say so either way, so a player's console.txt shows why the Camera app is there in one game and not the next
+-- (Gidra, 2026-11-05). ZombieBuddy only loads the jar once its dialog is answered Yes; "Yes" without remembering it
+-- asks again on every launch, and a missed or refused dialog means no Java part for that whole session.
 Events.OnGameStart.Add(Util.safe("live screen", function()
-    if Live.available() then Util.log("live screen: Java part", Live.version(), "loaded") end
+    if Live.available() then Util.log("live screen: Java part", Live.version(), "loaded")
+    elseif not KnoxMobile.pretendNoJava then
+        Util.log("live screen: Java part not loaded this session (ZombieBuddy missing, or its dialog not answered Yes):"
+            .. " no Camera app or live screen")
+    end
 end))
 
 return Live
