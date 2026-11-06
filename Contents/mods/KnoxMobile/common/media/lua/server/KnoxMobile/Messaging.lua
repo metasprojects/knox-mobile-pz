@@ -3,6 +3,7 @@ local Mod = require "KnoxMobile/Core/Mod"
 local MessageQueue = require "KnoxMobile/Core/MessageQueue"
 local Sim = require "KnoxMobile/Core/Sim"
 local Story = require "KnoxMobile/Core/Story"
+local Lang = require "KnoxMobile/Core/Lang"
 local Rng = require "KnoxMobile/Core/Rng"
 local Format = require "KnoxMobile/Core/Format"
 local Groups = require "KnoxMobile/Core/Groups"
@@ -359,13 +360,14 @@ end
 
 -- Family texts say where they are: the family hunt's building (Core/Hunt), or the family house in their hometown.
 -- Survivor texts name their place when they are made; this only fills plans saved before that.
+-- The place's name and the text in the story's language (Core/Lang: "a {place}" with "el motel" is "al motel").
 local function fillPlace(body, place)
-    return (body:gsub("{place}", (tostring(place):gsub("%%", "%%%%"))))
+    return Lang.tidy((body:gsub("{place}", (Lang.t(tostring(place)):gsub("%%", "%%%%")))))
 end
 
 function Messaging.familyPlace(plan)
     if plan.hunt then return plan.hunt.name end
-    return "the house in " .. tostring(plan.hometown or "town")
+    return Lang.f("the house in {town}", { town = plan.hometown or "town" })
 end
 
 function Messaging.fillFamily(plan, body) return fillPlace(body, Messaging.familyPlace(plan)) end

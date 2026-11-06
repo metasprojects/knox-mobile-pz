@@ -2,6 +2,8 @@
 -- something that happened (fitting the day) and sometimes a short tag, in the sender's voice: parents and work write
 -- sentences, siblings, friends and young partners write lowercase with no full stops. Pure Lua 5.1; Story.fill
 -- grammar ([a|b] picks one); slots {town}. Dark things stay implied (docs/lore/KNOX_LORE.md).
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Texts = {}
 
 Texts.SAY = {
@@ -68,7 +70,7 @@ function Texts.compose(rng, fill, opts)
     local phase = Texts.SAY[opts.phase] and opts.phase or "normal"
     local pool = opts.who == "work" and Texts.WORK[phase] or Texts.SAY[phase]
     local text = fill(rng, rng:pick(pool), { town = opts.town or "Muldraugh" })
-    if opts.who ~= "work" and rng:chance(0.4) then text = text .. ". " .. rng:pick(Texts.TAG[phase]) end
+    if opts.who ~= "work" and rng:chance(0.4) then text = text .. ". " .. Lang.t(rng:pick(Texts.TAG[phase])) end
     local voice = VOICE[opts.who] or "casual"
     if opts.who == "partner" and not opts.young then voice = "proper" end
     if voice == "casual" then

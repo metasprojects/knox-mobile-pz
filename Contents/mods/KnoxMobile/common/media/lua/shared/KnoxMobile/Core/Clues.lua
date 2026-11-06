@@ -14,6 +14,8 @@
 --   none      nothing: crack it
 -- where: "body" (a zombie), "alife" (an A-Life NPC: nothing is added to that mod's bodies), "house", "car", or
 -- "phone" (anything else, and phones from before 0.2.2: the code is on the back).
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Clues = {}
 
 -- Four, so five tries before the lockout cover them all.
@@ -105,14 +107,15 @@ Clues.TAPE = {
     "Written on the back in nail polish: %1",
 }
 
+-- In the story's language (Core/Lang).
 function Clues.noteText(rng, kind, pin, first)
     local list = Clues.NOTES[kind] or Clues.NOTES.note
-    local text = rng:pick(list)
-    return (text:gsub("%%1", pin):gsub("%%2", first or "Hon"))
+    local text = Lang.t(rng:pick(list))
+    return (text:gsub("%%1", pin):gsub("%%2", first or Lang.t("Hon")))
 end
 
 function Clues.tapeText(rng, pin)
-    return (rng:pick(Clues.TAPE):gsub("%%1", pin))
+    return (Lang.t(rng:pick(Clues.TAPE)):gsub("%%1", pin))
 end
 
 -- On a body with a birthday PIN, one in three also carries a note that points to the ID card.

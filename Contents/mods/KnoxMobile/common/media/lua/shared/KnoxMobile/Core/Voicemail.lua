@@ -3,6 +3,8 @@
 -- day), a request and a sign-off, so every answering machine and every dead phone's mailbox says something of its
 -- own. Pure Lua 5.1; Story.fill grammar ([a|b] picks one); slots {name} (who the message is for), {caller}, {town}.
 -- Dark things stay implied (docs/lore/KNOX_LORE.md).
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Voicemail = {}
 
 -- Greetings by who calls. Spoken, not typed.
@@ -154,22 +156,22 @@ function Voicemail.phaseFor(day)
 end
 
 -- One message. fill(rng, template, ctx) is Story.fill. opts: { who, phase (normal/news/closure/after), name, caller,
--- town }. Returns the words.
+-- town }. Returns the words, in the story's language (each part is translated on its own: Core/Lang).
 function Voicemail.compose(rng, fill, opts)
     local who = Voicemail.GREET[opts.who] and opts.who or "friend"
     local phase = Voicemail.BODY[opts.phase] and opts.phase or "normal"
     local ctx = { name = opts.name or "", caller = opts.caller or "", town = opts.town or "Muldraugh" }
     local bodies = who == "work" and Voicemail.WORK[phase] or Voicemail.BODY[phase]
-    local parts = { rng:pick(Voicemail.GREET[who]) }
+    local parts = { Lang.t(rng:pick(Voicemail.GREET[who])) }
     local first = rng:int(1, #bodies)
-    parts[#parts + 1] = bodies[first]
+    parts[#parts + 1] = Lang.t(bodies[first])
     if rng:chance(0.5) then
         local second = rng:int(1, #bodies - 1)
         if second >= first then second = second + 1 end
-        parts[#parts + 1] = bodies[second]
+        parts[#parts + 1] = Lang.t(bodies[second])
     end
-    parts[#parts + 1] = rng:pick(Voicemail.ASK[phase])
-    parts[#parts + 1] = rng:pick(Voicemail.BYE[who])
+    parts[#parts + 1] = Lang.t(rng:pick(Voicemail.ASK[phase]))
+    parts[#parts + 1] = Lang.t(rng:pick(Voicemail.BYE[who]))
     return fill(rng, table.concat(parts, " "), ctx)
 end
 

@@ -8,6 +8,7 @@ local Util = require "KnoxMobile/Game/Util"
 local ALife = require "KnoxMobile/Game/ALife"
 local Tick = require "KnoxMobile/Game/Tick"
 local Rng = require "KnoxMobile/Core/Rng"
+local Lang = require "KnoxMobile/Core/Lang"
 local Machine = require "KnoxMobile/Core/Machine"
 local Messaging = require "KnoxMobile/Messaging"
 local State = require "KnoxMobile/State"
@@ -20,35 +21,9 @@ local GAP = 30   -- game minutes between lines on one phone
 local KEEP = 80  -- messages kept in the chat
 local MEMBERS = 16
 
--- What a member says when A-Life starts them on something ({town}: nearest town; {mate}: another member).
-local SUPPLIES = { "Out for supplies near {town}.", "Hitting houses by {town}. Back before dark.",
-    "Supply run, {town}. Keep the radio on.", "Going through a street by {town}. Slim pickings." }
-local FORTIFY = { "Boarding up the windows here.", "Nailing up the back. Need more boards.",
-    "Doing the doors now. Bring nails if you've got them." }
-local WATCH = { "Watching the road out of {town}.", "Quiet out here.", "On watch. Nothing moving yet.",
-    "Eyes on the road by {town}." }
-local AVOID = { "Too many of them by {town}. Going around.", "Got company. Moving.",
-    "Whole crowd of them near {town}. Stay clear." }
-local REST = { "Taking five.", "Need a breather.", "Sitting down for a minute. Feet are done." }
-Wire.LINES = {
-    collect_supplies = SUPPLIES, search_container = SUPPLIES, wait_for_scavenge_crew = SUPPLIES,
-    deposit_supplies = { "Back with a bag. Somebody count it.", "Dropped the haul at the house.",
-        "Brought back what I could carry." },
-    haven_arrived = { "Made it back.", "I'm in. Door's shut.", "Home. Somebody put the coffee on." },
-    boarding_window = FORTIFY, fortify_opening = FORTIFY,
-    scan = WATCH, search_post = WATCH, cqb_look = WATCH, standoff_post = WATCH,
-    avoid_zombies = AVOID, alerted = AVOID,
-    radio_call = { "Anybody on? Check in.", "Roll call. Answer when you can.", "Everybody check in before dark." },
-    treat_groupmate = { "{mate} got hurt. Patching them up.", "Need the med bag. {mate}'s bleeding." },
-    robbery_pending = { "Stopped somebody on the road by {town}. They're handing it over.",
-        "Got a stranger by {town}. Easy, nobody's shooting." },
-    standoff_pending = { "Standoff by {town}. Nobody move yet." }, standoff_hold = { "Holding. They haven't backed off." },
-    rest_after_scavenge = REST, recover_endurance = REST, warming = { "Got a fire going.", "Warming up a minute." },
-}
-Wire.GONE = { "Anybody heard from {who}?", "{who} isn't answering.", "{who}, check in.", "Still nothing from {who}." }
-Wire.RAID = { "Everybody in. We go for the place near {town} tonight.", "Tonight. The place by {town}. Bring everything.",
-    "We hit {town} after dark. Be at the house by then." }
-Wire.RAID_YOU = { "Whoever has {owner}'s phone, we know.", "{owner}'s phone is still on. Funny, that." }
+-- What a member says when A-Life starts them on something, asks after, warns of a raid (Data/WireLines).
+local WireLines = require "KnoxMobile/Data/WireLines"
+Wire.LINES, Wire.GONE, Wire.RAID, Wire.RAID_YOU = WireLines.LINES, WireLines.GONE, WireLines.RAID, WireLines.RAID_YOU
 
 -- The faction phones this player carries, turned on and with service: { { item, state, model, alife } }.
 local function phones(player)
@@ -88,8 +63,9 @@ function Wire.say(player, p, from, body)
     Messaging.notifyTexts(player, p.item, p.state, { { group = true, groupName = p.alife.faction, from = from, body = body } })
 end
 
+-- A line in the story's language (Core/Lang).
 local function fill(rng, list, slots)
-    return (rng:pick(list):gsub("{(%a+)}", function(k) return slots[k] or ("{" .. k .. "}") end))
+    return Lang.tidy((Lang.t(rng:pick(list)):gsub("{(%a+)}", function(k) return slots[k] or ("{" .. k .. "}") end)))
 end
 
 -- What changed since the last look, faction by faction: { [factionId] = { lines = { { from, body } }, raid } }.
@@ -164,8 +140,9 @@ function Wire.run(players)
             if n.raid then
                 Wire.say(c.player, p, n.raid.from, n.raid.body)
                 if KnoxMobile.Journal then
-                    KnoxMobile.Journal.add(c.player, "Heard on " .. p.state.owner.first .. "'s phone: " .. p.alife.faction
-                        .. " are going for a place near " .. n.raid.town .. " tonight.")
+                    KnoxMobile.Journal.add(c.player,
+                        Lang.f("Heard on {owner}'s phone: {faction} are going for a place near {town} tonight.",
+                            { owner = p.state.owner.first, faction = p.alife.faction, town = n.raid.town }))
                 end
                 if n.raid.target and n.raid.target == c.player:getUsername() then
                     local rng = Rng.new("wire:you:" .. tostring(idx))

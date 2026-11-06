@@ -3,6 +3,7 @@
 -- ([a|b] picks one); slots {faction}, {mate}, {mate2}, {owner}. Never names A-Life's real plans: it reads like a crew
 -- talking. Dark things stay implied (docs/lore/KNOX_LORE.md).
 local Mod = require "KnoxMobile/Core/Mod"
+local Lang = require "KnoxMobile/Core/Lang"
 
 local FactionChatter = {}
 
@@ -116,14 +117,14 @@ function FactionChatter.build(rng, fill, names, opts)
             if when < deathAt then
                 local mine = rng:chance(0.4)
                 conv.messages[#conv.messages + 1] = { day = math.floor(when / 1440), minute = Mod.floor(when, 1440),
-                    inbound = not mine, body = rng:pick(FactionChatter.MATE.alive) }
+                    inbound = not mine, body = Lang.t(rng:pick(FactionChatter.MATE.alive)) }
             end
         end
         for _ = 1, rng:int(1, 3) do
             local when = deathAt + rng:int(20, 2 * 1440)
             if when < stop then
                 conv.messages[#conv.messages + 1] = { day = math.floor(when / 1440), minute = Mod.floor(when, 1440),
-                    inbound = true, unread = true, body = rng:pick(FactionChatter.MATE.after) }
+                    inbound = true, unread = true, body = Lang.t(rng:pick(FactionChatter.MATE.after)) }
             end
         end
         table.sort(conv.messages, function(a, b) return a.day * 1440 + a.minute < b.day * 1440 + b.minute end)

@@ -8,7 +8,8 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.2.4, early access (released 2026-10-26): no error on the liquid bar, phone years that hold, a brick phone you can read, and Add a contact.
+- **Version:** 0.2.5, early access (released 2026-10-27): Knox Mobile in Spanish (menus, items, options and the stories).
+- **Languages:** English and Spanish (Spain and Latin America), menus and stories both.
 - **Made by:** Meta
 
 Players should install it from the Steam Workshop. This repository holds the mod exactly as it ships there.
@@ -46,7 +47,7 @@ Players should install it from the Steam Workshop. This repository holds the mod
 - **1993 extras:** payphones, a numeric pager, a car phone kit, repair magazines and a Cell Tower Technician
   occupation.
 - **Multiplayer:** the server has the final say. Admin broadcasts, classifieds, "find my crew" and SOS.
-- **Sandbox:** 53 options on six pages.
+- **Sandbox:** 54 options on six pages.
 
 | | |
 |---|---|
@@ -86,7 +87,7 @@ media/        screenshots for this page
 ```
 
 Under the hood: client/server Lua for Build 42's networked multiplayer, a small Java part loaded through ZombieBuddy
-for the live screen and the camera, scripted 3D models and textures, and 53 sandbox options. The build tools and
+for the live screen and the camera, scripted 3D models and textures, and 54 sandbox options. The build tools and
 test suite are kept separately.
 
 ## Bugs and feedback

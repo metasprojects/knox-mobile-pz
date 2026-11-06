@@ -33,6 +33,8 @@ return {
         SurvivorTexts = { "Survivor texts", "Strangers text about places with supplies or danger." },
         QuestTrapChance = { "Stash trap chance", "Some survivor texts point to a stash at a real pharmacy, gas station or police station. This is the chance (percent) that one is a trap: far more zombies, or the survivor dead and the bag picked over. Needs survivor texts." },
         FamilyHunt = { "Family hunt", "Your family's texts name a real building in Knox County. Once their last text arrives, go there to find out what happened: who turned (with their phone and your unread texts), a note and their car, or nobody at all. Needs the family storyline." },
+        StoryLanguage = { "Story language", "The language of the texts, calls, voicemails and notes the phones are found with (menus follow each player's game language). Game language: the language the game runs in, or the server's on a dedicated server. A phone keeps the language its story was written in.",
+            { "Game language", "English", "Español (Spanish)" } },
         BatteryLifeMultiplier = { "Battery life", "Multiplies how long a charge lasts. A modern phone lasts 2-3 days of mixed use at 1." },
         ChargeSpeedMultiplier = { "Charging speed", "Multiplies how fast phones charge." },
         BatteryWear = { "Battery wear", "Each full charge cycle wears the battery a little." },

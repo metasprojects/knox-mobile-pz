@@ -3,10 +3,13 @@
 -- who answer go from hope, to knowing, to letting go, and one in two then points you to a bag they had to leave at a
 -- real place (a survivor stash, server TextBack.lua). A dead A-Life NPC's squad mate answers in another way. The darkest
 -- part is never said. Pure Lua 5.1.
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Replies = {}
 
+-- In the story's language (Core/Lang): the line and the place names in it.
 local function fill(text, ctx)
-    return (text:gsub("{(%a+)}", function(k) return ctx[k] or k end))
+    return Lang.tidy((Lang.t(text):gsub("{(%a+)}", function(k) return Lang.t(tostring(ctx[k] or k)) end)))
 end
 
 -- The story threads that can be answered (Core/Story's family keys, the friend, work; FactionChatter's mate).

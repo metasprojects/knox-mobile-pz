@@ -8,6 +8,7 @@ local Net = require "KnoxMobile/Game/Net"
 local Tick = require "KnoxMobile/Game/Tick"
 local Rng = require "KnoxMobile/Core/Rng"
 local Replies = require "KnoxMobile/Core/Replies"
+local Lang = require "KnoxMobile/Core/Lang"
 local Quests = require "KnoxMobile/Core/Quests"
 local Protocol = require "KnoxMobile/Core/Protocol"
 local State = require "KnoxMobile/State"
@@ -63,7 +64,7 @@ function TextBack.send(player, item, with, body)
     end
     r.sent = r.sent + 1
     if r.fate == "bounce" then
-        conv.messages[#conv.messages + 1] = { day = day, minute = minute, inbound = true, body = Replies.BOUNCE }
+        conv.messages[#conv.messages + 1] = { day = day, minute = minute, inbound = true, body = Lang.t(Replies.BOUNCE) }
     elseif r.fate == "alive" and not r.done and not r.dueAt then
         r.dueAt = Util.nowMinutes() + Replies.delay(Rng.new(tostring(item:getID()) .. ":delay:" .. with .. r.sent), r.answered + 1)
     end
@@ -121,7 +122,8 @@ function TextBack.deliver(player)
                         if stash and r.questId then
                             QuestsWorld.arm(r.questId)
                             if KnoxMobile.Journal then
-                                KnoxMobile.Journal.add(player, conv.name .. " told me about a bag at " .. r.place .. ".")
+                                KnoxMobile.Journal.add(player, Lang.f("{who} told me about a bag at {place}.",
+                                    { who = conv.name, place = r.place }))
                             end
                         end
                         -- Letting go, and where home was: the phone can go back there (Actions takeHome).
@@ -134,10 +136,12 @@ function TextBack.deliver(player)
                             said[#said + 1] = { from = conv.name, body = home }
                         end
                         if n == 3 and with ~= "mate" and KnoxMobile.Journal then
-                            KnoxMobile.Journal.add(player, conv.name .. " knows about " .. state.owner.first .. " now. I told them."
-                                .. (site and (" Home was " .. site.name .. ".") or ""))
+                            KnoxMobile.Journal.add(player, Lang.f("{who} knows about {owner} now. I told them.",
+                                { who = conv.name, owner = state.owner.first })
+                                .. (site and (" " .. Lang.f("Home was {home}.", { home = site.name })) or ""))
                         elseif n == 1 and with == "mate" and KnoxMobile.Journal then
-                            KnoxMobile.Journal.add(player, state.owner.first .. "'s crew know somebody has the phone.")
+                            KnoxMobile.Journal.add(player, Lang.f("{owner}'s crew know somebody has the phone.",
+                                { owner = state.owner.first }))
                         end
                         -- One answer per text: more waiting texts get the next one later.
                         if r.sent > r.answered then r.dueAt = now + Replies.delay(rng, n + 1) end
@@ -162,8 +166,8 @@ function TextBack.returned(player, state)
     local who = state.owner.first .. (state.owner.last and (" " .. state.owner.last) or "")
     Util.log("phone taken home:", who, "to", tostring(state.story.home.name), "by", key)
     if KnoxMobile.Journal then
-        KnoxMobile.Journal.add(player, "Took " .. who .. "'s phone home to " .. state.story.home.name .. "."
-            .. (count > 1 and (" That's " .. count .. " I've brought home.") or ""))
+        KnoxMobile.Journal.add(player, Lang.f("Took {who}'s phone home to {home}.", { who = who, home = state.story.home.name })
+            .. (count > 1 and (" " .. Lang.f("That's {count} I've brought home.", { count = count })) or ""))
     end
 end
 

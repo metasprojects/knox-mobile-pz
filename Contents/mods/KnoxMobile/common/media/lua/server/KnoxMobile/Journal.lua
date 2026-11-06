@@ -7,6 +7,7 @@ local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
 local Tick = require "KnoxMobile/Game/Tick"
 local Format = require "KnoxMobile/Core/Format"
+local Lang = require "KnoxMobile/Core/Lang"
 local Protocol = require "KnoxMobile/Core/Protocol"
 local State = require "KnoxMobile/State"
 local Messaging = require "KnoxMobile/Messaging"
@@ -14,15 +15,15 @@ local Messaging = require "KnoxMobile/Messaging"
 local Journal = { KEEP = 60, NOTES = 40, nextAt = 0, last = {} }
 KnoxMobile.Journal = Journal
 
--- Game day 0 is July 9 1993 (Core/Machine).
+-- Game day 0 is July 9 1993 (Core/Machine). In the story's language (Core/Lang: "9 jul").
 local MONTHS = { { "Jul", 31 }, { "Aug", 31 }, { "Sep", 30 }, { "Oct", 31 }, { "Nov", 30 }, { "Dec", 31 } }
 function Journal.date(day)
     local d = 9 + math.floor(day)
     for _, m in ipairs(MONTHS) do
-        if d <= m[2] then return m[1] .. " " .. d end
+        if d <= m[2] then return Lang.f("{month} {day}", { month = m[1], day = d }) end
         d = d - m[2]
     end
-    return "Day " .. math.floor(day)
+    return Lang.f("Day {n}", { n = math.floor(day) })
 end
 
 local function pending(key)
@@ -56,7 +57,7 @@ function Journal.flush(player)
     end
     for _, line in ipairs(list) do note.lines[#note.lines + 1] = line end
     while #note.lines > Journal.KEEP do table.remove(note.lines, 1) end
-    note.body = "Journal\n\n" .. table.concat(note.lines, "\n\n")
+    note.body = Lang.t("Journal") .. "\n\n" .. table.concat(note.lines, "\n\n")
     State.get().journal[key] = {}
     Phones.save(item, player)
 end
@@ -87,10 +88,10 @@ function Journal.foundPhone(player, state)
     -- A draft can still hold the story grammar's choices ("[a|b]"): the first one.
     if last then last = tostring(last):gsub("%[([^|%]]*)[^%]]*%]", "%1") end
     local who = o.first .. (o.last and (" " .. o.last) or "")
-    local job = o.job and (" " .. o.job .. ".") or ""
-    local said = last and (state.story and state.story.draft and " Never sent: \"" or " Last thing they wrote: \"")
-        .. Format.ellipsis(last, 80) .. "\"" or ""
-    Journal.add(player, "Turned on " .. who .. "'s phone." .. job .. said)
+    local job = o.job and (" " .. Lang.t(o.job) .. ".") or ""
+    local said = last and (" " .. Lang.f(state.story and state.story.draft and "Never sent: \"{text}\""
+        or "Last thing they wrote: \"{text}\"", { text = Format.ellipsis(last, 80) })) or ""
+    Journal.add(player, Lang.f("Turned on {who}'s phone.", { who = who }) .. job .. said)
 end
 
 Protocol.register({

@@ -10,6 +10,7 @@ local Places = require "KnoxMobile/Story/Places"
 local Photos = require "KnoxMobile/Core/Photos"
 local Voicemail = require "KnoxMobile/Core/Voicemail"
 local Texts = require "KnoxMobile/Core/Texts"
+local Lang = require "KnoxMobile/Core/Lang"
 
 local Story = {}
 
@@ -41,14 +42,16 @@ local FATES = {
     Grim = { { "rescued", 5 }, { "goodbye", 15 }, { "silence", 20 }, { "dies", 60 } },
 }
 
-local HINT_WORDS = { "key", "cabin", "lake house", "water at" }
+-- Notes that point somewhere (Spanish: Lang/es): "the spare key", "la llave".
+local HINT_WORDS = { "key", "cabin", "lake house", "water at", "llave", "cabaña", "casa del lago", "agua en" }
 
 -- Template grammar ------------------------------------------------------------------------------
 
--- Fills a template: each [a|b|c] picks one option (left to right), then each {slot} takes ctx[slot].
--- Unknown slots stay visible, e.g. {place} for the game to fill with a real building.
+-- Fills a template in the story's language (Core/Lang): each [a|b|c] picks one option (left to right), then each
+-- {slot} takes ctx[slot], translated too ("the station"). Unknown slots stay visible, e.g. {place} for the game to
+-- fill with a real building.
 function Story.fill(rng, template, ctx)
-    local text = template
+    local text = Lang.t(template)
     for _ = 1, 50 do
         local s, e, body = text:find("%[([^%[%]]*)%]")
         if not s then break end
@@ -59,9 +62,9 @@ function Story.fill(rng, template, ctx)
     text = text:gsub("{(%w+)}", function(key)
         local v = ctx and ctx[key]
         if v == nil then return "{" .. key .. "}" end
-        return tostring(v)
+        return Lang.t(tostring(v))
     end)
-    return text
+    return Lang.tidy(text)
 end
 
 -- The age band of an age in years (Story.identity's ageBand).
@@ -165,8 +168,8 @@ function Story.identity(rng, opts)
         ageBand = opts.ageBand or rng:weighted({ { "18-25", 3 }, { "26-35", 3 }, { "36-50", 3 }, { "51-65", 2 } }),
         job = job,
         family = {
-            mom = { label = rng:pick(Names.mom), name = momFirst .. " " .. last },
-            dad = { label = rng:pick(Names.dad), name = dadFirst .. " " .. last },
+            mom = { label = Lang.t(rng:pick(Names.mom)), name = momFirst .. " " .. last },
+            dad = { label = Lang.t(rng:pick(Names.dad)), name = dadFirst .. " " .. last },
             sib = { label = sibLabel, name = sibName },
             partner = { label = partnerLabel, name = partnerName },
         },
@@ -413,7 +416,7 @@ function Story.deadPhone(rng, id, opts)
         end
         table.sort(order)
         for _, with in ipairs(order) do content.texts[#content.texts + 1] = byWith[with] end
-        content.draft = rng:pick(pool("drafts"))
+        content.draft = Lang.t(rng:pick(pool("drafts")))
     end
 
     if depth.notes then
@@ -429,7 +432,7 @@ function Story.deadPhone(rng, id, opts)
     end
 
     if depth.group and id.job.group then
-        local chat = { name = id.job.group, messages = {} }
+        local chat = { name = Lang.t(id.job.group), messages = {} }
         for _ = 1, rng:int(2, 4) do
             -- Each message once, and a local one (the library's `town`) only in its own town.
             local t = pickTemplate(pool("groupChat"))
@@ -453,7 +456,8 @@ function Story.deadPhone(rng, id, opts)
     end
     -- Colour screens (2003 on) keep a camera roll: captions only (Core/Photos, the Photos app).
     if Photos.FAMILIES[opts.family] then
-        content.photos = Photos.roll(rng, { id.friend.label, id.family.sib.label, id.family.partner.label, "Mom", "Dad" },
+        content.photos = Photos.roll(rng, { id.friend.label, id.family.sib.label, id.family.partner.label, Lang.t("Mom"),
+            Lang.t("Dad") },
             { lastDay = deathDay })
     end
     return content

@@ -1,6 +1,8 @@
 -- Strangers on the network (0.2.0): wrong numbers, and rumors forwarded from phone to phone. A wrong number is
 -- someone texting the person who had your number before, or anybody at all; a rumor is a survivor stash text passed
 -- along ("FWD:"), true or not (server Strangers.lua makes it a real stash, often a trap). Pure Lua 5.1.
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Strangers = {}
 
 Strangers.WRONG = {
@@ -31,8 +33,9 @@ Strangers.WRONG = {
 }
 Strangers.FWD = { "FWD: ", "FWD FWD: ", "pass it on: ", "got this from a friend: " }
 
-function Strangers.wrong(rng) return rng:pick(Strangers.WRONG) end
-function Strangers.forward(rng, body) return rng:pick(Strangers.FWD) .. body end
+-- In the story's language (Core/Lang).
+function Strangers.wrong(rng) return Lang.t(rng:pick(Strangers.WRONG)) end
+function Strangers.forward(rng, body) return Lang.t(rng:pick(Strangers.FWD)) .. body end
 
 -- Chance in one game hour for a player, by game day: busy at first, quieter as the towers go.
 function Strangers.hourly(day)

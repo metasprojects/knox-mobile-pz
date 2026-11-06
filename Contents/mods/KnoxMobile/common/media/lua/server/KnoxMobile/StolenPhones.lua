@@ -4,6 +4,7 @@
 -- leaves a player while an A-Life NPC nearby is robbing them, a copy of its state is kept with who took it. When a phone
 -- of that model turns up again with no state of its own (A-Life made a new one), it gets the old state back.
 local Phones = require "KnoxMobile/Game/Phones"
+local Lang = require "KnoxMobile/Core/Lang"
 local Util = require "KnoxMobile/Game/Util"
 local ALife = require "KnoxMobile/Game/ALife"
 local Tick = require "KnoxMobile/Game/Tick"
@@ -66,7 +67,7 @@ function Stolen.check(player)
                     Phones.save(item, player)
                     Util.log("stolen phone recovered:", r.fullType, "taken by", tostring(r.byName))
                     if KnoxMobile.Journal then
-                        KnoxMobile.Journal.add(player, "Got my phone back from " .. tostring(r.byName or "them") .. ".")
+                        KnoxMobile.Journal.add(player, Lang.f("Got my phone back from {who}.", { who = r.byName or "them" }))
                     end
                     break
                 end
@@ -85,7 +86,7 @@ function Stolen.check(player)
                         byName = ALife.name(robber), at = Util.nowMinutes() }
                     Util.log("phone taken by an A-Life robber:", item:getFullType(), tostring(ALife.name(robber)))
                     if KnoxMobile.Journal then
-                        KnoxMobile.Journal.add(player, tostring(ALife.name(robber) or "Somebody") .. " took one of my phones.")
+                        KnoxMobile.Journal.add(player, Lang.f("{who} took one of my phones.", { who = ALife.name(robber) or "Somebody" }))
                     end
                 end
             end

@@ -2,6 +2,8 @@
 -- family pick up now and then while they're still texting, ring out to their voicemail, or the lines are jammed;
 -- once their story is over their phone mostly can't be reached (dead, off, out of range) or rings out. Other numbers
 -- the world knows (contacts, story senders) ring out or can't be reached. Pure: no game calls.
+local Lang = require "KnoxMobile/Core/Lang"
+
 local FamilyCall = {}
 
 -- Which member a family number belongs to (plan.family = { mom = number, dad = ..., sib = ... }).
@@ -138,7 +140,8 @@ local function pickLine(rng, pool, plan, member)
 end
 
 -- A call to `member` now: kind ("answer", "voicemail", "busy", "unreachable") and, for answer and voicemail, the
--- call's captions. fill(s) puts the names and the place in. Remembers the lines used in plan.callLines.
+-- call's captions in the story's language (Core/Lang). fill(s) puts the names and the place in. Remembers the lines
+-- used in plan.callLines (in English, whatever the language).
 -- The odds without "busy" (the network congestion option off).
 function FamilyCall.withoutBusy(odds)
     local out = {}
@@ -153,11 +156,11 @@ function FamilyCall.outcome(rng, plan, member, now, fill, noBusy)
     if noBusy then odds = FamilyCall.withoutBusy(odds) end
     local kind = FamilyCall.roll(rng, odds)
     if kind == "answer" then
-        return kind, fill(pickLine(rng, FamilyCall.ANSWER[stage] or FamilyCall.ANSWER.worry, plan, member))
+        return kind, fill(Lang.t(pickLine(rng, FamilyCall.ANSWER[stage] or FamilyCall.ANSWER.worry, plan, member)))
     elseif kind == "voicemail" then
         plan.greetings = plan.greetings or {}
         plan.greetings[member] = plan.greetings[member] or pickLine(rng, FamilyCall.VOICEMAIL, plan, member)
-        return kind, fill(plan.greetings[member])
+        return kind, fill(Lang.t(plan.greetings[member]))
     end
     return kind, nil
 end

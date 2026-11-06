@@ -10,6 +10,7 @@
 -- is connected) and has fuel. While nobody is near, the chunk unloads and the server keeps the tower up until the
 -- tank would have run dry; the radio load for that time is taken when the chunk loads again.
 local CellSites = require "KnoxMobile/Core/CellSites"
+local Lang = require "KnoxMobile/Core/Lang"
 local Protocol = require "KnoxMobile/Core/Protocol"
 local TowerSites = require "KnoxMobile/Data/TowerSites"
 local Util = require "KnoxMobile/Game/Util"
@@ -102,7 +103,7 @@ Net.onServer("siteConnect", function(player, args)
     local up = CellSites.isUp(entry, now)
     Util.log("cell site", site.code, "connected by", entry.by, up and "and on the air" or "(generator not running)")
     tell(player, up and "online" or "connectedOff", site)
-    if up and KnoxMobile.Journal then KnoxMobile.Journal.add(player, "Got tower " .. site.code .. " back on the air.") end
+    if up and KnoxMobile.Journal then KnoxMobile.Journal.add(player, Lang.f("Got tower {code} back on the air.", { code = site.code })) end
     broadcast()
 end)
 

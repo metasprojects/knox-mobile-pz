@@ -2,6 +2,7 @@
 -- once their last text is out, the scene is set there the first time that chunk loads (Scenes.lua says how, and how
 -- it never spawns twice; Core/Hunt decides what is there).
 local Hunt = require "KnoxMobile/Core/Hunt"
+local Lang = require "KnoxMobile/Core/Lang"
 local Rng = require "KnoxMobile/Core/Rng"
 local Sim = require "KnoxMobile/Core/Sim"
 local Loot = require "KnoxMobile/Core/Loot"
@@ -146,7 +147,7 @@ local function familyPhone(inv, number, hunt, member)
     end
     state.sim = Sim.newSim({ number = p.number, contacts = contacts })
     state.contents.texts = Hunt.memberTexts(hunt, member, plan and plan.messages or {}, function(body)
-        return (body:gsub("{place}", (hunt.name:gsub("%%", "%%%%"))))
+        return Lang.tidy((body:gsub("{place}", (Lang.t(hunt.name):gsub("%%", "%%%%")))))
     end)
     state.story = { draft = p.draft }
     -- A colour phone keeps their camera roll, the player in it (Photos app).

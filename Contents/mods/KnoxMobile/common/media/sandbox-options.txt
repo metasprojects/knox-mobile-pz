@@ -180,6 +180,16 @@ option KnoxMobile.QuestTrapChance
     translation = KnoxMobile_QuestTrapChance,
 }
 
+option KnoxMobile.StoryLanguage
+{
+    type = enum,
+    numValues = 3,
+    default = 1,
+    page = KnoxMobileStories,
+    translation = KnoxMobile_StoryLanguage,
+    valueTranslation = KnoxMobile_StoryLanguage,
+}
+
 option KnoxMobile.BatteryLifeMultiplier
 {
     type = double,

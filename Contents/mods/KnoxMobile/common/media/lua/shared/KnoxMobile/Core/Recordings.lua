@@ -1,7 +1,10 @@
 -- Numbers that answer with a recording (0.2.0): 911, the state's information line, 411 directory assistance and the
 -- local businesses, churches and offices of Knox County. What you hear changes with the days: open, then closed
 -- "until further notice", then a full mailbox or a phone that rings out. A church's tape never changes; nobody went
--- back to change it. The 555-01xx numbers are kept out of the SIM number pool (Core/Sim). Pure Lua 5.1.
+-- back to change it. The 555-01xx numbers are kept out of the SIM number pool (Core/Sim). Pure Lua 5.1. What they
+-- say is in the story's language (Core/Lang); the businesses keep their English names as their keys.
+local Lang = require "KnoxMobile/Core/Lang"
+
 local Recordings = {}
 
 Recordings.NINE_ONE_ONE = "911"
@@ -48,6 +51,7 @@ local CLOSED = {
     hardware = "{name}. / We're out of plywood, nails and generators. / We're closing early until this is over.",
     gas = "{name}. / No gas until the truck comes. We don't know when the truck comes.",
 }
+Recordings.OPEN, Recordings.CLOSED = OPEN, CLOSED
 
 Recordings.NINE = {
     { to = 1, kind = "answer", lines = "Nine-one-one, please hold. / All of our dispatchers are on other calls. / Please stay on the line. Do not hang up." },
@@ -59,7 +63,7 @@ Recordings.INFO = {
     { to = 10, kind = "answer", lines = "This is the Kentucky public information line. / The Knox County exclusion zone is closed. No one will be allowed to leave. / Do not approach the fence. This message will be updated." },
 }
 
-local function fill(text, b) return (text:gsub("{(%a+)}", function(k) return b[k] or k end)) end
+local function fill(text, b) return Lang.f(text, b) end
 
 function Recordings.business(number)
     for _, b in ipairs(Recordings.BUSINESSES) do if b.number == number then return b end end
@@ -77,29 +81,31 @@ function Recordings.call(number, day, town, rng)
     if number == Recordings.NINE_ONE_ONE then
         local e = byDay(Recordings.NINE, day)
         if not e then return { kind = "noAnswer", name = "911" } end
-        return { kind = e.kind, lines = e.lines, name = "911" }
+        return { kind = e.kind, lines = Lang.t(e.lines), name = "911" }
     end
     if number == Recordings.HOTLINE then
         local e = byDay(Recordings.INFO, day)
         if not e then return { kind = "notInService" } end
-        return { kind = e.kind, lines = e.lines, name = "Kentucky info line" }
+        return { kind = e.kind, lines = Lang.t(e.lines), name = Lang.t("Kentucky info line") }
     end
     if number == Recordings.DIRECTORY then
         if day >= 7 then
-            return { kind = "answer", name = "411", lines = "Directory assistance is not available at this time. / Please try your call again later." }
+            return { kind = "answer", name = "411",
+                lines = Lang.t("Directory assistance is not available at this time. / Please try your call again later.") }
         end
         local listings = Recordings.listings(town)
-        local parts = { "Directory assistance. What city, please?", town .. ". One moment." }
-        for _, b in ipairs(listings) do parts[#parts + 1] = b.name .. ": " .. b.number end
-        parts[#parts + 1] = "The state information line is " .. Recordings.HOTLINE .. "."
+        local parts = { Lang.t("Directory assistance. What city, please?"), Lang.f("{town}. One moment.", { town = town }) }
+        for _, b in ipairs(listings) do parts[#parts + 1] = Lang.t(b.name) .. ": " .. b.number end
+        parts[#parts + 1] = Lang.f("The state information line is {number}.", { number = Recordings.HOTLINE })
         return { kind = "answer", name = "411", lines = table.concat(parts, " / "), listings = listings }
     end
     local b = Recordings.business(number)
     if not b then return nil end
-    if day < 2 then return { kind = "voicemail", lines = fill(OPEN[b.kind], b), name = b.name } end
-    if day < 7 or b.kind == "church" then return { kind = "voicemail", lines = fill(CLOSED[b.kind], b), name = b.name } end
-    if rng:chance(0.5) then return { kind = "voicemail", lines = "The mailbox you have reached is full.", name = b.name } end
-    return { kind = "noAnswer", name = b.name }
+    local name = Lang.t(b.name)
+    if day < 2 then return { kind = "voicemail", lines = fill(OPEN[b.kind], b), name = name } end
+    if day < 7 or b.kind == "church" then return { kind = "voicemail", lines = fill(CLOSED[b.kind], b), name = name } end
+    if rng:chance(0.5) then return { kind = "voicemail", lines = Lang.t("The mailbox you have reached is full."), name = name } end
+    return { kind = "noAnswer", name = name }
 end
 
 -- The places 411 reads out for a town (the nearest ones first when the town has none).

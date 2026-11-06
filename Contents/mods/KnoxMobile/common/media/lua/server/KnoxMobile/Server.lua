@@ -7,6 +7,7 @@ local Repeaters = require "KnoxMobile/Core/Repeaters"
 local Rng = require "KnoxMobile/Core/Rng"
 local Loot = require "KnoxMobile/Core/Loot"
 local Story = require "KnoxMobile/Core/Story"
+local Lang = require "KnoxMobile/Core/Lang"
 local FamilyCall = require "KnoxMobile/Core/FamilyCall"
 local Damage = require "KnoxMobile/Core/Damage"
 local AudioGear = require "KnoxMobile/Core/AudioGear"
@@ -421,14 +422,14 @@ local function npcCall(player, item, state, to, fail)
     if member then
         local person = plan.hunt and plan.hunt.people and plan.hunt.people[member]
         local first = person and person.first or label or "me"
-        local you = plan.hunt and plan.hunt.player and plan.hunt.player.first or "honey"
-        local place = Messaging.familyPlace(plan)
+        local you = plan.hunt and plan.hunt.player and plan.hunt.player.first or Lang.t("honey")
+        local place = Lang.t(Messaging.familyPlace(plan))
         local function fill(s)
             s = s:gsub("{label}", function() return label or first end)
             s = s:gsub("{first}", function() return first end)
             s = s:gsub("{you}", function() return you end)
             s = s:gsub("{place}", function() return place end)
-            return s
+            return Lang.tidy(s)
         end
         kind, lines = FamilyCall.outcome(rng, plan, member, now, fill, Util.settings().NetworkCongestion == false)
     elseif payphoneNumber(md, to) then
@@ -437,7 +438,7 @@ local function npcCall(player, item, state, to, fail)
         local odds = FamilyCall.OTHER
         if Util.settings().NetworkCongestion == false then odds = FamilyCall.withoutBusy(odds) end
         kind = FamilyCall.roll(rng, odds)
-        if kind == "voicemail" then lines = FamilyCall.GENERIC_VOICEMAIL end
+        if kind == "voicemail" then lines = Lang.t(FamilyCall.GENERIC_VOICEMAIL) end
     else
         return fail("notInService")
     end
@@ -457,8 +458,8 @@ local function recordingCall(player, item, to, rec, fail)
     Net.toClient(player, "callScripted", { to = to, kind = rec.kind, lines = rec.lines, name = rec.name })
     if rec.listings and KnoxMobile.Journal then
         local parts = {}
-        for _, b in ipairs(rec.listings) do parts[#parts + 1] = b.name .. " " .. b.number end
-        KnoxMobile.Journal.add(player, "411 gave me: " .. table.concat(parts, ", ") .. ".")
+        for _, b in ipairs(rec.listings) do parts[#parts + 1] = Lang.t(b.name) .. " " .. b.number end
+        KnoxMobile.Journal.add(player, Lang.f("411 gave me: {list}.", { list = table.concat(parts, ", ") }))
     end
 end
 
@@ -618,7 +619,7 @@ function Server.fillFoundPhone(item, state, model, player)
         local caller = dead.texts and dead.texts[1]
         for i = 1, math.min(20, md.KnoxMobileMissed * rng:int(2, 4)) do
             local at = math.max(0, nowDay * 1440 + nowMinute - i * rng:int(10, 40))
-            table.insert(state.contents.calls, 1, { with = caller and caller.with or "mom", name = caller and caller.name or "Mom",
+            table.insert(state.contents.calls, 1, { with = caller and caller.with or "mom", name = caller and caller.name or Lang.t("Mom"),
                 day = math.floor(at / 1440), minute = Mod.floor(at, 1440), inbound = true, missed = true })
         end
     end
@@ -627,8 +628,8 @@ function Server.fillFoundPhone(item, state, model, player)
     -- A number to call (Core/Recordings): a local place's, written down the way people did.
     if rng:chance(0.4) then
         local b = rng:pick(Recordings.listings(id.hometown))
-        local how = rng:pick({ "%s %s", "call %s %s", "%s - %s (ask for Dee)", "%s %s after 5", "refill: %s %s" })
-        table.insert(state.contents.notes, { body = string.format(how, b.name, b.number) })
+        local how = Lang.t(rng:pick({ "%s %s", "call %s %s", "%s - %s (ask for Dee)", "%s %s after 5", "refill: %s %s" }))
+        table.insert(state.contents.notes, { body = string.format(how, Lang.t(b.name), b.number) })
     end
     state.contents.groupChats = dead.groupChats
     state.owner = { kind = "generated", first = id.first, last = id.last, job = id.job.title, hometown = id.hometown,
@@ -1059,7 +1060,7 @@ function Server.onALifeLoot(shell, actor)
     local md = item:getModData()
     md.KnoxMobileOwnerName = ALife.name(actor)
     md.KnoxMobileALife = { uid = tostring(actor.uid), factionId = actor.factionId,
-        faction = ALife.factionName(actor.factionId) or "The crew", mates = ALife.mates(actor, 5) }
+        faction = ALife.factionName(actor.factionId) or Lang.t("The crew"), mates = ALife.mates(actor, 5) }
     local model = Phones.model(item)
     if model then ClueWorld.forALife(item, model) end
     Util.log("A-Life phone for", tostring(md.KnoxMobileOwnerName), "of", md.KnoxMobileALife.faction)

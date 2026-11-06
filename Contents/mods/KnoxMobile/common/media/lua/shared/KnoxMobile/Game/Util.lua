@@ -1,6 +1,7 @@
 -- Small game-side helpers shared by client and server: logging, safe event handlers, players, clock, settings.
 local Sandbox = require "KnoxMobile/Core/Sandbox"
 local Mod = require "KnoxMobile/Core/Mod"
+local Lang = require "KnoxMobile/Core/Lang"
 
 local Util = {}
 
@@ -133,6 +134,24 @@ end
 function Util.settings()
     return Sandbox.read(SandboxVars and SandboxVars.KnoxMobile)
 end
+
+-- The language the mod writes its story in (Core/Lang): the sandbox's Story language, or the game's own (the host's,
+-- or the dedicated server's). Asked for every line while a phone's story is written, so the answer is kept 2 seconds.
+local storyLang, storyLangAt = nil, 0
+function Util.storyLanguage()
+    local now = getTimestampMs and getTimestampMs() or 0
+    if storyLang and now >= storyLangAt and now - storyLangAt < 2000 then return storyLang end
+    local choice = Util.settings().StoryLanguage
+    if choice == "English" then storyLang = "en"
+    elseif choice == "Spanish" then storyLang = "es"
+    else
+        local ok, name = pcall(function() return Translator.getLanguage():name() end)
+        storyLang = Lang.fromGame(ok and name or nil)
+    end
+    storyLangAt = now
+    return storyLang
+end
+Lang.use(Util.storyLanguage)
 
 -- Power and wear settings in the shape Core/Power expects.
 function Util.powerSettings(s)

@@ -5,6 +5,7 @@
 -- Pure: no game calls.
 local FamilyCall = require "KnoxMobile/Core/FamilyCall"
 local Story = require "KnoxMobile/Core/Story"
+local Lang = require "KnoxMobile/Core/Lang"
 
 local FamilyText = {}
 
@@ -49,49 +50,63 @@ end
 
 -- A word on what you said, by the words in your texts; the first group that matches answers. needs: one of these
 -- words too; unless: none of these. `where` has two lists: before the family has named its place, and after
--- ({place}, filled by the game).
+-- ({place}, filled by the game). The words are English and Spanish (0.2.5), without accents (Lang.fold): you can text
+-- in either, whatever language the story is in, and the answer comes in the story's language.
+local LOVE = {
+    "Love you too. So much",
+    "Miss you like crazy. We'll be together soon",
+}
 FamilyText.ABOUT = {
-    { id = "hurt", words = { "bitten", "bite", "scratched", "scratch", "hurt", "bleeding", "blood", "injured" },
+    { id = "hurt", words = { "bitten", "bite", "scratched", "scratch", "hurt", "bleeding", "blood", "injured",
+        "mordida", "mordido", "mordio", "mordieron", "mordisco", "rasguno", "aranazo", "arano", "rasgunado",
+        "herido", "herida", "sangre", "sangrando", "lastimado", "lastimada", "lastime" },
         lines = {
         "Hurt where?? Wash it right now. Hot water and soap, and wrap it tight",
         "What happened? Is it a bite? Tell me it's not a bite",
     } },
-    { id = "help", words = { "help", "scared", "afraid", "terrified", "trapped", "panic" }, lines = {
+    { id = "help", words = { "help", "scared", "afraid", "terrified", "trapped", "panic",
+        "ayuda", "ayudame", "auxilio", "miedo", "asustado", "asustada", "atrapado", "atrapada", "panico" }, lines = {
         "Breathe. Get somewhere with a door that locks and stay quiet",
         "I'm right here. Stay away from the windows and keep the lights off",
     } },
-    { id = "where", words = { "where", "wya" }, lines = {
+    { id = "where", words = { "where", "wya", "donde", "dnd", "ubicacion" }, lines = {
         "Still home. [We're not going anywhere till this calms down|The roads are a mess]",
         "Home, with the doors locked. Where else would we be",
     }, told = {
         "We're at {place}. Come in daylight, not after dark",
         "Still at {place}. Knock and say your name",
     } },
-    { id = "coming", words = { "coming", "omw", "heading", "driving", "walking" }, lines = {
+    { id = "coming", words = { "coming", "omw", "heading", "driving", "walking",
+        "voy", "vamos", "llego", "camino", "manejando", "caminando", "yendo" }, lines = {
         "Not in the dark. Wait for daylight and take the back roads",
         "Only if it's safe. Don't you dare take the highway",
     } },
     -- "I'm not okay": the bad news.
-    { id = "notOkay", words = { "safe", "ok", "okay", "fine", "alright", "good" }, onlyIfNegated = true, lines = {
+    { id = "notOkay", words = { "safe", "ok", "okay", "fine", "alright", "good",
+        "bien", "salvo", "salva", "salvos", "tranquilo", "tranquila" }, onlyIfNegated = true, lines = {
         "What's wrong? Talk to me",
         "Not okay how? Are you hurt? Tell me the truth",
     } },
     -- "You okay?": asking about them, not saying you are.
-    { id = "askThem", words = { "safe", "ok", "okay", "fine", "alive", "alright" },
-        needs = { "you", "u", "yall", "guys", "everyone" }, unless = { "i", "im", "me" }, lines = {
+    { id = "askThem", words = { "safe", "ok", "okay", "fine", "alive", "alright",
+        "bien", "salvo", "salvos", "vivos", "vivo", "viva" },
+        needs = { "you", "u", "yall", "guys", "everyone", "estan", "estas", "ustedes", "tu", "todos", "uds" },
+        unless = { "i", "im", "me", "yo", "estoy" }, lines = {
         "We're okay. Scared, but okay",
         "We're fine for now. Are YOU okay? That's what matters",
     } },
-    { id = "safe", words = { "safe", "ok", "okay", "fine", "alive", "alright", "good" }, notIfNegated = true, lines = {
+    { id = "safe", words = { "safe", "ok", "okay", "fine", "alive", "alright", "good",
+        "bien", "salvo", "salva", "vivo", "viva", "tranquilo", "tranquila" }, notIfNegated = true, lines = {
         "Oh thank God. I've been sick with worry",
         "Okay. Okay. That's the best thing I've heard all day",
         "Good. Stay that way. Don't take chances",
     } },
-    { id = "love", words = { "love", "luv", "miss" }, lines = {
-        "Love you too. So much",
-        "Miss you like crazy. We'll be together soon",
-    } },
-    { id = "food", words = { "food", "water", "hungry", "eat", "starving", "thirsty" }, lines = {
+    { id = "love", words = { "love", "luv", "miss", "amo", "tqm", "tkm", "extrano", "extranamos" },
+        lines = LOVE },
+    -- "Te quiero" is love; "quiero agua" is not.
+    { id = "love", words = { "quiero" }, needs = { "te", "los", "las" }, lines = LOVE },
+    { id = "food", words = { "food", "water", "hungry", "eat", "starving", "thirsty",
+        "comida", "agua", "hambre", "comer", "comi", "sed" }, lines = {
         "Eat what you've got and fill every pot with water while it still runs",
         "There's canned stuff in every house. Don't be proud about it",
     } },
@@ -143,7 +158,7 @@ FamilyText.LINES = {
 
 local function wordsOf(text)
     local set = {}
-    for w in tostring(text):lower():gmatch("%a+") do set[w] = true end
+    for w in Lang.fold(text):gmatch("%a+") do set[w] = true end
     return set
 end
 
@@ -157,8 +172,8 @@ local function pick(rng, pool, plan)
     return line
 end
 
--- "not okay", "isn't safe", "no good": not the good news.
-local NEGATIONS = { "not", "no", "isn", "aren", "never", "nothing", "don", "can", "cant" }
+-- "not okay", "isn't safe", "no good", "no estoy bien": not the good news.
+local NEGATIONS = { "not", "no", "isn", "aren", "never", "nothing", "don", "can", "cant", "nunca", "nada", "tampoco" }
 
 -- The answer from `member` to what you sent (asked), at `now`. Keeps "{place}" for the game to fill.
 function FamilyText.reply(rng, plan, member, asked, now)
