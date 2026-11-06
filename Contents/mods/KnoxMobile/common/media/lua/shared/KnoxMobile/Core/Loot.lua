@@ -104,6 +104,38 @@ function Loot.fitsSomePhone(registry, a, phones, exactChargers)
     return false
 end
 
+-- The car phone kit is 1993 hardware (Phones/CarPhone.lua), so it follows the phone years too.
+local CAR_PHONE_YEAR = 1993
+
+-- What the phone years allow (0.2.4). Returns a function: full item type -> true for a phone, a boxed phone, a manual,
+-- a spare battery or a car phone kit that belongs to no phone the years allow, false for anything else. The loot
+-- lists use it, and so does the server as each container fills (server/KnoxMobile/Loot.lua): the lists are made once,
+-- when the server starts, so years changed after that, or another mod's lists with Knox items in them, still brought
+-- other years' manuals (Workshop, 2026-10-26: "all the phone magazines outside the selected years still show up").
+function Loot.yearFilter(registry, accessories, sandbox)
+    local models, families, batteries = {}, {}, {}
+    for _, m in ipairs(registry:spawnable(sandbox)) do
+        models[m.id], families[m.family] = true, true
+        if m.removableBattery then batteries[m.family] = true end
+    end
+    local oldest, newest = Sandbox.yearRange(sandbox)
+    local byId = {}
+    for _, a in ipairs(accessories) do byId[a.id] = a end
+    return function(fullType)
+        local id = tostring(fullType):match("^KnoxMobile%.(.+)$")
+        if not id then return false end
+        local modelId = id:match("^(%w+)_%w+$")
+        local model = modelId and registry:getPhone(modelId)
+        if model then return not models[model.id] end
+        local family = id:match("^Manual_(%w+)$")
+        if family then return not families[family] end
+        local a = byId[id]
+        if a and a.kind == "spareBattery" then return not batteries[a.family] end
+        if a and a.kind == "carPhoneKit" then return oldest > CAR_PHONE_YEAR or newest < CAR_PHONE_YEAR end
+        return false
+    end
+end
+
 local function add(out, lists, item, weight)
     if weight <= 0 then return end
     for _, list in ipairs(lists) do out[#out + 1] = { list = list, item = ItemIds.full(item), weight = weight } end
@@ -145,9 +177,11 @@ function Loot.entries(registry, accessories, sandbox)
     end
 
     local phones = registry:spawnable(sandbox)
+    local outOfYears = Loot.yearFilter(registry, accessories, sandbox)
     for _, a in ipairs(accessories) do
         local modern = MODERN_KINDS[a.kind] or (a.kind == "case" and MODERN_CASES[a.caseType])
-        if not (only1993 and modern) and Loot.fitsSomePhone(registry, a, phones, sandbox.ExactChargersForOldPhones) then
+        if not (only1993 and modern) and not outOfYears(ItemIds.full(a.id))
+            and Loot.fitsSomePhone(registry, a, phones, sandbox.ExactChargersForOldPhones) then
             local w = (a.rarity == "rare" and 1 or 4) * mult
             if a.kind == "magazine" then
                 add(out, MAGAZINE_STORES, a.id, w * 0.5)

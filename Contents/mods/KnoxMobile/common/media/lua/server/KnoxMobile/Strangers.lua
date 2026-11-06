@@ -17,7 +17,8 @@ KnoxMobile.Strangers = World
 local function stranger(rng) return Sim.issueNumber(State.get().numbers, rng) end
 
 -- A rumor: a stash text, forwarded. Traps are likelier than in a stranger's own text (sandbox QuestTrapChance, doubled).
-function World.rumor(player, number, rng)
+-- at: the world minute it lands (Messaging.queueStory), nil for the next delivery.
+function World.rumor(player, number, rng, at)
     local key = Util.playerKey(player)
     local used = {}
     for _, q in pairs(State.get().quests) do used[q.site] = true end
@@ -26,7 +27,7 @@ function World.rumor(player, number, rng)
     if not list[1] then return false end
     QuestsWorld.add(key, list)
     QuestsWorld.arm(list[1].questId)
-    Messaging.queueStory(stranger(rng), number, Strangers.forward(rng, list[1].body))
+    Messaging.queueStory(stranger(rng), number, Strangers.forward(rng, list[1].body), at)
     Util.log("rumor for", key, "about", list[1].place.name)
     return true
 end
@@ -36,8 +37,11 @@ function World.hour(player, rng)
     local mine = State.get().players[Util.playerKey(player)]
     if not (mine and mine.number) then return end
     local wrong, rumor = Strangers.hourly(Util.nowDay())
-    if rng:chance(wrong) then Messaging.queueStory(stranger(rng), mine.number, Strangers.wrong(rng)) end
-    if rng:chance(rumor) then World.rumor(player, mine.number, rng) end
+    -- At a minute of its own in the hour (0.2.4): every player's hour is rolled at the same moment.
+    if rng:chance(wrong) then
+        Messaging.queueStory(stranger(rng), mine.number, Strangers.wrong(rng), Util.nowMinutes() + rng:int(1, 59))
+    end
+    if rng:chance(rumor) then World.rumor(player, mine.number, rng, Util.nowMinutes() + rng:int(1, 59)) end
 end
 
 Tick.add("strangers", function()

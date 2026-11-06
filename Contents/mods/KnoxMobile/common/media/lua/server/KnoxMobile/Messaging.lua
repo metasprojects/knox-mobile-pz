@@ -272,10 +272,31 @@ function Messaging.sendText(player, item, to, body)
     return status
 end
 
--- Story and system messages enter the queue as story messages: they always arrive, on any network.
-function Messaging.queueStory(from, to, body)
+-- Story and system messages enter the queue as story messages: they always arrive, on any network. at: the world
+-- minute it lands (Messaging.deliverDue), or nil for the next delivery.
+function Messaging.queueStory(from, to, body, at)
     MessageQueue.send(State.get().queue, { from = from, to = to, body = body, story = true }, nil, nil,
-        { queueMessages = true }, Util.nowMinutes())
+        { queueMessages = true, notBefore = at }, Util.nowMinutes())
+end
+
+-- Texts whose minute has come since the last call, for the players carrying them (every game minute, 0.2.4). Only a
+-- text that just came due wakes anyone; the ten-minute delivery still hands over everything else.
+local lastDue = nil
+function Messaging.deliverDue()
+    local now = Util.nowMinutes()
+    local since = lastDue or now
+    lastDue = now
+    local due = {}
+    for _, rec in ipairs(State.get().queue.queued) do
+        if rec.notBefore and rec.notBefore > since and rec.notBefore <= now then due[rec.to] = true end
+    end
+    if Util.isEmpty(due) then return end
+    for _, p in ipairs(Util.players()) do
+        for _, item in ipairs(Phones.inventoryPhones(p)) do
+            local state = Phones.get(item)
+            if state.sim and due[state.sim.number] then Messaging.deliverTo(p); break end
+        end
+    end
 end
 
 local function fullName(player)
@@ -351,13 +372,22 @@ function Messaging.fillFamily(plan, body) return fillPlace(body, Messaging.famil
 
 -- Moves due family and survivor messages into the queue. Debug "fast-forward story" shifts the clock.
 -- Once a family's last text is out, their hunt is armed: the scene is set the next time its chunk loads.
+-- 0.2.4: what comes due in the next ten minutes goes in now, with its own minute, and lands on that minute
+-- (Messaging.deliverDue). Every story text used to land on this ten-minute tick, the same moment for every player on
+-- the server (Workshop, 2026-10-26: "The event happens for EVERYONE. So everyone's phone goes off").
+Messaging.STORY_AHEAD = 10 / 1440
 function Messaging.releaseStory()
     local md = State.get()
-    local now = Util.nowDay() + (md.storyShift or 0)
+    local shift = md.storyShift or 0
+    local now = Util.nowDay() + shift
+    local horizon = now + Messaging.STORY_AHEAD
+    -- A story day as a whole world minute, never in the past.
+    local function at(day) return math.max(Util.nowMinutes(), math.floor((day - shift) * 1440 + 0.5)) end
     for number, plan in pairs(md.story) do
-        while plan.next <= #plan.messages and plan.messages[plan.next].day <= now do
+        while plan.next <= #plan.messages and plan.messages[plan.next].day <= horizon do
             local m = plan.messages[plan.next]
-            Messaging.queueStory(plan.family[m.from] or "(502) 555-0000", number, Messaging.fillFamily(plan, m.body))
+            Messaging.queueStory(plan.family[m.from] or "(502) 555-0000", number, Messaging.fillFamily(plan, m.body),
+                at(m.day))
             -- The Map shows the family's place from the text that names it on.
             if tostring(m.body):find("{place}", 1, true) then plan.placeTold = true end
             plan.next = plan.next + 1
@@ -365,9 +395,9 @@ function Messaging.releaseStory()
         -- Their answers to your texts (Core/FamilyText), on your phone and on theirs.
         if plan.asked then
             local rng = Rng.new(tostring(md.seed) .. ":familyreply:" .. number .. ":" .. math.floor(Util.nowMinutes()))
-            for _, r in ipairs(FamilyText.due(rng, plan, now)) do
+            for _, r in ipairs(FamilyText.due(rng, plan, horizon)) do
                 local body = Messaging.fillFamily(plan, r.body)
-                Messaging.queueStory(plan.family[r.member] or "(502) 555-0000", number, body)
+                Messaging.queueStory(plan.family[r.member] or "(502) 555-0000", number, body, at(r.due))
                 if plan.hunt then
                     local day, minute = stamp()
                     Hunt.recordReply(plan.hunt, r.member, body, day, minute)
@@ -378,9 +408,9 @@ function Messaging.releaseStory()
     end
     for _, p in pairs(md.players) do
         if p.survivors then
-            while p.nextSurvivor <= #p.survivors and p.survivors[p.nextSurvivor].day <= now do
+            while p.nextSurvivor <= #p.survivors and p.survivors[p.nextSurvivor].day <= horizon do
                 local m = p.survivors[p.nextSurvivor]
-                Messaging.queueStory(m.from or "(502) 555-0199", p.number, fillPlace(m.body, "the Muldraugh motel"))
+                Messaging.queueStory(m.from or "(502) 555-0199", p.number, fillPlace(m.body, "the Muldraugh motel"), at(m.day))
                 if m.questId then QuestsWorld.arm(m.questId) end
                 p.nextSurvivor = p.nextSurvivor + 1
             end

@@ -182,7 +182,9 @@ if ISChat and ISChat.onCommandEntered then
     ISChat.onCommandEntered = function(...)
         local chat = ISChat.instance
         local text = chat and chat.textEntry and chat.textEntry:getText()
-        if Social.chatCommand(text) then
+        -- An error here must never eat the player's chat line: the game's handler still gets it (0.2.4).
+        local ok, caught = pcall(Social.chatCommand, text)
+        if ok and caught then
             chat:unfocus()
             return
         end

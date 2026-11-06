@@ -21,13 +21,14 @@ end
 
 function ClueUI.remember(player, phoneId, pin, label)
     if not (phoneId and type(pin) == "string" and pin:match("^%d%d%d%d$")) then return end
-    local md = player:getModData()
-    if type(md.KnoxMobileKnownPins) ~= "table" then md.KnoxMobileKnownPins = {} end
     local key = tostring(phoneId)
-    local list = md.KnoxMobileKnownPins[key] or {}
+    local list = ClueUI.known(player, phoneId)
     for _, e in ipairs(list) do if e.pin == pin then return end end
-    list[#list + 1] = { pin = pin, label = label }
-    md.KnoxMobileKnownPins[key] = list
+    local copy = {}
+    for i, e in ipairs(list) do copy[i] = e end
+    copy[#copy + 1] = { pin = pin, label = label }
+    -- Kept on the server's copy of the character too (0.2.4): in multiplayer this copy can lose it.
+    KnoxMobile.Client.keep(player, "KnoxMobileKnownPins", key, copy)
 end
 
 -- The lock screen's (and the tooltip's) one line on where this phone's code is. Short: it has to fit a brick's LCD

@@ -62,8 +62,10 @@ function Tooltip.phoneText(player, item)
 end
 
 -- The fill bars for an item: { { label, fraction 0..1, kind } }, or nil for items without a charge.
+-- The game's liquid and power bars show this same tooltip for a fluid container or a power resource, which are not
+-- items (Workshop, 2026-10-26: an error every frame while hovering a mug's liquid bar), so only items get a look.
 function Tooltip.bars(item)
-    if not item then return nil end
+    if not item or not instanceof(item, "InventoryItem") then return nil end
     local state = Phones.isPhone(item) and Phones.get(item)
     if state then
         if state.owner and state.owner.pending then return nil end
@@ -118,7 +120,9 @@ function Tooltip.drawBars(tip)
     end
 end
 
--- The game's inventory tooltip draws the item's text; the bars go right under it.
+-- The game's inventory tooltip draws the item's text; the bars go right under it. It draws every frame, so the
+-- bars have the same error budget as the tick's parts (0.2.4: they used to fail, and log, on every frame).
+local drawBars = Util.safe("tooltip bars", function(tip) Tooltip.drawBars(tip) end)
 function Tooltip.hook()
     if Tooltip.hooked or not ISToolTipInv then return end
     Tooltip.hooked = true
@@ -126,11 +130,7 @@ function Tooltip.hook()
     function ISToolTipInv:render()
         render(self)
         if ISContextMenu.instance and ISContextMenu.instance.visibleCheck then return end
-        local ok, err = pcall(Tooltip.drawBars, self)
-        if not ok and not Tooltip.failed then
-            Tooltip.failed = true
-            Util.log("tooltip bars failed:", err)
-        end
+        drawBars(self)
     end
 end
 Tooltip.hook()

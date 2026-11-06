@@ -77,11 +77,31 @@ function Client.markSeen(player, key)
     if isClient() then Net.toServer(player, "seen", { key = key }) end
 end
 
+-- One entry in a table the server keeps too (Util.KEPT, 0.2.4): the codes read for a phone, a dead owner's thread
+-- read, a tape heard.
+function Client.keep(player, key, entry, value)
+    local md = player:getModData()
+    if type(md[key]) ~= "table" then md[key] = {} end
+    md[key][entry] = value
+    if isClient() then Net.toServer(player, "keep", { key = key, entry = entry, value = value }) end
+end
+
 Net.onClient("seen", function(args)
     local p = me()
-    if not p or type(args.keys) ~= "table" then return end
-    for _, key in ipairs(args.keys) do
-        if Util.SEEN[key] then p:getModData()[key] = true end
+    if not p then return end
+    local md = p:getModData()
+    for _, key in ipairs(type(args.keys) == "table" and args.keys or {}) do
+        if Util.SEEN[key] then md[key] = true end
+    end
+    -- What this copy of the character lost comes back; what it has and the server doesn't stays.
+    for key in pairs(Util.KEPT) do
+        local kept = type(args.kept) == "table" and args.kept[key]
+        if type(kept) == "table" then
+            if type(md[key]) ~= "table" then md[key] = {} end
+            for entry, value in pairs(kept) do
+                if md[key][entry] == nil then md[key][entry] = value end
+            end
+        end
     end
 end)
 
@@ -112,6 +132,21 @@ Net.onClient("world", function(args)
 end)
 
 -- Private repeater passwords this character knows (the status bar needs them to show service).
+-- Phone > Add a contact, as the server saw it (0.2.4).
+Net.onClient("contactSaved", function(args)
+    local name = tostring(args.name or "")
+    if args.ok then
+        Client.toast(Util.text("IGUI_KnoxMobile_ContactSaved", "Saved %1 to your contacts", name))
+    elseif args.why == "already saved" then
+        Client.toast(Util.text("IGUI_KnoxMobile_ContactExists", "That number is already in your contacts"))
+    elseif args.why == "contact list full" then
+        Client.toast(Util.text("IGUI_KnoxMobile_ContactsFull", "The SIM's contact list is full"))
+    else
+        Client.toast(Util.text("IGUI_KnoxMobile_ContactNameBad", "A contact's name is 1 to 40 letters"))
+    end
+    refresh()
+end)
+
 Net.onClient("passwords", function(args)
     local p = me()
     if p and type(args.list) == "table" then p:getModData().KnoxMobilePasswords = args.list end

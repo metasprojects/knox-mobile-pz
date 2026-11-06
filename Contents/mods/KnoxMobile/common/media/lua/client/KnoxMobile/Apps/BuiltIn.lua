@@ -56,9 +56,11 @@ local function callLabel(call, sim)
     return T("IGUI_KnoxMobile_CallReceived", "Received: %1", name), T("IGUI_KnoxMobile_CallReceivedShort", "< %1", name)
 end
 
--- The rows above the contacts: Dial, then Recent calls and Voicemail when the phone has any.
+-- The rows above the contacts: Dial, Add a contact, then Recent calls and Voicemail when the phone has any.
 local function phoneRows(ctx)
     local rows = { { id = "dial", label = T("IGUI_KnoxMobile_Dial", "Dial a number") } }
+    -- 0.2.4 (a Workshop request: "a way to add someone as a contact so I don't need to memorize their numbers").
+    if ctx.state.sim then rows[#rows + 1] = { id = "add", label = T("IGUI_KnoxMobile_AddContact", "Add a contact") } end
     if ctx.state.sim and #ctx.state.sim.contacts > 0 then
         rows[#rows + 1] = { id = "share", label = T("IGUI_KnoxMobile_ShareContact", "Share a contact") }
     end
@@ -184,6 +186,19 @@ KnoxMobile.Apps.register({
             return true
         end
         if not sim then ctx:toast(T("IGUI_KnoxMobile_NoSim", "No SIM card")); return true end
+        if row and row.id == "add" then
+            -- The name, then the number; the server saves it on the SIM (server Server.lua "addContact").
+            ctx:askText(T("IGUI_KnoxMobile_ContactName", "Name:"), "", function(name)
+                name = tostring(name or ""):match("^%s*(.-)%s*$")
+                if name == "" then return end
+                ctx:askText(T("IGUI_KnoxMobile_ContactNumber", "%1's number:", name), "", function(text)
+                    local number = Sim.dialable(text)
+                    if not number then ctx:toast(T("IGUI_KnoxMobile_BadNumber", "That isn't a phone number")); return end
+                    Net.toServer(ctx.player, "addContact", { phoneId = ctx.phone:getID(), name = name, number = number })
+                end, 20)
+            end, 40)
+            return true
+        end
         if row then
             askNumber(ctx, T("IGUI_KnoxMobile_Number", "Number:"), function(number) KnoxMobile.Client.placeCall(ctx.phone, number) end)
         elseif sim.contacts[chosen - #rows] then

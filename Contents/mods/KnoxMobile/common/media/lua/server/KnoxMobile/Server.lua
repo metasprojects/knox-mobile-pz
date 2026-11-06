@@ -165,7 +165,13 @@ Net.onServer("hello", function(player)
     for key in pairs(Util.SEEN) do
         if player:getModData()[key] == true then seen[#seen + 1] = key end
     end
-    if #seen > 0 then Net.toClient(player, "seen", { keys = seen }) end
+    -- And what it has come across (0.2.4).
+    local kept, any = {}, false
+    for key in pairs(Util.KEPT) do
+        local t = player:getModData()[key]
+        if type(t) == "table" and not Util.isEmpty(t) then kept[key], any = t, true end
+    end
+    if #seen > 0 or any then Net.toClient(player, "seen", { keys = seen, kept = kept }) end
     Messaging.deliverTo(player)
 end)
 
@@ -173,6 +179,50 @@ end)
 -- so mod data the server sends the client never brings it back (0.2.3).
 Net.onServer("seen", function(player, args)
     if Util.SEEN[args.key] then player:getModData()[args.key] = true end
+end)
+
+-- What the client keeps (Util.KEPT, client Client.keep): a code is a list of { pin, label }, the rest are true.
+local function keptValue(key, value)
+    if key ~= "KnoxMobileKnownPins" then return value == true or nil end
+    if type(value) ~= "table" then return nil end
+    local list = {}
+    for i, e in ipairs(value) do
+        if i > 10 then break end
+        if type(e) == "table" and type(e.pin) == "string" and e.pin:match("^%d%d%d%d$") then
+            list[#list + 1] = { pin = e.pin, label = type(e.label) == "string" and e.label:sub(1, 60) or nil }
+        end
+    end
+    return #list > 0 and list or nil
+end
+
+-- One entry of what a character has come across, kept on the server's copy too (0.2.4), up to the key's cap.
+Net.onServer("keep", function(player, args)
+    local cap, entry = Util.KEPT[args.key], args.entry
+    if not cap or type(entry) ~= "string" or entry == "" or #entry > 64 then return end
+    local value = keptValue(args.key, args.value)
+    if value == nil then return end
+    local md = player:getModData()
+    if type(md[args.key]) ~= "table" then md[args.key] = {} end
+    local t = md[args.key]
+    if t[entry] == nil then
+        local n = 0
+        for _ in pairs(t) do n = n + 1 end
+        if n >= cap then return end
+    end
+    t[entry] = value
+end)
+
+-- Phone > Add a contact (0.2.4, a Workshop request: "a way to add someone as a contact so I don't need to memorize
+-- their numbers"): onto the SIM in that phone, which keeps its contacts wherever it goes.
+Net.onServer("addContact", function(player, args)
+    local item, state = phoneOf(player, args)
+    if not item or not state.sim then return end
+    local name = type(args.name) == "string" and args.name:match("^%s*(.-)%s*$") or ""
+    local number = type(args.number) == "string" and Sim.dialable(args.number) or nil
+    if name == "" or not number then return end
+    local ok, why = Sim.addContact(state.sim, name, number)
+    if ok then Phones.save(item, player) end
+    Net.toClient(player, "contactSaved", { name = name, ok = ok == true, why = why })
 end)
 
 -- Multiplayer: everyone hears whose phone screen is on, for the glow others see (client/KnoxMobile/Glow.lua).
@@ -1193,6 +1243,8 @@ Events.EveryOneMinute.Add(Util.safe("every minute", function()
     PhoneTick.run()
     for _, call in ipairs(Calls.expire(State.calls, getTimestampMs() / 1000)) do endCall(call, "missed") end
     checkCalls()
+    -- Story texts land on their own minute, each player's at its own time (0.2.4).
+    Messaging.deliverDue()
 end))
 
 Events.EveryTenMinutes.Add(Util.safe("every ten minutes", function()

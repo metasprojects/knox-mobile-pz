@@ -176,11 +176,11 @@ function M.open(player, sq, extra)
     M.panel = p
     if JoypadState.players[player:getPlayerNum() + 1] then setJoypadFocus(player:getPlayerNum(), p) end
     -- Strangers' voices on a dead house's tape: a little unhappiness, once per tape.
-    local md = player:getModData()
-    if type(md.KnoxMobileTapes) ~= "table" then md.KnoxMobileTapes = {} end
+    local heard = player:getModData().KnoxMobileTapes
     local key = sq:getX() .. "," .. sq:getY() .. "," .. sq:getZ()
-    if not md.KnoxMobileTapes[key] then
-        md.KnoxMobileTapes[key] = true
+    if not (type(heard) == "table" and heard[key]) then
+        -- Kept on the server's copy of the character too (0.2.4).
+        KnoxMobile.Client.keep(player, "KnoxMobileTapes", key, true)
         KnoxMobile.Client.mood("UNHAPPINESS", 2)
     end
     return p

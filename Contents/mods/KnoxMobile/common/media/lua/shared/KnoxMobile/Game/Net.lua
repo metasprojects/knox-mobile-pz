@@ -47,7 +47,11 @@ local function runServer(player, command, args)
         local ok, why = Protocol.validate(command, args)
         if not ok then Util.log("rejected", command, "from", Util.playerKey(player), ":", why); return end
     end
-    Util.safe("server " .. command, handler)(player, args or {})
+    -- On a server each player has their own error budget (0.2.4): three errors from one player's phone used to switch
+    -- the command off for everyone until the server restarted.
+    local name = "server " .. command
+    if isServer() then name = name .. " from " .. Util.playerKey(player) end
+    Util.safe(name, handler)(player, args or {})
 end
 
 local function runClient(command, args)

@@ -54,6 +54,8 @@ function MessageQueue.send(q, msg, senderNet, recipientNet, settings, now)
         q.nextId = q.nextId + 1
         if recipientNet then return "delivered", record end
         record.via = { world = false, members = {} }
+        -- The minute it's due (settings.notBefore, 0.2.4): each story text lands on its own minute.
+        record.notBefore = settings and settings.notBefore or nil
         q.queued[#q.queued + 1] = record
         return "queued", record
     end

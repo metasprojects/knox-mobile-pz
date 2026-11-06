@@ -143,11 +143,11 @@ end
 -- Reading a dead person's messages adds unhappiness once per conversation, unless desensitized (spec §9.6).
 local function readDeadThread(ctx, t)
     if not (ctx.state.owner and ctx.state.owner.kind == "generated") then return end
-    local md = ctx.player:getModData()
-    if type(md.KnoxMobileReadDead) ~= "table" then md.KnoxMobileReadDead = {} end
+    local read = ctx.player:getModData().KnoxMobileReadDead
     local key = tostring(ctx.phone:getID()) .. ":" .. tostring(t.key)
-    if md.KnoxMobileReadDead[key] then return end
-    md.KnoxMobileReadDead[key] = true
+    if type(read) == "table" and read[key] then return end
+    -- Kept on the server's copy of the character too (0.2.4): a lost copy made the same thread upset them again.
+    KnoxMobile.Client.keep(ctx.player, "KnoxMobileReadDead", key, true)
     local ok, hardened = pcall(function() return ctx.player:hasTrait(CharacterTrait.DESENSITIZED) end)
     if not (ok and hardened) then KnoxMobile.Client.mood("UNHAPPINESS", 4) end
 end
@@ -190,10 +190,15 @@ local function drawThread(ctx, t, x, y, w, h)
     local newest = (t.conv.messages or {})[#(t.conv.messages or {})]
     if g and not small(ctx) then head = head .. "  " .. T("IGUI_KnoxMobile_GroupCount", "(%1)", #g.members)
     elseif newest and newest.sos and newest.inbound then head = T("IGUI_KnoxMobile_SosHeader", "SOS: %1", head) end
-    ctx:rect(x, y, w, lh + 3, ctx.style.accent, 0.25)
-    ctx:text(fit(ctx, head, w - 6), x + 3, y + 1, ctx.style.accent)
     -- Small LCDs skip the hint line: every row counts there.
     local bottom = small(ctx) and (y + h) or (y + h - lh - 4)
+    -- The brick's LCD at the Large size has no room for a line under the name, and the texts were drawn below the
+    -- screen (Workshop, 2026-10-26: "all i see is the person's name"). There the texts get the screen instead.
+    local named = not small(ctx) or bottom - (y + lh + 6) >= lh
+    if named then
+        ctx:rect(x, y, w, lh + 3, ctx.style.accent, 0.25)
+        ctx:text(fit(ctx, head, w - 6), x + 3, y + 1, ctx.style.accent)
+    end
     -- Newest at the bottom, wrapped; scroll with up and down.
     -- On bigger screens a time line goes before a message that comes 30 minutes or more after the one before it,
     -- and messages have a little space between them (r8: no times, no gaps).
@@ -211,7 +216,7 @@ local function drawThread(ctx, t, x, y, w, h)
         for _, l in ipairs(ctx:wrap(text, w - 14)) do lines[#lines + 1] = { text = l, accent = accent, out = not m.inbound } end
         prev = m
     end
-    local top = y + lh + 6
+    local top = named and (y + lh + 6) or y
     local rows = math.max(1, math.floor((bottom - top) / lh))
     d.back = math.max(0, math.min(d.back or 0, #lines - rows))
     local first = math.max(1, #lines - rows - d.back + 1)

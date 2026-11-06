@@ -56,6 +56,11 @@ function Util.isSingleplayer() return not isClient() and not isServer() end
 -- seen (client Client.markSeen) and the server keeps only these on its copy of the character.
 Util.SEEN = { KnoxMobileHinted = true, KnoxMobilePinHelp = true }
 
+-- What a character has come across, kept the same way (0.2.4): tables by key, so a lost copy neither forgets the codes
+-- read for a phone nor makes a dead owner's texts or a dead house's tape upset them again. The number is how many
+-- entries the server keeps (client Client.keep).
+Util.KEPT = { KnoxMobileKnownPins = 100, KnoxMobileReadDead = 300, KnoxMobileTapes = 200 }
+
 -- Every player this machine is responsible for (all online players on a server, local players otherwise).
 function Util.players()
     local out = {}

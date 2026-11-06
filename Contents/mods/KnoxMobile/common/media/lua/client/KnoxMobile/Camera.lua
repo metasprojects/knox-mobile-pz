@@ -415,7 +415,7 @@ end)
 
 Net.onClient("photoSaved", function(args)
     if args.ok then
-        KnoxMobile.Client.toast(T("IGUI_KnoxMobile_PhotoTaken", "Photo saved"))
+        KnoxMobile.Client.toast(T("IGUI_KnoxMobile_PhotoTaken", "Photo saved. See it in the Photos app"))
     elseif args.reason == "write" then
         KnoxMobile.Client.toast(T("IGUI_KnoxMobile_PhotoNotSaved", "The photo couldn't be saved"))
     else

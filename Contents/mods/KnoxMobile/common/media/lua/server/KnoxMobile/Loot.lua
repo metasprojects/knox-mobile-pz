@@ -52,10 +52,47 @@ local function itemsOf(a)
     return nil
 end
 
+-- 0.2.4: the phone years as they are now (Core/Loot.yearFilter), made again only when they change.
+local years = { key = nil, outOfYears = nil }
+local function outOfYearsNow()
+    local sv = SandboxVars and SandboxVars.KnoxMobile or {}
+    local key = tostring(sv.EraLimit) .. ":" .. tostring(sv.OldestPhoneYear) .. ":" .. tostring(sv.NewestPhoneYear)
+    if years.key ~= key then
+        years.key = key
+        years.outOfYears = Loot.yearFilter(Registry.withBundledPhones(), Accessories, Sandbox.read(sv))
+    end
+    return years.outOfYears
+end
+
+-- Phones, boxes, manuals, spare batteries and car phone kits the phone years don't allow leave a container as the game
+-- fills it. What the mod put there itself (a zombie's phone, a family member's, a clue) carries its data and stays.
+local function untouched(item)
+    for k in pairs(item:getModData()) do
+        if tostring(k):sub(1, 10) == "KnoxMobile" then return false end
+    end
+    return true
+end
+
+local droppedLogged = false
+local function dropOutOfYears(container, items)
+    local outOfYears, drop = outOfYearsNow(), {}
+    for i = 0, items:size() - 1 do
+        local it = items:get(i)
+        local fullType = it:getFullType()
+        if fullType:sub(1, 11) == "KnoxMobile." and outOfYears(fullType) and untouched(it) then drop[#drop + 1] = it end
+    end
+    for _, it in ipairs(drop) do container:Remove(it) end
+    if #drop > 0 and not droppedLogged then
+        droppedLogged = true
+        print("[KnoxMobile] loot: took " .. #drop .. " items outside the phone years out of a container (first time only)")
+    end
+end
+
 -- 0.2.2: and every locked found phone gets its way in (server/Clues.lua: on the body, in the house, in the glove box).
 local ClueWorld = require "KnoxMobile/ClueWorld"
 local function addKit(container)
     local items = itemsOf(container)
+    if items then dropOutOfYears(container, items) end
     local phones, found = {}, {}
     for i = 0, (items and items:size() or 0) - 1 do
         local it = items:get(i)
