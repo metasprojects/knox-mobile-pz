@@ -8,7 +8,7 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.2.5, early access (released 2026-10-27): Knox Mobile in Spanish (menus, items, options and the stories).
+- **Version:** 0.2.6, early access (released 2026-11-04): the phone in Project Viewpoint's first person from the start.
 - **Languages:** English and Spanish (Spain and Latin America), menus and stories both.
 - **Made by:** Meta
 

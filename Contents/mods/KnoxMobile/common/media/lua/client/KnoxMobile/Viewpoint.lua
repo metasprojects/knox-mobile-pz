@@ -13,6 +13,16 @@ KnoxMobile.Viewpoint = Compat
 -- pass). So "third" is either first person or the isometric view after third person; the change that led there
 -- tells them apart (watched every few ticks from the start, see below).
 local track = { next = nil, view = "isometric", swapAt = nil }
+
+-- Viewpoint's mouse in its 3D views (Viewpoint.Mouse.worldX: the world point it aims at, which its own Lua uses in
+-- place of the isometric conversion, so nil in the isometric view). A number means a 3D view; nil says nothing.
+local function in3D()
+    local m = Viewpoint and Viewpoint.Mouse
+    if not (m and m.worldX) then return false end
+    local ok, x = pcall(m.worldX)
+    return ok and type(x) == "number"
+end
+
 function Compat.view()
     local v = Viewpoint and Viewpoint.View
     if not v or not v.next then return "isometric" end
@@ -32,6 +42,10 @@ function Compat.view()
         end
         track.next = n
     end
+    -- "third" next, taken for the isometric view, while Viewpoint aims in 3D: first person (0.2.6, Workshop: "on
+    -- viewpoint nothing happens when I use Use the phone"). Viewpoint remembers your view between sessions, so a game
+    -- can start in first person, and a controller swaps views without Shift+O: neither shows in the cycle alone.
+    if n == "third" and track.view == "isometric" and in3D() then track.view = "first" end
     return track.view
 end
 

@@ -366,8 +366,11 @@ end
 
 -- Takes the photo with the phone's camera: the shutter in the next UI pass, the upload as soon as the JPEG is ready.
 -- A selfie first catches the world behind you again, then takes the viewfinder with your face.
+local shotCount = 0
 function Camera.shoot(player, phone, spec)
-    local id = string.format("p%d-%d", math.floor(getTimestampMs()), ZombRand(100000))
+    -- The time, a random number and this session's count: two photos never share an id (and with it a file).
+    shotCount = shotCount + 1
+    local id = string.format("p%d-%d-%d", math.floor(getTimestampMs()), ZombRand(100000), shotCount)
     getSoundManager():playUISound("KnoxMobileButton")
     local flashed = flash(player)
     local caption = Camera.caption(player)
