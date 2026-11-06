@@ -52,21 +52,31 @@ local function itemsOf(a)
     return nil
 end
 
+-- 0.2.2: and every locked found phone gets its way in (server/Clues.lua: on the body, in the house, in the glove box).
+local ClueWorld = require "KnoxMobile/ClueWorld"
 local function addKit(container)
     local items = itemsOf(container)
-    if not items or items:size() == 0 then return end
-    local found = {}
-    for i = 0, items:size() - 1 do
+    local phones, found = {}, {}
+    for i = 0, (items and items:size() or 0) - 1 do
         local it = items:get(i)
         -- Every container the game fills comes through here: only Knox items get a closer look.
         local model = it:getFullType():sub(1, 11) == "KnoxMobile." and Phones.model(it)
-        if model and Registry.isUsbConnector(model.connector) then found[#found + 1] = { it, model } end
+        if model then
+            phones[#phones + 1] = { it, model }
+            if Registry.isUsbConnector(model.connector) then found[#found + 1] = { it, model } end
+        end
     end
     for _, f in ipairs(found) do
-        local rng = Rng.new("kit:" .. tostring(f[1]:getID()))
-        if rng:int(1, 100) <= 60 then container:AddItem("KnoxMobile.Cable" .. f[2].connector) end
-        if rng:int(1, 100) <= 50 then container:AddItem("KnoxMobile.UsbWallAdapter") end
+        -- Once per phone: a body opened again or a container refilled (loot respawn) gets no second kit (0.2.2).
+        local md = f[1]:getModData()
+        if not md.KnoxMobileKit then
+            md.KnoxMobileKit = true
+            local rng = Rng.new("kit:" .. tostring(f[1]:getID()))
+            if rng:int(1, 100) <= 60 then container:AddItem("KnoxMobile.Cable" .. f[2].connector) end
+            if rng:int(1, 100) <= 50 then container:AddItem("KnoxMobile.UsbWallAdapter") end
+        end
     end
+    ClueWorld.onFill(container, phones)
 end
 
 if Events.OnFillContainer then

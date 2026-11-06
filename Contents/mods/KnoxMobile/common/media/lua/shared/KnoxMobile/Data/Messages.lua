@@ -44,7 +44,8 @@ M.notify = {
     -- A found phone taken home (Actions takeHome, server TextBack); %1 is its owner's first name.
     returned = { home = "%1's phone is home" },
     audio = { noGear = "You have no %1 that fit this phone" },
-    manual = { read = "You know how this kind of phone works now" },
+    manual = { read = "You know how this kind of phone works now",
+        readCode = "You know how this kind of phone works now. Its factory lock code is %1" },
     bank = { plugged = "Power bank charging", unplugged = "Power bank unplugged", full = "Power bank full" },
     wipe = { done = "Phone wiped. It's yours now." },
     callFailed = {

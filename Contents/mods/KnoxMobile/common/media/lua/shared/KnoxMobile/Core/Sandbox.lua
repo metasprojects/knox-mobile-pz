@@ -3,8 +3,15 @@
 
 local Sandbox = {}
 
+-- The years the phones came out (Phones/*.lua), for the oldest and newest phone options.
+Sandbox.PHONE_YEARS = { "1993", "2000", "2003", "2009", "2010", "2013" }
+
 Sandbox.OPTIONS = {
     { name = "EraLimit", type = "enum", default = "All", page = "KnoxMobilePhones", values = { "All", "1993Only" } },
+    -- Which years of phones exist (Workshop, 2026-10-24: "smartphones from 2000 - 2003 but not later", "just
+    -- 1993-2000"). EraLimit "1993Only" still wins, so old saves keep their brick phones.
+    { name = "OldestPhoneYear", type = "enum", default = "1993", page = "KnoxMobilePhones", values = Sandbox.PHONE_YEARS },
+    { name = "NewestPhoneYear", type = "enum", default = "2013", page = "KnoxMobilePhones", values = Sandbox.PHONE_YEARS },
     { name = "StartingPhone", type = "enum", default = "FindOnly", page = "KnoxMobilePhones",
         values = { "FindOnly", "Random", "PickAtCreation" } },
     { name = "StartWithOwnSim", type = "boolean", default = true, page = "KnoxMobilePhones" },
@@ -119,7 +126,21 @@ function Sandbox.read(raw)
     if result.FoundPhoneHealthMin > result.FoundPhoneHealthMax then
         result.FoundPhoneHealthMin, result.FoundPhoneHealthMax = result.FoundPhoneHealthMax, result.FoundPhoneHealthMin
     end
+    if tonumber(result.OldestPhoneYear) > tonumber(result.NewestPhoneYear) then
+        result.OldestPhoneYear, result.NewestPhoneYear = result.NewestPhoneYear, result.OldestPhoneYear
+    end
     return result
+end
+
+-- The phone years a world allows, as numbers: settings is a Sandbox.read() result (or an EraLimit string from
+-- before 0.2.2). "1993 only" is 1993 to 1993 whatever the year options say.
+function Sandbox.yearRange(settings)
+    if type(settings) ~= "table" then settings = { EraLimit = settings } end
+    if settings.EraLimit == "1993Only" then return 1993, 1993 end
+    local lo = tonumber(settings.OldestPhoneYear) or 1993
+    local hi = tonumber(settings.NewestPhoneYear) or 9999
+    if lo > hi then lo, hi = hi, lo end
+    return lo, hi
 end
 
 function Sandbox.toOptionsFile()

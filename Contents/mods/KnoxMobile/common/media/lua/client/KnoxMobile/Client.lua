@@ -6,7 +6,7 @@ local Phones = require "KnoxMobile/Game/Phones"
 local Messages = require "KnoxMobile/Data/Messages"
 local Tick = require "KnoxMobile/Game/Tick"
 
-local Client = { call = nil, unlock = {}, knownPhones = {} }
+local Client = { call = nil, unlock = {}, unlockLeft = {}, knownPhones = {} }
 KnoxMobile.Client = Client
 KnoxMobile.UI = KnoxMobile.UI or {}
 
@@ -109,7 +109,17 @@ end)
 
 Net.onClient("unlockResult", function(args)
     Client.unlock[args.phoneId] = args.result
-    if args.result == "lockedOut" then Client.toast(T("IGUI_KnoxMobile_LockedOut", "Too many tries. Locked for an hour.")) end
+    Client.unlockLeft[args.phoneId] = args.left
+    if args.result == "lockedOut" then
+        Client.toast(T("IGUI_KnoxMobile_LockedOut", "Too many tries. Locked for an hour."))
+    elseif not (KnoxMobile.UI and KnoxMobile.UI.isOpen and KnoxMobile.UI.isOpen()) then
+        -- A code tried from the right-click menu (0.2.2): the phone isn't open, so say how it went.
+        if args.result == "ok" then
+            Client.toast(T("IGUI_KnoxMobile_Unlocked", "Unlocked."))
+        elseif args.result == "wrong" and args.left then
+            Client.toast(T("IGUI_KnoxMobile_WrongPinLeft", "Wrong PIN, %1 tries left", args.left))
+        end
+    end
     refresh()
 end)
 

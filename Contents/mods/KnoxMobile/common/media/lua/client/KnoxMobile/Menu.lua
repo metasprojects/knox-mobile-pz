@@ -4,6 +4,8 @@ local Phones = require "KnoxMobile/Game/Phones"
 local Util = require "KnoxMobile/Game/Util"
 local Net = require "KnoxMobile/Game/Net"
 local Replies = require "KnoxMobile/Core/Replies"
+local Clues = require "KnoxMobile/Core/Clues"
+require "KnoxMobile/ClueUI"
 
 local T = Util.text
 
@@ -179,8 +181,13 @@ local function phoneMenu(player, context, item)
         elseif until_ and Util.nowMinutes() < until_ then
             crackWhy = T("IGUI_KnoxMobile_LockedOut", "Too many tries. Locked for an hour.")
         end
-        option(m, T("IGUI_KnoxMobile_CrackPin", "Try to crack the PIN"), function() queue(player, "crackPin", item) end,
-            crackWhy)
+        -- 0.2.2: with the odds your Electrical skill gives, and the clue's own options (turn it over, try a code read
+        -- from a note, card, tags or badge, or a maker's code from a manual you've read).
+        local ok, level = pcall(function() return player:getPerkLevel(Perks.Electricity) end)
+        local tenths = math.floor(Clues.crackChance(ok and level or 0) * 10 + 0.5)
+        option(m, T("IGUI_KnoxMobile_CrackPinOdds", "Try to crack the PIN (about %1 in 10)", tenths),
+            function() queue(player, "crackPin", item) end, crackWhy)
+        KnoxMobile.ClueUI.phoneOptions(m, player, item, state, Phones.model(item), option)
     end
     -- A dead owner's phone you got into: make it yours (spec §5.1).
     if state.owner.kind == "generated" and not state.security.locked and state.power.on then

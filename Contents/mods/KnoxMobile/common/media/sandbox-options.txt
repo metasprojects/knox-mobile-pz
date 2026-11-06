@@ -10,6 +10,26 @@ option KnoxMobile.EraLimit
     valueTranslation = KnoxMobile_EraLimit,
 }
 
+option KnoxMobile.OldestPhoneYear
+{
+    type = enum,
+    numValues = 6,
+    default = 1,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_OldestPhoneYear,
+    valueTranslation = KnoxMobile_OldestPhoneYear,
+}
+
+option KnoxMobile.NewestPhoneYear
+{
+    type = enum,
+    numValues = 6,
+    default = 6,
+    page = KnoxMobilePhones,
+    translation = KnoxMobile_NewestPhoneYear,
+    valueTranslation = KnoxMobile_NewestPhoneYear,
+}
+
 option KnoxMobile.StartingPhone
 {
     type = enum,

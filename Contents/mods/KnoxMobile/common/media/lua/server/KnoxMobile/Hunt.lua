@@ -124,10 +124,10 @@ local function familyPhone(inv, number, hunt, member)
     local p = hunt.people[member]
     local rng = Rng.new(seedFor(number, member))
     local weights = {}
-    for _, m in ipairs(Phones.registry:spawnable(Util.settings().EraLimit)) do
+    for _, m in ipairs(Phones.registry:spawnable(Util.settings())) do
         if m.family ~= "SegmentLCD" then weights[#weights + 1] = { m, Loot.share(m, Util.settings(), Phones.registry:phones()) } end
     end
-    local model = rng:weighted(weights) or Phones.registry:spawnable(Util.settings().EraLimit)[1]
+    local model = rng:weighted(weights) or Phones.registry:spawnable(Util.settings())[1]
     if not model then return nil end
     local item = inv:AddItem(ItemIds.full(ItemIds.phone(model, rng:pick(model.colors))))
     if not item then return nil end

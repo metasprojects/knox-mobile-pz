@@ -4,6 +4,7 @@
 local ItemIds = require "KnoxMobile/ItemIds"
 local AudioGear = require "KnoxMobile/Core/AudioGear"
 local Power = require "KnoxMobile/Core/Power"
+local Sandbox = require "KnoxMobile/Core/Sandbox"
 
 local Loot = {}
 
@@ -114,10 +115,11 @@ function Loot.entries(registry, accessories, sandbox)
     local out = {}
     local mult = sandbox.RarityMultiplier or 1
     if mult <= 0 then return out end
-    local only1993 = sandbox.EraLimit == "1993Only"
+    local _, newest = Sandbox.yearRange(sandbox)
+    local only1993 = newest <= 1993
 
     local models, total = {}, 0
-    for _, model in ipairs(registry:spawnable(sandbox.EraLimit)) do models[#models + 1] = model end
+    for _, model in ipairs(registry:spawnable(sandbox)) do models[#models + 1] = model end
     for _, model in ipairs(models) do total = total + Loot.share(model, sandbox, models) end
     local houses, boxes = sandbox.HousePhones or 1, sandbox.BoxedPhones or 1
     for _, model in ipairs(models) do
@@ -137,12 +139,12 @@ function Loot.entries(registry, accessories, sandbox)
     end
 
     local families = {}
-    for _, model in ipairs(registry:spawnable(sandbox.EraLimit)) do families[model.family] = true end
+    for _, model in ipairs(registry:spawnable(sandbox)) do families[model.family] = true end
     for _, family in ipairs(registry:families()) do
         if families[family.id] then add(out, HOUSE_DRAWERS, ItemIds.manual(family.id), 1.5 * mult) end
     end
 
-    local phones = registry:spawnable(sandbox.EraLimit)
+    local phones = registry:spawnable(sandbox)
     for _, a in ipairs(accessories) do
         local modern = MODERN_KINDS[a.kind] or (a.kind == "case" and MODERN_CASES[a.caseType])
         if not (only1993 and modern) and Loot.fitsSomePhone(registry, a, phones, sandbox.ExactChargersForOldPhones) then

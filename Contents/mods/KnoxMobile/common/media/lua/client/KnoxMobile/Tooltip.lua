@@ -49,6 +49,10 @@ function Tooltip.phoneText(player, item)
     if state.security.locked then parts[#parts + 1] = T("IGUI_KnoxMobile_TipLocked", "locked") end
     local text = #parts > 0 and (table.concat(parts, ", ") .. ".") or ""
     if text ~= "" then text = text:sub(1, 1):upper() .. text:sub(2) .. " " end
+    -- A dead person's locked phone says where its code is, before it's even charged (0.2.2).
+    if state.security.locked and state.owner and state.owner.kind == "generated" and KnoxMobile.ClueUI then
+        text = text .. KnoxMobile.ClueUI.hint(item) .. ". "
+    end
     if knows(player, model.family) then
         text = text .. Tooltip.chargerHint(model) .. "."
     else

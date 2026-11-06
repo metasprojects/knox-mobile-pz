@@ -10,7 +10,11 @@ return {
         KnoxMobileCommunity = "Knox Mobile: Groups and Safety",
     },
     options = {
-        EraLimit = { "Phone eras", "Which phones exist. 1993 only: just the brick phones of July 1993.", { "All eras", "1993 only" } },
+        EraLimit = { "Phone eras", "Which phones exist. 1993 only: just the brick phones of July 1993 (the two year options below don't count). All eras: the two year options decide.", { "All eras", "1993 only" } },
+        OldestPhoneYear = { "Oldest phone year", "No phone older than this turns up: in houses, on zombies, in boxes, as a starting phone. 1993 DoorStop, 2000 Cinderblock, 2003 Soapbar, 2009 XpressoMusic and Bramble Bend, 2010 PearPhone 4, 2013 Supernova IV. Phones already in your world stay.",
+            { "1993", "2000", "2003", "2009", "2010", "2013" } },
+        NewestPhoneYear = { "Newest phone year", "No phone newer than this turns up. 2003: no smartphones (the first is the 2010 PearPhone 4). 2000: only the DoorStop and the Cinderblock. Phones already in your world stay.",
+            { "1993", "2000", "2003", "2009", "2010", "2013" } },
         StartingPhone = { "Starting phone", "Whether characters start with a phone.",
             { "None (find one)", "Random phone", "Pick when you spawn" } },
         PinLocks = { "Phone PINs", "Off: no phone is ever locked. Found phones open straight away (no PIN puzzles), and nobody can set a PIN." },

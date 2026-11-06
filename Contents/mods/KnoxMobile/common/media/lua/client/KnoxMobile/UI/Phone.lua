@@ -576,7 +576,9 @@ end
 function Panel:drawLock(c, top)
     local result = KnoxMobile.Client.unlock[self.item:getID()]
     local msg = T("IGUI_KnoxMobile_EnterPin", "Enter PIN")
-    if result == "wrong" then msg = T("IGUI_KnoxMobile_WrongPin", "Wrong PIN")
+    local left = KnoxMobile.Client.unlockLeft and KnoxMobile.Client.unlockLeft[self.item:getID()]
+    if result == "wrong" and left then msg = T("IGUI_KnoxMobile_WrongPinLeft", "Wrong PIN, %1 tries left", left)
+    elseif result == "wrong" then msg = T("IGUI_KnoxMobile_WrongPin", "Wrong PIN")
     elseif result == "lockedOut" then msg = T("IGUI_KnoxMobile_LockedOutShort", "Locked out") end
     self.digits = true
     self.keypad = nil
@@ -610,7 +612,8 @@ function Panel:drawLock(c, top)
     elseif state.owner and state.owner.kind == "generated" then
         -- A dead owner's phone: the way in, spelled out (Workshop: "is there a way to open them?"; Meta: "players
         -- don't understand how the PIN system works"). Wrapped, never cut (PC test: "Their wallet may ho...").
-        for i, line in ipairs(UI.wrap(T("IGUI_KnoxMobile_LockHint", "PIN clue: their wallet"), c.w - 8)) do
+        -- 0.2.2: where this phone's own clue is (ClueUI.hint), not always "their wallet".
+        for i, line in ipairs(UI.wrap(KnoxMobile.ClueUI.hint(self.item), c.w - 8)) do
             if i > 2 then break end
             c:text(line, c.w / 2, cy, nil, nil, "center")
             cy = cy + lineH()
@@ -914,11 +917,17 @@ end
 local function pinHelpText()
     local lines = {
         "<SIZE:medium> " .. T("IGUI_KnoxMobile_PinHelpTitle", "A dead person's phone") .. " <LINE> <SIZE:small> ",
-        T("IGUI_KnoxMobile_PinHelp1", "It's locked with the owner's 4-digit PIN. Look for it on their body:") .. " <LINE> ",
-        T("IGUI_KnoxMobile_PinHelp2", "- Their ID card may show a birthday: 'born 03/14/61' means the PIN is 0314 (month, day)."),
-        T("IGUI_KnoxMobile_PinHelp3", "- Or their wallet holds a scrap of paper with the 4 digits.") .. " <LINE> ",
-        T("IGUI_KnoxMobile_PinHelp4", "No clue? Right-click the phone: Try to crack the PIN."),
-        T("IGUI_KnoxMobile_PinHelp5", "Electrical skill helps; a fail locks it for an hour."),
+        T("IGUI_KnoxMobile_PinHelp1",
+            "It's locked with its owner's 4-digit PIN. The lock screen and the phone's tooltip say where this one's clue is:")
+            .. " <LINE> ",
+        T("IGUI_KnoxMobile_PinHelp2",
+            "- Their ID card: the birthday is the PIN. 'Born 03/14/61' means 0314. Right-click the card: Look at the ID card."),
+        T("IGUI_KnoxMobile_PinHelp3", "- A note on the body, or in the house or car the phone was in. Right-click it: Read the note."),
+        T("IGUI_KnoxMobile_PinHelp7", "- Dog tags or a badge: the last 4 digits of the number."),
+        T("IGUI_KnoxMobile_PinHelp8",
+            "- The back of the phone, the maker's code from its manual, or an easy code people picked.") .. " <LINE> ",
+        T("IGUI_KnoxMobile_PinHelp4", "Once you've read a clue, right-click the phone to try that code. No clue? Try to crack the PIN."),
+        T("IGUI_KnoxMobile_PinHelp5", "Electrical skill helps cracking. 5 wrong tries lock the phone for an hour."),
         T("IGUI_KnoxMobile_PinHelp6", "A dead phone needs charging and turning on first."),
     }
     return table.concat(lines, " <LINE> ")

@@ -15,6 +15,7 @@ local Rng = require "KnoxMobile/Core/Rng"
 local ItemIds = require "KnoxMobile/ItemIds"
 local Messages = require "KnoxMobile/Data/Messages"
 local Replies = require "KnoxMobile/Core/Replies"
+local Clues = require "KnoxMobile/Core/Clues"
 
 KnoxMobileAction = ISBaseTimedAction:derive("KnoxMobileAction")
 local Kinds = {}
@@ -162,8 +163,11 @@ Kinds.readManual = {
     anim = "Read",
     valid = function(self) return Phones.manualFamily(self.item) ~= nil and carried(self.character, self.item) end,
     complete = function(self)
-        knownFamilies(self.character)[Phones.manualFamily(self.item)] = true
-        tell(self.character, { kind = "manual", event = "read" })
+        local family = Phones.manualFamily(self.item)
+        knownFamilies(self.character)[family] = true
+        -- 0.2.2: the maker's factory lock code is in it (some dead owners never changed theirs).
+        local code = Clues.FACTORY[family]
+        tell(self.character, { kind = "manual", event = code and "readCode" or "read", number = code })
     end,
     done = function(self)
         knownFamilies(self.character)[Phones.manualFamily(self.item)] = true
@@ -388,7 +392,7 @@ Kinds.crackPin = {
     end,
     complete = function(self)
         local state = Phones.get(self.item)
-        local chance = math.min(0.9, 0.2 + 0.08 * electrical(self.character))
+        local chance = Clues.crackChance(electrical(self.character))
         if rngFor(self.item, "crack"):chance(chance) then
             state.security.locked, state.security.pin, state.security.failedAttempts = false, nil, 0
             tell(self.character, { kind = "crack", event = "ok", phoneId = self.item:getID() })

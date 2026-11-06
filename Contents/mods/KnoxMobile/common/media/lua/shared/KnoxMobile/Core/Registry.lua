@@ -1,6 +1,8 @@
 -- Phone models, screen families and charger connectors (spec §4, §6.1, §6.4, §12.3). Pure Lua 5.1.
 -- A Registry instance holds validated phone definitions; Registry.withBundledPhones() loads the mod's own.
 
+local Sandbox = require "KnoxMobile/Core/Sandbox"
+
 local Registry = {}
 Registry.__index = Registry
 
@@ -126,11 +128,23 @@ function Registry:byFamily(familyId)
     return out
 end
 
--- eraLimit: "All" or "1993Only" (sandbox EraLimit). In July 1993 only 1993 models existed.
-function Registry:spawnable(eraLimit)
-    if eraLimit ~= "1993Only" then return self.list end
-    local out = {}
-    for _, p in ipairs(self.list) do if p.year <= 1993 then out[#out + 1] = p end end
+-- The phones that can turn up. settings: the sandbox settings (EraLimit, OldestPhoneYear, NewestPhoneYear; see
+-- Sandbox.yearRange), or an EraLimit string ("All" or "1993Only"). In July 1993 only 1993 models existed.
+-- Never empty: with no phone in the years, the newest one before them (or the oldest phone).
+function Registry:spawnable(settings)
+    local lo, hi = Sandbox.yearRange(settings)
+    local out, before = {}, nil
+    for _, p in ipairs(self.list) do
+        if p.year >= lo and p.year <= hi then out[#out + 1] = p end
+        if p.year < lo and (not before or p.year > before.year) then before = p end
+    end
+    if #out == 0 then
+        local fallback = before
+        if not fallback then
+            for _, p in ipairs(self.list) do if not fallback or p.year < fallback.year then fallback = p end end
+        end
+        out[1] = fallback
+    end
     return out
 end
 

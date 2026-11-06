@@ -33,6 +33,7 @@ local Recordings = require "KnoxMobile/Core/Recordings"
 local Mod = require "KnoxMobile/Core/Mod"
 local Machine = require "KnoxMobile/Core/Machine"
 local Payphones = require "KnoxMobile/Payphones"
+local ClueWorld = require "KnoxMobile/ClueWorld"
 
 local Server = {}
 KnoxMobile.Server = Server
@@ -244,10 +245,16 @@ Net.onServer("phoneSetting", function(player, args)
             result = "ok"
         else
             sec.failedAttempts = (sec.failedAttempts or 0) + 1
-            if sec.failedAttempts >= 5 then sec.lockoutUntil, sec.failedAttempts = now + 60, 0 end
-            result = "wrong"
+            if sec.failedAttempts >= 5 then
+                sec.lockoutUntil, sec.failedAttempts = now + 60, 0
+                result = "lockedOut"
+            else
+                result = "wrong"
+            end
         end
-        Net.toClient(player, "unlockResult", { phoneId = item:getID(), result = result })
+        -- left: the tries before the hour's lockout (0.2.2: the lock screen says how many).
+        Net.toClient(player, "unlockResult", { phoneId = item:getID(), result = result,
+            left = result == "wrong" and (5 - (sec.failedAttempts or 0)) or nil })
     elseif args.key == "photo" and type(args.value) == "string" and #args.value > 0 and #args.value <= 160 then
         -- A photo of your own without the Java part (Photos: + Take a photo): its caption, kept on the phone, as
         -- many as the phone's memory holds (Core/CameraSpec).
@@ -304,6 +311,22 @@ Net.onServer("phoneSetting", function(player, args)
         return
     end
     Phones.save(item, player)
+end)
+
+-- "Look at the back" (0.2.2): someone else's locked phone, turned over. The code is there when its clue is "tape",
+-- and on every locked found phone the clue code never saw (from before 0.2.2, or a container it missed).
+Net.onServer("lookBack", function(player, args)
+    local item, state = phoneOf(player, args)
+    if not item then return end
+    local md = item:getModData()
+    local clue = type(md.KnoxMobileClue) == "table" and md.KnoxMobileClue or nil
+    if not clue and state.security.locked and state.owner and state.owner.kind == "generated" then
+        clue = ClueWorld.ensure(item, state.security.pin)
+        if not state.security.pin and state.power.on then state.security.pin = clue.pin end
+    end
+    local text = clue and clue.kind == "tape" and ClueWorld.tapeText(item, clue.pin) or nil
+    Phones.save(item, player)
+    Net.toClient(player, "lookBack", { phoneId = item:getID(), text = text, pin = text and clue.pin or nil })
 end)
 
 -- Calls (spec §9.7) ----------------------------------------------------------------------------
@@ -494,15 +517,23 @@ function Server.activateSim(sim)
     Util.log("activated SIM", sim.number)
 end
 
+-- Who a found phone's owner was: always the same for one phone, so its ID card (server/Clues.lua) can show the town
+-- before the phone is first turned on. Returns the identity and the rng that made it.
+function Server.ownerIdentity(item)
+    local md = item:getModData()
+    local rng = Rng.new(tostring(State.get().seed) .. ":owner:" .. tostring(item:getID()))
+    -- A birth date on their ID card sets how old they were.
+    local born = tonumber(md.KnoxMobileBorn)
+    local id = Story.identity(rng, { name = md.KnoxMobileOwnerName, female = md.KnoxMobileFemale, outfit = md.KnoxMobileOutfit,
+        ageBand = born and Story.bandFor(93 - born) or nil })
+    return id, rng
+end
+
 -- A found phone's dead owner, made the first time it powers on (spec §5.1). The name comes from the
 -- ID card the zombie carried when there was one. player (optional): who turned it on, for their journal.
 function Server.fillFoundPhone(item, state, model, player)
     local md = item:getModData()
-    local rng = Rng.new(tostring(State.get().seed) .. ":owner:" .. tostring(item:getID()))
-    -- A birth date on their ID card (a PIN clue) sets how old they were.
-    local born = tonumber(md.KnoxMobileBorn)
-    local id = Story.identity(rng, { name = md.KnoxMobileOwnerName, female = md.KnoxMobileFemale, outfit = md.KnoxMobileOutfit,
-        ageBand = born and Story.bandFor(93 - born) or nil })
+    local id, rng = Server.ownerIdentity(item)
     local nowDay, nowMinute = Messaging.stamp()
     local alife = type(md.KnoxMobileALife) == "table" and md.KnoxMobileALife or nil
     -- An A-Life NPC died just now, after weeks in the zone; an ordinary found phone's owner died around day 0.
@@ -541,7 +572,8 @@ function Server.fillFoundPhone(item, state, model, player)
     state.owner = { kind = "generated", first = id.first, last = id.last, job = id.job.title, hometown = id.hometown,
         fromIdCard = md.KnoxMobileOwnerName ~= nil }
     state.story = { draft = dead.draft, lastApp = dead.lastApp, alarm = dead.alarm, photos = dead.photos, deathDay = dead.deathDay }
-    if state.security.locked then state.security.pin = md.KnoxMobilePin or id.pin end
+    -- Its way in (server/Clues.lua). A phone the clue code never saw has the code on its back.
+    if state.security.locked then state.security.pin = ClueWorld.ensure(item, md.KnoxMobilePin or id.pin).pin end
     Util.log("found phone owner:", id.first, id.last, "-", id.job.title, md.KnoxMobileOwnerName and "(from ID card)" or "")
     if player and KnoxMobile.Journal then KnoxMobile.Journal.foundPhone(player, state) end
 end
@@ -564,6 +596,9 @@ end
 
 -- Every ten minutes: loaded squares charge their phones for the time since the last check (while the square
 -- has power). A phone that is no longer there was picked up, and it drops off the list.
+-- Only the server's copy changes: whoever picks the phone up gets it from the server, charge and texts included.
+-- (0.2.2: sending the floor phone to clients again after each charge added one more copy on every client, a pile of
+-- phones nobody could pick up. transmitCompleteItemToClients is for a newly placed object, once.)
 local function tickWorldChargers()
     local md = State.get()
     local ps = Util.powerSettings()
@@ -571,23 +606,20 @@ local function tickWorldChargers()
     for id, entry in pairs(md.worldChargers) do
         local sq = getCell():getGridSquare(entry.x, entry.y, entry.z)
         if sq then
-            local item, wo = worldItemOn(sq, id)
+            local item = worldItemOn(sq, id)
             if not item then
                 md.worldChargers[id] = nil
             else
                 local state, model = Phones.get(item)
                 local minutes = math.max(0, math.min(now - (entry.last or now), 60 * 24 * 7))
                 entry.last = now
-                local changed = false
                 if state and state.plug and Util.powered(sq) and minutes > 0 then
                     if state.power.on then Power.drain(state.battery, model, { state = "idle" }, minutes, ps) end
                     Power.charge(state.battery, model, "wall", minutes, {}, ps)
                     state.lastTick = now
-                    changed = true
                 end
                 -- A phone left in the world keeps receiving texts while it has service (spec §4.7).
-                if state and Messaging.deliverToItem(state, model, entry.x, entry.y) then changed = true end
-                if changed and isServer() and wo.transmitCompleteItemToClients then wo:transmitCompleteItemToClients() end
+                if state then Messaging.deliverToItem(state, model, entry.x, entry.y) end
             end
         end
     end
@@ -845,14 +877,14 @@ Net.onServer("newCharacter", function(player)
         end)
     end
     if settings.StartingPhone == "Random" then
-        local list = Phones.registry:spawnable(settings.EraLimit)
+        local list = Phones.registry:spawnable(settings)
         local rng = Rng.new(State.get().seed .. ":start:" .. Util.playerKey(player))
         giveStartingPhone(player, rng:pick(list), rng)
     elseif settings.StartingPhone == "PickAtCreation" then
         -- The client shows a picker; the choice comes back as "pickPhone" (spec §4.4).
         md.KnoxMobilePickPending = true
         local list = {}
-        for _, m in ipairs(Phones.registry:spawnable(settings.EraLimit)) do list[#list + 1] = m.id end
+        for _, m in ipairs(Phones.registry:spawnable(settings)) do list[#list + 1] = m.id end
         Net.toClient(player, "pickPhone", { models = list })
     end
 end)
@@ -863,7 +895,7 @@ Net.onServer("pickPhone", function(player, args)
     local model = type(args.model) == "string" and Phones.registry:getPhone(args.model)
     if not model then return end
     local allowed = false
-    for _, m in ipairs(Phones.registry:spawnable(Util.settings().EraLimit)) do if m == model then allowed = true end end
+    for _, m in ipairs(Phones.registry:spawnable(Util.settings())) do if m == model then allowed = true end end
     if not allowed then return end
     local color = model.colors[1]
     for _, c in ipairs(model.colors) do if c == args.color then color = c end end
@@ -876,8 +908,10 @@ end)
 local ID_TYPES = { ["Base.IDcard"] = true, ["Base.IDcard_Female"] = true, ["Base.IDcard_Male"] = true }
 
 function Server.nameFromIdCard(cardName)
-    -- "ID Card: Dana Price (born 03/14/61)": the birth date is a PIN clue (Story.pinClue), not part of the name.
-    local person = cardName and tostring(cardName):gsub("%s*%(born [^)]*%)%s*$", ""):match(":%s*(.-)%s*$")
+    -- "ID Card: Dana Price (born 03/14/61)": the birth date is a PIN clue (Core/Clues), not part of the name. French,
+    -- Spanish and Thai name cards '%1 ("%2")' instead.
+    local text = cardName and tostring(cardName):gsub("%s*%(born [^)]*%)%s*$", "") or ""
+    local person = text:match(":%s*(.-)%s*$") or text:match('%("(.-)"%)%s*$')
     if person and person:match("%S") then return person end
     return nil
 end
@@ -891,35 +925,15 @@ local function idCardName(inv)
     return nil
 end
 
--- The PIN's clue on the body (Story.pinClue): the birth date on the ID card, or the digits on a scrap of paper in the
--- wallet. The phone keeps the PIN for when it is first turned on.
-local function placePinClue(inv, phone, rng)
-    if not Phones.pinsOn() then return end
-    local clue = Story.pinClue(rng)
-    phone:getModData().KnoxMobilePin = clue.pin
-    if clue.kind == "birthday" then
-        local _, card = idCardName(inv)
-        if card then
-            phone:getModData().KnoxMobileBorn = tonumber(clue.born:sub(7, 8))
-            card:setName(card:getName() .. " (born " .. clue.born .. ")")
-            card:setCustomName(true)
-        end
-    elseif clue.kind == "note" then
-        local wallet = inv:getFirstEvalRecurse(function(it) return tostring(it:getFullType()):find("^Base%.Wallet") ~= nil end)
-        local into = wallet and wallet.getInventory and wallet:getInventory() or inv
-        local scrap = into:AddItem("Base.Note")
-        if scrap then
-            scrap:setName("Scrap of paper: " .. clue.pin)
-            scrap:setCustomName(true)
-        end
-    end
-end
-
--- A zombie with a phone but no ID gets a wallet with one (spec §5.1), so the phone's owner has a name to match.
-local function giveWallet(inv, female)
-    local wallet = inv:AddItem(female and "Base.Wallet_Female" or "Base.Wallet_Male")
-    local into = wallet and wallet.getInventory and wallet:getInventory() or inv
-    into:AddItem(female and "Base.IDcard_Female" or "Base.IDcard_Male")
+-- The zombie's own name: the game prints it on the ID cards, dog tags and badges it puts on the body.
+local function descriptorName(zombie)
+    local ok, name = pcall(function()
+        local d = zombie:getDescriptor()
+        local first, last = d and d:getForename(), d and d:getSurname()
+        if type(first) == "string" and first ~= "" and type(last) == "string" and last ~= "" then return first .. " " .. last end
+        return nil
+    end)
+    return ok and name or nil
 end
 
 local ZOMBIE_CHANCE = 0.06
@@ -945,18 +959,19 @@ Events.OnZombieDead.Add(Util.safe("zombie phone", function(zombie)
     local item = Server.addFoundPhone(inv, rng, settings)
     if not item then return end
     local md = item:getModData()
-    if not idCardName(inv) then pcall(giveWallet, inv, zombie:isFemale()) end
-    md.KnoxMobileOwnerName = idCardName(inv)
+    md.KnoxMobileOwnerName = descriptorName(zombie) or idCardName(inv)
     md.KnoxMobileOutfit = zombie.getOutfitName and zombie:getOutfitName() or nil
     md.KnoxMobileFemale = zombie:isFemale()
     md.KnoxMobileMissed = rang
-    pcall(placePinClue, inv, item, rng)
+    -- The wallet, ID card and badge aren't on the body yet: the game adds them when someone first opens it, and the
+    -- way in goes on then (server/Clues.lua, from the loot hook).
+    if Phones.pinsOn() then md.KnoxMobileCluePending = true end
 end))
 
 -- A found phone in a container: the same model mix as the houses (Loot.share: 2 or 3 smartphones in 10). Returns the
 -- item, or nil.
 function Server.addFoundPhone(inv, rng, settings)
-    local list = Phones.registry:spawnable(settings.EraLimit)
+    local list = Phones.registry:spawnable(settings)
     local weights = {}
     for _, m in ipairs(list) do weights[#weights + 1] = { m, Loot.share(m, settings, list) } end
     local model = rng:weighted(weights)
@@ -983,6 +998,8 @@ function Server.onALifeLoot(shell, actor)
     md.KnoxMobileOwnerName = ALife.name(actor)
     md.KnoxMobileALife = { uid = tostring(actor.uid), factionId = actor.factionId,
         faction = ALife.factionName(actor.factionId) or "The crew", mates = ALife.mates(actor, 5) }
+    local model = Phones.model(item)
+    if model then ClueWorld.forALife(item, model) end
     Util.log("A-Life phone for", tostring(md.KnoxMobileOwnerName), "of", md.KnoxMobileALife.faction)
 end
 

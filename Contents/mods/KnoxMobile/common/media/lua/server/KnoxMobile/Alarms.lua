@@ -85,10 +85,10 @@ local function refind(entry)
     return nil
 end
 
--- Saves a phone's state to whoever can see it: its carrier, or every client for one on the floor.
-local function save(item, holder, wo)
-    if holder then Phones.save(item, holder)
-    elseif wo and isServer() and wo.transmitCompleteItemToClients then wo:transmitCompleteItemToClients() end
+-- Saves a phone's state to its carrier. One on the floor keeps it in the server's copy, which whoever picks it up
+-- gets (0.2.2: sending the floor phone again added a copy on every client; see Server.lua tickWorldChargers).
+local function save(item, holder)
+    if holder then Phones.save(item, holder) end
 end
 
 local function tone(state)
@@ -158,10 +158,10 @@ function Alarms.tick()
                     ring(k, item, state, x, y, z, holder, wo, muffled)
                     if holder then Net.toClient(holder, "alarmNotify", { event = "ringing", phoneId = item:getID() }) end
                     Util.log("alarm ringing on phone", k, "at", x, y, z, holder and ("carried by " .. Util.playerKey(holder)) or "")
-                    save(item, holder, wo)
+                    save(item, holder)
                 elseif event == "timeout" then
                     quiet(k)
-                    save(item, holder, wo)
+                    save(item, holder)
                 elseif state.alarm.ringing then
                     ring(k, item, state, x, y, z, holder, wo, muffled) -- it may have moved
                 elseif not AlarmLogic.active(state.alarm) then
@@ -205,7 +205,7 @@ local ACTIONS = { set = true, off = true, snooze = true, stop = true }
 
 Net.onServer("alarm", function(player, args)
     if not ACTIONS[args.action] then return end
-    local item, holder, wo = phoneFor(player, args, args.action ~= "set")
+    local item, holder = phoneFor(player, args, args.action ~= "set")
     if not item then return end
     local state = Phones.get(item)
     if not state then return end
@@ -235,7 +235,7 @@ Net.onServer("alarm", function(player, args)
         AlarmLogic.stop(state.alarm)
         quiet(k)
     end
-    save(item, holder, wo)
+    save(item, holder)
     if reply then reply.phoneId = item:getID(); Net.toClient(player, "alarmNotify", reply) end
 end)
 

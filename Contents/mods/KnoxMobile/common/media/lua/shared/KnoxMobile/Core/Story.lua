@@ -74,21 +74,6 @@ function Story.pin(rng)
     return string.format("%04d", rng:int(0, 9999))
 end
 
--- PIN puzzles (0.2.0): a dead person's PIN often has a clue on them. kind "birthday": the PIN is the month and day of
--- the birth date printed on their ID card ("born 03/14/61" is 0314); "note": a scrap of paper in the wallet with the
--- four digits; "none": nothing, crack it the hard way. Returns { kind, pin, born (MM/DD/YY) or nil }.
-function Story.pinClue(rng)
-    local r = rng:int(1, 100)
-    if r <= 40 then
-        local month, day, year = rng:int(1, 12), rng:int(1, 28), rng:int(38, 75)
-        return { kind = "birthday", pin = string.format("%02d%02d", month, day),
-            born = string.format("%02d/%02d/%02d", month, day, year) }
-    elseif r <= 65 then
-        return { kind = "note", pin = Story.pin(rng) }
-    end
-    return { kind = "none", pin = Story.pin(rng) }
-end
-
 -- Template entries (Story/Templates.lua) are plain strings or tables with a body and conditions.
 local function bodyOf(entry) return type(entry) == "table" and entry.body or entry end
 Story.bodyOf = bodyOf
