@@ -8,6 +8,7 @@ local Format = require "KnoxMobile/Core/Format"
 local Groups = require "KnoxMobile/Core/Groups"
 local Carrier = require "KnoxMobile/Core/Carrier"
 local Hunt = require "KnoxMobile/Core/Hunt"
+local FamilyText = require "KnoxMobile/Core/FamilyText"
 local CameraSpec = require "KnoxMobile/Core/CameraSpec"
 local HuntWorld = require "KnoxMobile/Hunt"
 local Quests = require "KnoxMobile/Core/Quests"
@@ -243,15 +244,19 @@ function Messaging.sendText(player, item, to, body)
     local located, senderNet = Messaging.service(player, model)
     if not located.network then return "failed", "noService" end
     -- Your family's phones are out there (Core/FamilyCall): a text to them goes out, it never waits in the queue.
-    local plan = State.get().story[state.sim.number]
+    -- In the first two days they answer it (Core/FamilyText, sent by releaseStory).
+    local md = State.get()
+    local plan = md.story[state.sim.number]
     if plan and plan.family and not Messaging.findNumber(to) then
-        for _, n in pairs(plan.family) do
+        for member, n in pairs(plan.family) do
             if n == to then
                 Messaging.appendOwn(player, item, state, to, body, "delivered")
                 if plan.hunt then
                     local day, minute = stamp()
                     Hunt.recordSent(plan.hunt, to, body, day, minute)
                 end
+                local rng = Rng.new(tostring(md.seed) .. ":familytext:" .. to .. ":" .. math.floor(Util.nowMinutes()))
+                FamilyText.ask(rng, plan, member, body, Util.nowDay() + (md.storyShift or 0))
                 return "delivered"
             end
         end
@@ -303,7 +308,8 @@ function Messaging.setupOwnSim(player, sim)
         local site = settings.FamilyHunt and Hunt.pickSite(rng, me.hometown, md.huntTaken) or nil
         local plan = Story.familyPlan(rng, me, { darkness = settings.StoryDarkness, startDay = Util.nowDay(),
             site = site and Hunt.siteGroup(site.kind) or nil })
-        md.story[sim.number] = { messages = plan.messages, next = 1, family = family, hometown = me.hometown }
+        md.story[sim.number] = { messages = plan.messages, next = 1, family = family, hometown = me.hometown,
+            start = Util.nowDay() }
         if site then
             md.huntTaken[site.id] = key
             md.story[sim.number].hunt = Hunt.new(rng, site, me, plan, family, sim.number)
@@ -355,6 +361,18 @@ function Messaging.releaseStory()
             -- The Map shows the family's place from the text that names it on.
             if tostring(m.body):find("{place}", 1, true) then plan.placeTold = true end
             plan.next = plan.next + 1
+        end
+        -- Their answers to your texts (Core/FamilyText), on your phone and on theirs.
+        if plan.asked then
+            local rng = Rng.new(tostring(md.seed) .. ":familyreply:" .. number .. ":" .. math.floor(Util.nowMinutes()))
+            for _, r in ipairs(FamilyText.due(rng, plan, now)) do
+                local body = Messaging.fillFamily(plan, r.body)
+                Messaging.queueStory(plan.family[r.member] or "(502) 555-0000", number, body)
+                if plan.hunt then
+                    local day, minute = stamp()
+                    Hunt.recordReply(plan.hunt, r.member, body, day, minute)
+                end
+            end
         end
         if plan.hunt and plan.hunt.state == "waiting" and plan.next > #plan.messages then HuntWorld.arm(plan.hunt) end
     end

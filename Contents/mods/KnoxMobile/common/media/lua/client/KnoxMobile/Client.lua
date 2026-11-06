@@ -63,6 +63,28 @@ function Client.toast(text, kind)
     if text and KnoxMobile.UI.toast then KnoxMobile.UI.toast(text, kind) end
 end
 
+-- Once-only notices (Util.SEEN), kept for this session, on the character and on the server's copy of the character,
+-- which the server sends back on join (0.2.3). In multiplayer the client's copy of the character's mod data can be
+-- replaced by the server's, and the first-phone hint came back every in-game minute (Workshop, 2026-10-26).
+Client.seenNow = {} -- { [key] = the character that saw it this session }
+function Client.seen(player, key)
+    return Client.seenNow[key] == player or player:getModData()[key] == true
+end
+
+function Client.markSeen(player, key)
+    Client.seenNow[key] = player
+    player:getModData()[key] = true
+    if isClient() then Net.toServer(player, "seen", { key = key }) end
+end
+
+Net.onClient("seen", function(args)
+    local p = me()
+    if not p or type(args.keys) ~= "table" then return end
+    for _, key in ipairs(args.keys) do
+        if Util.SEEN[key] then p:getModData()[key] = true end
+    end
+end)
+
 Net.onClient("notify", function(args)
     -- The same notice on several phones at once (a carrier alert reaches every SIM) shows once (r8).
     -- Two texts from one sender on the same phone are two notices (final test: the second banner never showed).
@@ -276,7 +298,10 @@ Tick.add("scripted call", function()
         local l = s.lines[s.line]
         Client.callCaption = l
         if l then
-            Client.toast(l, "call")
+            -- The open phone shows the caption on its call screen when all of it fits there (UI/Phone.lua); else it's
+            -- a popup that keeps four lines (0.2.3: a banner of three, fewer at the Large size, cut it off).
+            local UI = KnoxMobile.UI
+            if not (UI.callCaptionFits and UI.callCaptionFits(l)) then Client.toast(l, "caption") end
             s.nextLine = t + math.max(2500, #l * 70)
         else
             s.nextLine, s.endAt = nil, t + 800
@@ -379,10 +404,9 @@ Events.EveryOneMinute.Add(Util.safe("picked up phones", function()
         if not Client.knownPhones[id] then Net.toServer(p, "pickedUp", { phoneId = id }) end
     end
     Client.knownPhones = seen
-    -- First phone this character ever carries: say how to use it.
-    local md = p:getModData()
-    if any and not md.KnoxMobileHinted then
-        md.KnoxMobileHinted = true
+    -- First phone this character ever carries: say how to use it, once (Client.markSeen).
+    if any and not Client.seen(p, "KnoxMobileHinted") then
+        Client.markSeen(p, "KnoxMobileHinted")
         local key = getKeyName and getKeyName(KnoxMobile.Options.openKey()) or "K"
         Client.toast(T("IGUI_KnoxMobile_HintShort", "Press %1 for your phone. Right-click for more.", key))
     end

@@ -160,7 +160,19 @@ Net.onServer("hello", function(player)
     Net.toClient(player, "world", State.worldMessage())
     local passwords = player:getModData().KnoxMobilePasswords
     if type(passwords) == "table" then Net.toClient(player, "passwords", { list = passwords }) end
+    -- The once-only notices this character has seen, in case the client's copy of the character lost them.
+    local seen = {}
+    for key in pairs(Util.SEEN) do
+        if player:getModData()[key] == true then seen[#seen + 1] = key end
+    end
+    if #seen > 0 then Net.toClient(player, "seen", { keys = seen }) end
     Messaging.deliverTo(player)
+end)
+
+-- A once-only notice the client has shown (client Client.markSeen), kept on the server's copy of the character too,
+-- so mod data the server sends the client never brings it back (0.2.3).
+Net.onServer("seen", function(player, args)
+    if Util.SEEN[args.key] then player:getModData()[args.key] = true end
 end)
 
 -- Multiplayer: everyone hears whose phone screen is on, for the glow others see (client/KnoxMobile/Glow.lua).

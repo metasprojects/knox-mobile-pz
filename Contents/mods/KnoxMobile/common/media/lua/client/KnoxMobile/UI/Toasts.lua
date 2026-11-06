@@ -12,9 +12,11 @@ local SHOW_MS = 7000
 local MAX = 4
 local WIDTH = 340
 local MAX_LINES = 2
+local CAPTION_LINES = 4 -- what someone says on a call (0.2.3: two lines cut a family call's line off)
 
--- Word wrap to the popup's text width, at most two lines (the second ends in "..." when cut).
-local function wrap(text, width, font)
+-- Word wrap to the popup's text width, at most two lines or maxLines (the last ends in "..." when cut).
+local function wrap(text, width, font, maxLines)
+    local cap = maxLines or MAX_LINES
     local tm = getTextManager()
     local lines, line = {}, ""
     for word in tostring(text):gmatch("%S+") do
@@ -23,11 +25,11 @@ local function wrap(text, width, font)
         else lines[#lines + 1] = line; line = word end
     end
     if line ~= "" then lines[#lines + 1] = line end
-    if #lines > MAX_LINES then
-        local last = lines[MAX_LINES]
+    if #lines > cap then
+        local last = lines[cap]
         while #last > 1 and tm:MeasureStringX(font, last .. "...") > width do last = last:sub(1, #last - 1) end
-        lines[MAX_LINES] = last .. "..."
-        for i = #lines, MAX_LINES + 1, -1 do lines[i] = nil end
+        lines[cap] = last .. "..."
+        for i = #lines, cap + 1, -1 do lines[i] = nil end
     end
     return lines
 end
@@ -42,7 +44,7 @@ function KnoxMobileToasts:render()
         local age = t - toast.at
         if age < SHOW_MS and not toast.onScreen then
             local a = age > SHOW_MS - 1000 and (SHOW_MS - age) / 1000 or 1
-            toast.lines = toast.lines or wrap(toast.text, WIDTH - 16, font)
+            toast.lines = toast.lines or wrap(toast.text, WIDTH - 16, font, toast.kind == "caption" and CAPTION_LINES or nil)
             local rowH = #toast.lines * fontH + 10
             self:drawRect(0, y, WIDTH, rowH - 2, 0.75 * a, 0.05, 0.06, 0.08)
             self:drawRectBorder(0, y, WIDTH, rowH - 2, 0.8 * a, 0.35, 0.55, 0.75)
@@ -75,7 +77,9 @@ function KnoxMobile.UI.toast(text, kind)
     if not text or text == "" then return end
     local Options = KnoxMobile.Options
     local phoneOpen = KnoxMobile.UI.isOpen and KnoxMobile.UI.isOpen()
-    local popup = not phoneOpen and (not Options or Options.popups() or kind == "call" or kind == "pager")
+    -- A call caption is a popup even with the phone open: it only comes here when the phone can't show all of it.
+    local popup = kind == "caption"
+        or not phoneOpen and (not Options or Options.popups() or kind == "call" or kind == "pager")
     -- onScreen: shown on the phone (or popups are off), so the HUD skips it.
     local toast = { text = text, kind = kind, at = getTimestampMs(), onScreen = not popup }
     table.insert(Toasts.list, 1, toast)

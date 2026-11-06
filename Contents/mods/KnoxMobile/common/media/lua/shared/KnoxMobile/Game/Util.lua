@@ -52,6 +52,10 @@ function Util.failures() return failures end
 -- Single player: no network, both "client" and "server" code run here.
 function Util.isSingleplayer() return not isClient() and not isServer() end
 
+-- Notices a character sees once (the first-phone hint, the PIN help), by their mod data key: the client marks them
+-- seen (client Client.markSeen) and the server keeps only these on its copy of the character.
+Util.SEEN = { KnoxMobileHinted = true, KnoxMobilePinHelp = true }
+
 -- Every player this machine is responsible for (all online players on a server, local players otherwise).
 function Util.players()
     local out = {}

@@ -8,7 +8,7 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.2.2, early access (released 2026-10-25): a way into every phone.
+- **Version:** 0.2.3, early access (released 2026-10-26): your family texts back, a hint that shows once, and calls you can read.
 - **Made by:** Meta
 
 Players should install it from the Steam Workshop. This repository holds the mod exactly as it ships there.

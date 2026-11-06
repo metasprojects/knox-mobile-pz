@@ -113,8 +113,20 @@ function Hunt.recordSent(hunt, to, body, day, minute)
     return nil
 end
 
--- The thread on a member's phone: what they sent the player (plan messages, {place} filled by fill) and the
--- player's texts they never read, oldest first. Returns a phone `texts` list.
+-- A member answered the player's texts (0.2.3, Core/FamilyText): the answer is on their phone, and what they
+-- answered was read.
+function Hunt.recordReply(hunt, member, body, day, minute)
+    if not hunt.people[member] then return end
+    for _, u in ipairs(hunt.unread[member] or {}) do u.read = true end
+    hunt.replies = hunt.replies or {}
+    hunt.replies[member] = hunt.replies[member] or {}
+    local list = hunt.replies[member]
+    list[#list + 1] = { day = day, minute = minute, body = body }
+    while #list > Hunt.UNREAD_CAP do table.remove(list, 1) end
+end
+
+-- The thread on a member's phone: what they sent the player (plan messages, {place} filled by fill, and their
+-- answers) and the player's texts, unread unless they answered them, oldest first. Returns a phone `texts` list.
 function Hunt.memberTexts(hunt, member, messages, fill)
     local conv = { with = hunt.player.number, name = hunt.player.first, messages = {} }
     for _, m in ipairs(messages) do
@@ -124,8 +136,12 @@ function Hunt.memberTexts(hunt, member, messages, fill)
                 body = fill(m.body) }
         end
     end
+    for _, r in ipairs((hunt.replies or {})[member] or {}) do
+        conv.messages[#conv.messages + 1] = { day = r.day, minute = r.minute, inbound = false, body = r.body }
+    end
     for _, u in ipairs(hunt.unread[member] or {}) do
-        conv.messages[#conv.messages + 1] = { day = u.day, minute = u.minute, inbound = true, unread = true, body = u.body }
+        conv.messages[#conv.messages + 1] = { day = u.day, minute = u.minute, inbound = true, unread = u.read ~= true,
+            body = u.body }
     end
     table.sort(conv.messages, function(a, b) return a.day * 1440 + a.minute < b.day * 1440 + b.minute end)
     return { conv }

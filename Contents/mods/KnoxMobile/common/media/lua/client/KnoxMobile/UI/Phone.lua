@@ -715,11 +715,29 @@ function Panel:drawCall(c, top)
         c:text(T("IGUI_KnoxMobile_Answer", "Answer"), c.w / 2, cy + half / 2 - lineH(), { 1, 1, 1 }, nil, "center")
         c:rect(6, cy + half, c.w - 12, half - 6, { 0.8, 0.2, 0.2 }, 0.9)
         c:text(T("IGUI_KnoxMobile_Decline", "Decline"), c.w / 2, cy + half * 1.5 - lineH(), { 1, 1, 1 }, nil, "center")
-    else
-        c:rect(6, cy + half, c.w - 12, half - 6, { 0.8, 0.2, 0.2 }, 0.9)
-        c:text(T("IGUI_KnoxMobile_HangUp", "Hang up"), c.w / 2, cy + half * 1.5 - lineH(), { 1, 1, 1 }, nil, "center")
+        self.callSplit = cy + half
+        return
     end
-    self.callSplit = cy + half
+    -- What the other side says (a family call, a recording) goes between the name and Hang up, which keeps at least
+    -- two lines' height (0.2.3). A caption that doesn't fit here is a popup instead (Client.lua, UI.callCaptionFits).
+    local avail = c.h - cy
+    local split = c.h - math.max(2 * lineH() + 10, math.floor(avail * 0.4))
+    local room = math.floor((split - cy - 6) / lineH())
+    self.captionBox = room >= 1 and { w = c.w - 12, lines = room } or nil
+    local caption = KnoxMobile.Client.callCaption
+    if self.captionBox and caption and caption ~= "" then
+        local lines = UI.wrap(caption, self.captionBox.w)
+        for i = 1, math.min(#lines, room) do c:text(lines[i], c.w / 2, cy + (i - 1) * lineH(), nil, nil, "center") end
+    end
+    c:rect(6, split, c.w - 12, c.h - split - 6, { 0.8, 0.2, 0.2 }, 0.9)
+    c:text(T("IGUI_KnoxMobile_HangUp", "Hang up"), c.w / 2, split + (c.h - split) / 2 - lineH(), { 1, 1, 1 }, nil, "center")
+    self.callSplit = split
+end
+
+-- Whether the open phone shows this call caption whole: on its call screen, or first person's call bar.
+function UI.callCaptionFits(text)
+    local box = UI.panel and UI.panel.captionBox
+    return box ~= nil and #UI.wrap(text, box.w) <= box.lines
 end
 
 function Panel:callInput(ev)
@@ -908,9 +926,9 @@ end
 -- OK works in Viewpoint's views too, then hands the mouse back to the phone.
 function UI.wantPinHelp(player)
     if UI.pinHelp or not player then return end
-    local md = player:getModData()
-    if md.KnoxMobilePinHelp then return end
-    md.KnoxMobilePinHelp = true
+    local Client = KnoxMobile.Client
+    if Client.seen(player, "KnoxMobilePinHelp") then return end
+    Client.markSeen(player, "KnoxMobilePinHelp")
     UI.pinHelp = { player = player }
 end
 
@@ -1048,9 +1066,10 @@ function Panel:drawCallBar()
     local w, h = math.min(self.width, 320), lh * 2 + 16
     local x, y = math.floor((self.width - w) / 2), self.height - h - 4
     -- What the other side just said (a family call's captions), above the bar.
+    self.captionBox = { w = math.max(w, 420) - 16, lines = 3 }
     local caption = KnoxMobile.Client.callCaption
     if caption and caption ~= "" then
-        local lines = UI.wrap(caption, math.max(w, 420) - 16)
+        local lines = UI.wrap(caption, self.captionBox.w)
         local cw = math.max(w, 420)
         local cx = math.floor((self.width - cw) / 2)
         local ch = math.min(#lines, 3) * lh + 10
@@ -1235,6 +1254,7 @@ function Panel:drawAll()
         UI.close()
         return
     end
+    self.captionBox = nil -- set again below when this frame draws a call screen or the call bar
     local t = getTimestampMs()
     if t >= self.nextLocate then
         self.nextLocate = t + 1000
