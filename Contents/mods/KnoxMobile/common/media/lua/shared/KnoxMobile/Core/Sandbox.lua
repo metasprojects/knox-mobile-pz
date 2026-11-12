@@ -31,9 +31,10 @@ Sandbox.OPTIONS = {
     { name = "SurvivorTexts", type = "boolean", default = true, page = "KnoxMobileStories" },
     { name = "FamilyHunt", type = "boolean", default = true, page = "KnoxMobileStories" },
     { name = "QuestTrapChance", type = "integer", default = 25, page = "KnoxMobileStories", min = 0, max = 100 },
-    -- The language the story is written in (0.2.5, Core/Lang): the game's, or English or Spanish whatever the game's.
+    -- The language the story is written in (0.2.5, Core/Lang): the game's, or one of these whatever the game's.
+    -- 0.3.1 added Russian, Portuguese and Chinese at the end, so saved choices keep their number.
     { name = "StoryLanguage", type = "enum", default = "Game", page = "KnoxMobileStories",
-        values = { "Game", "English", "Spanish" } },
+        values = { "Game", "English", "Spanish", "Russian", "Portuguese", "Chinese" } },
     { name = "BatteryLifeMultiplier", type = "double", default = 1, page = "KnoxMobileBattery", min = 0.25, max = 4 },
     { name = "ChargeSpeedMultiplier", type = "double", default = 1, page = "KnoxMobileBattery", min = 0.25, max = 4 },
     { name = "BatteryWear", type = "boolean", default = true, page = "KnoxMobileBattery" },

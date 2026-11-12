@@ -1,0 +1,10 @@
+{
+    "UI_prof_KnoxMobile_CellTowerTech": "基站技术员",
+    "UI_profdesc_KnoxMobile_CellTowerTech": "爬塔维护，让诺克斯县的基站持续在线：中继器、电池组和备用发电机。",
+    "UI_trait_KnoxMobile_Chatterbox": "话痨",
+    "UI_trait_KnoxMobile_ChatterboxDesc": "和别人打电话、发短信能让心情好两倍，长聊还能缓解压力。",
+    "UI_trait_KnoxMobile_Technophobe": "技术盲",
+    "UI_trait_KnoxMobile_TechnophobeDesc": "从不信那些玩意儿：破解或修手机又慢又笨，手机游戏也不好玩。",
+    "UI_trait_KnoxMobile_Tinkerer": "修补匠",
+    "UI_trait_KnoxMobile_TinkererDesc": "擅长小型电子设备：破解手机PIN码和修手机更快、成功率更高。"
+}

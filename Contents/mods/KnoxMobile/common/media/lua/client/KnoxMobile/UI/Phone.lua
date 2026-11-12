@@ -9,6 +9,7 @@ local Phones = require "KnoxMobile/Game/Phones"
 local WorldModel = require "KnoxMobile/Game/WorldModel"
 local Util = require "KnoxMobile/Game/Util"
 local Format = require "KnoxMobile/Core/Format"
+local Words = require "KnoxMobile/Core/Words"
 local Power = require "KnoxMobile/Core/Power"
 local Frames = require "KnoxMobile/Data/Frames"
 local Tick = require "KnoxMobile/Game/Tick"
@@ -147,14 +148,10 @@ wrapLines = function(text, width, f)
     width = width - math.max(3, math.floor(width * 0.04))
     -- Line breaks start a new line; an empty line stays empty (a journal's days, a note's paragraphs).
     local lines = {}
+    -- Words.lines breaks at spaces, and between Chinese characters too (0.3.1).
+    local function fits(s) return textW(s, f) <= width end
     for para in (tostring(text) .. "\n"):gmatch("(.-)\n") do
-        local line = ""
-        for word in para:gmatch("%S+") do
-            local try = line == "" and word or (line .. " " .. word)
-            if textW(try, f) <= width or line == "" then line = try
-            else lines[#lines + 1] = line; line = word end
-        end
-        lines[#lines + 1] = line
+        for _, line in ipairs(Words.lines(para, fits)) do lines[#lines + 1] = line end
     end
     while #lines > 1 and lines[#lines] == "" do lines[#lines] = nil end
     if #lines == 1 and lines[1] == "" then return {} end
@@ -289,7 +286,9 @@ function Panel:new(player, item)
     local scale = (SCALES[Options.size()] or 0.75) * (MODEL_SCALE[artIdOf(model)] or 1)
     -- In Project Viewpoint's first person the phone is held up in front of you: at least the large size, low and
     -- toward the holding side, the way a phone fills the bottom of your view.
-    local firstPerson = KnoxMobile.Viewpoint ~= nil and KnoxMobile.Viewpoint.view() == "first"
+    -- 0.3.1: with a headset on (client/KnoxMobile/Vr.lua) the phone is the flat one PZVR floats or puts on your palm.
+    local vr = KnoxMobile.Vr ~= nil and KnoxMobile.Vr.running()
+    local firstPerson = not vr and KnoxMobile.Viewpoint ~= nil and KnoxMobile.Viewpoint.view() == "first"
     if firstPerson then scale = math.max(scale, SCALES.L) end
     local fw, fh = math.floor(frame.width * scale), math.floor(frame.height * scale)
     local scr = frame.screen
@@ -309,6 +308,7 @@ function Panel:new(player, item)
     end
     local o = ISPanelJoypad.new(self, x, y, w, h)
     o.firstPerson = firstPerson
+    o.vr = vr or nil
     o.bigText = Options.bigText() or scale / (MODEL_SCALE[artIdOf(model)] or 1) >= SCALES.L
         or Registry.hasExtra(model, "bigButtons") -- 0.3.0: the Golden Years EZ's giant text
     o.player, o.item, o.model = player, item, model
@@ -948,13 +948,14 @@ function Panel:followView()
     local VP = KnoxMobile.Viewpoint
     -- First person has two modes (2026-10-18): using the phone (cursor free) and walking and looking
     -- (mouse-look; the numpad and arrows drive the phone). The middle mouse button switches.
-    local want = VP ~= nil and VP.active() and not (self.firstPerson and UI.walk)
+    -- In VR PZVR clicks by pointing, so the phone never takes the mouse, and it keeps its flat layout.
+    local want = VP ~= nil and VP.active() and not (self.firstPerson and UI.walk) and not self.vr
     if want ~= (self.captured == true) then
         self.captured = want
         self:setCapture(want)
     end
     -- Into or out of first person: the phone takes the other place on the next tick (held up, or in the corner).
-    if VP and (VP.view() == "first") ~= (self.firstPerson == true) then UI.relayout = true end
+    if VP and not self.vr and (VP.view() == "first") ~= (self.firstPerson == true) then UI.relayout = true end
 end
 
 -- The PIN system, explained once per character the first time they try a locked found phone (Meta, 2026-10-23: "needs
@@ -1324,7 +1325,8 @@ function Panel:drawAll()
     local backFP = camera and fp and not selfie and not self:fpCall()
     KnoxMobile.Hold.cameraDown = backFP or nil
     if Live then
-        Live.hide(self, backFP or (camera and Camera ~= nil and Camera.hideHeld == true))
+        -- In VR the screen is on your palm (or floats), so the 3D phone in a hand hides while it's open.
+        Live.hide(self, backFP or (camera and Camera ~= nil and Camera.hideHeld == true) or self.vr == true)
         Live.picture(self)
     end
     -- First person: on a call only a small bar shows; walking and looking with the live 3D screen, nothing (the phone
@@ -1760,9 +1762,12 @@ function UI.isOpen() return UI.panel ~= nil end
 function UI.open(player, item, keepHold)
     if UI.panel then UI.close(keepHold) end
     UI.resetText()
-    if keepHold then KnoxMobile.Hold.phone = item else KnoxMobile.Hold.raise(player, item) end
+    -- In VR (client/KnoxMobile/Vr.lua) the phone isn't raised into a hand: its screen goes on your palm instead.
+    local vr = KnoxMobile.Vr ~= nil and KnoxMobile.Vr.running()
+    if keepHold or vr then KnoxMobile.Hold.phone = item else KnoxMobile.Hold.raise(player, item) end
     local p = KnoxMobilePhonePanel:new(player, item)
     p:initialise()
+    if KnoxMobile.Vr then KnoxMobile.Vr.opened(p) end
     p:addToUIManager()
     p:bringToTop() -- above every other window, so its screen and keys get the clicks
     UI.panel = p
@@ -1800,7 +1805,13 @@ function UI.close(keepHold)
     if KnoxMobile.Audio then KnoxMobile.Audio.stopRadio() end
     local joypad = JoypadState.players[p.player:getPlayerNum() + 1]
     if joypad then setJoypadFocus(p.player:getPlayerNum(), nil) end
-    if not keepHold then KnoxMobile.Hold.lower(p.player, p.item) end
+    if p.vr and not keepHold then
+        -- VR: a phone you grabbed stays in your hand; closing only closes the screen.
+        KnoxMobile.Hold.phone = nil
+        KnoxMobile.Hold.report(p.player, nil)
+    elseif not keepHold then
+        KnoxMobile.Hold.lower(p.player, p.item)
+    end
 end
 
 function UI.refresh() end -- the panel redraws every frame from the synced item data

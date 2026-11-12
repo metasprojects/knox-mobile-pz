@@ -151,12 +151,12 @@ end
 -- The language the mod writes its story in (Core/Lang): the sandbox's Story language, or the game's own (the host's,
 -- or the dedicated server's). Asked for every line while a phone's story is written, so the answer is kept 2 seconds.
 local storyLang, storyLangAt = nil, 0
+local STORY_CHOICE = { English = "en", Spanish = "es", Russian = "ru", Portuguese = "pt", Chinese = "zh" }
 function Util.storyLanguage()
     local now = getTimestampMs and getTimestampMs() or 0
     if storyLang and now >= storyLangAt and now - storyLangAt < 2000 then return storyLang end
     local choice = Util.settings().StoryLanguage
-    if choice == "English" then storyLang = "en"
-    elseif choice == "Spanish" then storyLang = "es"
+    if STORY_CHOICE[choice] then storyLang = STORY_CHOICE[choice]
     else
         local ok, name = pcall(function() return Translator.getLanguage():name() end)
         storyLang = Lang.fromGame(ok and name or nil)

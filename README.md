@@ -8,8 +8,8 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.3.0, early access (released 2026-11-06): The Network: 19 phones, a cell network that dies with the grid, GPS, burner SIMs, Bandits and Week One built in.
-- **Languages:** English and Spanish (Spain and Latin America), menus and stories both.
+- **Version:** 0.3.1, early access (released 2026-11-11): Russian, Brazilian Portuguese and Simplified Chinese, and the phone on your hand in VR (PZVR).
+- **Languages:** English, Spanish (Spain and Latin America), Russian, Brazilian Portuguese (also used for Portugal) and Simplified Chinese, menus and stories all.
 - **Made by:** Meta
 
 Players should install it from the Steam Workshop. This repository holds the mod exactly as it ships there.

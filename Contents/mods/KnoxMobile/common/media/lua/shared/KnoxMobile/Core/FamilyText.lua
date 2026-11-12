@@ -112,6 +112,55 @@ FamilyText.ABOUT = {
     } },
 }
 
+-- 0.3.1: the same groups in Portuguese (folded: plain letters), Russian and Chinese, added to the first group with
+-- that id. A word that starts with "~" matches anywhere in the text: Russian stems ("~укус" is укусил, укусили...)
+-- and Chinese, which has no spaces between words.
+local MORE = {
+    hurt = { words = { "mordida", "mordido", "mordeu", "morderam", "arranhao", "arranhado", "arranhada", "arranhou",
+        "ferido", "ferida", "machucado", "machucada", "machuquei", "machucou", "sangue", "sangrando",
+        "~укус", "~поцарап", "~царапин", "~ранен", "~ранил", "~рана", "~рану", "~кровь", "~крови", "~кровоточ", "~больно",
+        "~咬", "~抓伤", "~受伤", "~流血", "~血", "~伤口", "~疼" } },
+    help = { words = { "socorro", "ajuda", "ajudem", "ajude", "medo", "assustado", "assustada", "preso", "presa",
+        "encurralado", "encurralada", "panico", "apavorado", "apavorada",
+        "~помоги", "~помогите", "~помощь", "~спаси", "~страшно", "~боюсь", "~испуг", "~застрял", "~ловушк", "~паник",
+        "~救命", "~救救", "~帮帮", "~帮我", "~害怕", "~好怕", "~很怕", "~困住", "~被困", "~慌" } },
+    where = { words = { "onde", "cade", "aonde", "localizacao", "endereco",
+        "где", "~куда", "адрес", "~在哪", "~哪里", "~哪儿", "~地址", "~什么地方" } },
+    coming = { words = { "indo", "vou", "vamos", "chegando", "chego", "caminho", "dirigindo", "andando",
+        "~приеду", "~приду", "~выезжаю", "~выхожу", "~уже еду", "~уже иду", "~еду к", "~иду к", "~в пути",
+        "~скоро буду", "~еду домой", "~иду домой",
+        "~我来", "~过来", "~在路上", "~出发", "~开车", "~马上到", "~去找你", "~回家" } },
+    notOkay = { words = { "bem", "seguro", "segura", "salvo", "salva", "tranquilo", "tranquila",
+        "~в порядке", "~хорошо", "~нормально", "~безопасн", "ок", "норм", "~好", "~安全", "~没事" } },
+    askThem = { words = { "bem", "seguro", "segura", "salvos", "vivos", "vivo", "viva",
+        "~в порядке", "~живы", "~жив", "целы", "~хорошо", "~нормально", "~безопасн",
+        "~还好", "~安全", "~平安", "~没事", "~活着", "~好吗", "~怎么样" },
+        needs = { "voce", "voces", "vc", "vcs", "todos", "ai", "ces", "вы", "ты", "вас", "тебя", "все", "как",
+            "~你", "~大家" },
+        unless = { "eu", "estou", "to", "tou", "я", "меня", "мне", "~我" } },
+    safe = { words = { "bem", "seguro", "segura", "salvo", "salva", "vivo", "viva", "tranquilo", "tranquila",
+        "~в порядке", "~хорошо", "~нормально", "~в безопасности", "~жив", "цел", "цела", "ок", "норм",
+        "~安全", "~平安", "~没事", "~还好", "~很好", "~活着", "~挺好" } },
+    love = { words = { "amo", "saudade", "saudades", "beijo", "beijos", "~люблю", "~скучаю", "~целую", "~обнимаю",
+        "~爱你", "~想你" } },
+    food = { words = { "comida", "agua", "fome", "comer", "comi", "sede", "faminto", "faminta",
+        "~еда", "~еды", "~вода", "~воды", "~голод", "~хочу пить", "~жажд", "~поесть", "~поел", "~кушать",
+        "~吃", "~饭", "~水", "~饿", "~渴", "~食物" } },
+}
+local added = {}
+for _, group in ipairs(FamilyText.ABOUT) do
+    local more = not added[group.id] and MORE[group.id]
+    if more then
+        added[group.id] = true
+        for _, key in ipairs({ "words", "needs", "unless" }) do
+            if more[key] then
+                group[key] = group[key] or {}
+                for _, w in ipairs(more[key]) do group[key][#group[key] + 1] = w end
+            end
+        end
+    end
+end
+
 -- Then a line from where their story is (the stage of their latest text). Parents and the sibling talk differently.
 FamilyText.LINES = {
     -- 0.3.0, Week One: answers in the week before the outbreak.
@@ -167,10 +216,18 @@ FamilyText.LINES = {
     },
 }
 
+-- The words of a text (plain-letter words, and since 0.3.1 every run of letters, so Russian words count too), and
+-- the folded text itself for the "~" words.
 local function wordsOf(text)
-    local set = {}
-    for w in Lang.fold(text):gmatch("%a+") do set[w] = true end
-    return set
+    local folded, set = Lang.fold(text), {}
+    for w in folded:gmatch("%a+") do set[w] = true end
+    for w in folded:gmatch("[^%s%p%d]+") do set[w] = true end
+    return set, folded
+end
+
+local function has(words, folded, w)
+    if w:sub(1, 1) == "~" then return folded:find(w:sub(2), 1, true) ~= nil end
+    return words[w] == true
 end
 
 -- A line from a pool, not one this family has already sent when another is left (plan.textLines).
@@ -184,16 +241,20 @@ local function pick(rng, pool, plan)
 end
 
 -- "not okay", "isn't safe", "no good", "no estoy bien": not the good news.
-local NEGATIONS = { "not", "no", "isn", "aren", "never", "nothing", "don", "can", "cant", "nunca", "nada", "tampoco" }
+-- 0.3.1: "não estou bem", "мне не хорошо", "我不好". Chinese lists the negated words themselves, because a bare 不 is
+-- in "不用担心" (don't worry) too.
+local NEGATIONS = { "not", "no", "isn", "aren", "never", "nothing", "don", "can", "cant", "nunca", "nada", "tampoco",
+    "nao", "nem", "не", "нет", "ни", "ничего", "никак",
+    "~不好", "~不太好", "~不安全", "~不行", "~不舒服", "~没有", "~不在" }
 
 -- The answer from `member` to what you sent (asked), at `now`. Keeps "{place}" for the game to fill.
 function FamilyText.reply(rng, plan, member, asked, now)
     local stage = FamilyCall.status(plan, member, now)
-    local words, about = wordsOf(asked), nil
-    local negated = false
-    for _, w in ipairs(NEGATIONS) do if words[w] then negated = true end end
+    local words, folded = wordsOf(asked)
+    local about, negated = nil, false
+    for _, w in ipairs(NEGATIONS) do if has(words, folded, w) then negated = true end end
     local function any(list)
-        for _, w in ipairs(list) do if words[w] then return true end end
+        for _, w in ipairs(list) do if has(words, folded, w) then return true end end
         return false
     end
     for _, group in ipairs(FamilyText.ABOUT) do
@@ -213,12 +274,15 @@ function FamilyText.reply(rng, plan, member, asked, now)
         elseif member == "sib" then pool = FamilyText.LINES.sibWorry end
         parts[#parts + 1] = pick(rng, pool, plan)
     end
+    -- Chinese ends a sentence with 。 and puts no space between sentences.
+    local zh = Lang.code() == "zh"
     for i, p in ipairs(parts) do
         p = Story.fill(rng, p, {})
-        if i < #parts and not p:find("[%.%?!]$") then p = p .. "." end
+        local ended = p:find("[%.%?!]$") or p:find("。$") or p:find("！$") or p:find("？$")
+        if i < #parts and not ended then p = p .. (zh and "。" or ".") end
         parts[i] = p
     end
-    return table.concat(parts, " ")
+    return table.concat(parts, zh and "" or " ")
 end
 
 -- Answers due by `now`: { { member, body } }, oldest first; they're no longer pending.

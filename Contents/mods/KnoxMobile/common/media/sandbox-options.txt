@@ -183,7 +183,7 @@ option KnoxMobile.QuestTrapChance
 option KnoxMobile.StoryLanguage
 {
     type = enum,
-    numValues = 3,
+    numValues = 6,
     default = 1,
     page = KnoxMobileStories,
     translation = KnoxMobile_StoryLanguage,

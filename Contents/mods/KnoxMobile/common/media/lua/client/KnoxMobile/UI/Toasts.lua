@@ -1,6 +1,7 @@
 -- Client: notification popups near the moodles while the phone is put away (spec §8.4). With the phone
 -- open, the newest one shows as a banner on its screen instead (the phone panel reads Toasts.latest).
 require "ISUI/ISUIElement"
+local Words = require "KnoxMobile/Core/Words"
 
 KnoxMobileToasts = ISUIElement:derive("KnoxMobileToasts")
 
@@ -19,16 +20,12 @@ local CAPTION_LINES = 4 -- what someone says on a call (0.2.3: two lines cut a f
 local function wrap(text, width, font, maxLines)
     local cap = maxLines or MAX_LINES
     local tm = getTextManager()
-    local lines, line = {}, ""
-    for word in tostring(text):gmatch("%S+") do
-        local try = line == "" and word or (line .. " " .. word)
-        if tm:MeasureStringX(font, try) <= width or line == "" then line = try
-        else lines[#lines + 1] = line; line = word end
-    end
-    if line ~= "" then lines[#lines + 1] = line end
+    -- Words.lines breaks at spaces, and between Chinese characters too (0.3.1).
+    local lines = Words.lines(tostring(text), function(s) return tm:MeasureStringX(font, s) <= width end)
+    if lines[#lines] == "" then lines[#lines] = nil end
     if #lines > cap then
         local last = lines[cap]
-        while #last > 1 and tm:MeasureStringX(font, last .. "...") > width do last = last:sub(1, #last - 1) end
+        while #last > 1 and tm:MeasureStringX(font, last .. "...") > width do last = Words.dropLast(last) end
         lines[cap] = last .. "..."
         for i = #lines, cap + 1, -1 do lines[i] = nil end
     end

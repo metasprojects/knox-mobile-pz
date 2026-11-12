@@ -1,0 +1,8 @@
+{
+    "BuildCellRepeater": "Собрать сотовый ретранслятор",
+    "BuildCellRepeaterGuided": "Собрать сотовый ретранслятор (по шагам)",
+    "BuildSignalBooster": "Собрать усилитель сотового сигнала",
+    "MakePhotoBoard": "Сделать фотодоску",
+    "RebuildPhoneBatteryCell": "Восстановить элемент батареи телефона",
+    "WireSentryAlarm": "Подключить сигнализацию Knox Sentry"
+}

@@ -27,12 +27,26 @@ Sentry.STATUS = "KNOX SENTRY {name}: {state}. BATTERY {days} DAYS"
 Sentry.STATES = { armed = "ARMED", off = "OFF" }
 Sentry.HELP = "KNOX SENTRY {name}: TEXT STATUS, OFF OR ON"
 
--- What a text to the unit asks for: "status", "off", "on", or "help" for anything else. English and Spanish words.
+-- What a text to the unit asks for: "status", "off", "on", or "help" for anything else. English and Spanish words;
+-- 0.3.1: Russian (the Russian help text says СТАТУС, ВЫКЛ, ВКЛ), Portuguese and Chinese ones too.
 local WORDS = { status = "status", estado = "status", off = "off", disarm = "off", apagar = "off", desarmar = "off",
-    on = "on", arm = "on", encender = "on", armar = "on" }
+    on = "on", arm = "on", encender = "on", armar = "on",
+    ["статус"] = "status", ["состояние"] = "status", ["выкл"] = "off", ["выключить"] = "off", ["отключить"] = "off",
+    ["снять"] = "off", ["вкл"] = "on", ["включить"] = "on", ["охрана"] = "on",
+    situacao = "status", desligar = "off", desliga = "off", ligar = "on", liga = "on",
+    ["状态"] = "status", ["关"] = "off", ["关闭"] = "off", ["撤防"] = "off", ["开"] = "on", ["开启"] = "on",
+    ["打开"] = "on", ["布防"] = "on" }
 function Sentry.command(body)
-    local word = tostring(body or ""):lower():match("^%s*(%a+)")
-    return word and WORDS[word] or "help"
+    local Lang = require "KnoxMobile/Core/Lang"
+    local text = Lang.fold(body)
+    local word = text:match("^%s*(%a+)")
+    if word and WORDS[word] then return WORDS[word] end
+    -- A Russian or Chinese command at the start (Chinese has no space after it: "关闭报警").
+    text = text:match("^%s*(.*)$")
+    for k, v in pairs(WORDS) do
+        if not k:find("^%a+$") and text:sub(1, #k) == k then return v end
+    end
+    return "help"
 end
 
 -- Does the unit see (x, y, z)?

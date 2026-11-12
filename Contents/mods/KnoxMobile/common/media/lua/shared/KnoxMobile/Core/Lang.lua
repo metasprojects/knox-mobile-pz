@@ -7,13 +7,18 @@
 -- everything stays English (the tests, the tools).
 local Lang = {}
 
--- The game's languages (its Translate folders) that get the story in Spanish: Spain, Mexico, Chile, Argentina.
-Lang.GAME = { ES = "es", ES_MX = "es", ES_CL = "es", AR = "es" }
+-- The game's languages (its Translate folders) and the story language each gets: Spanish for Spain, Mexico, Chile
+-- and Argentina; 0.3.1: Russian, Brazilian Portuguese (also for Portugal's PT, which has no story of its own) and
+-- Simplified Chinese.
+Lang.GAME = { ES = "es", ES_MX = "es", ES_CL = "es", AR = "es", RU = "ru", PTBR = "pt", PT = "pt", CN = "zh" }
 -- Each language's dictionaries ({ [english] = translation }), searched in this order.
-Lang.DICTS = { es = { "KnoxMobile/Lang/es/Story", "KnoxMobile/Lang/es/Voices", "KnoxMobile/Lang/es/Library1",
-    "KnoxMobile/Lang/es/Library2", "KnoxMobile/Lang/es/Library3", "KnoxMobile/Lang/es/Library4",
-    "KnoxMobile/Lang/es/Library5", "KnoxMobile/Lang/es/Library6",
-    "KnoxMobile/Lang/es/Network" } }
+Lang.FILES = { "Story", "Voices", "Library1", "Library2", "Library3", "Library4", "Library5", "Library6", "Network" }
+Lang.DICTS = {}
+for _, code in ipairs({ "es", "ru", "pt", "zh" }) do
+    local list = {}
+    for i, name in ipairs(Lang.FILES) do list[i] = "KnoxMobile/Lang/" .. code .. "/" .. name end
+    Lang.DICTS[code] = list
+end
 
 local current = "en"
 local provider = nil
@@ -59,9 +64,32 @@ end
 
 -- Spanish runs "a" and "de" into "el": "vamos a el motel" is "vamos al motel", "de el" is "del". Place names start
 -- with their article ("el motel de Muldraugh"), so a template's "a {place}" needs it.
+-- Portuguese (0.3.1) joins em, de, a and por with the article: "em o motel" is "no motel", "de a igreja" is "da
+-- igreja", "a o posto" is "ao posto", "por a estrada" is "pela estrada". Templates write "em {place}" and the place
+-- name brings its article ("o motel de Muldraugh").
+local PT_JOIN = {
+    { "em", "o", "no" }, { "em", "a", "na" }, { "em", "os", "nos" }, { "em", "as", "nas" },
+    { "de", "o", "do" }, { "de", "a", "da" }, { "de", "os", "dos" }, { "de", "as", "das" },
+    { "a", "o", "ao" }, { "a", "a", "à" }, { "a", "os", "aos" }, { "a", "as", "às" },
+    { "por", "o", "pelo" }, { "por", "a", "pela" }, { "por", "os", "pelos" }, { "por", "as", "pelas" },
+}
+local function capital(word)
+    if word == "à" then return "À" elseif word == "às" then return "Às" end
+    return word:sub(1, 1):upper() .. word:sub(2)
+end
+
 local TIDY = {
     es = function(s)
         s = (" " .. s):gsub("([%s%(\"])([Aa]) el ", "%1%2l "):gsub("([%s%(\"])([Dd]e) el ", "%1%2l ")
+        return s:sub(2)
+    end,
+    pt = function(s)
+        s = " " .. s
+        for _, j in ipairs(PT_JOIN) do
+            local prep, art, joined = j[1], j[2], j[3]
+            s = s:gsub("([%s%(\"])" .. prep .. " " .. art .. " ", "%1" .. joined .. " ")
+            s = s:gsub("([%s%(\"])" .. capital(prep) .. " " .. art .. " ", "%1" .. capital(joined) .. " ")
+        end
         return s:sub(2)
     end,
 }
@@ -93,6 +121,16 @@ local FOLD = {
     ["á"] = "a", ["é"] = "e", ["í"] = "i", ["ó"] = "o", ["ú"] = "u", ["ü"] = "u", ["ñ"] = "n",
     ["Á"] = "a", ["É"] = "e", ["Í"] = "i", ["Ó"] = "o", ["Ú"] = "u", ["Ü"] = "u", ["Ñ"] = "n",
 }
+-- 0.3.1: Portuguese accents, and Russian capitals (plain Lua's lower() only knows A-Z; the game's knows them all).
+for from, to in pairs({ ["ã"] = "a", ["â"] = "a", ["à"] = "a", ["ê"] = "e", ["ô"] = "o", ["õ"] = "o", ["ç"] = "c",
+    ["Ã"] = "a", ["Â"] = "a", ["À"] = "a", ["Ê"] = "e", ["Ô"] = "o", ["Õ"] = "o", ["Ç"] = "c" }) do FOLD[from] = to end
+local RU_UPPER = { "А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У",
+    "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я" }
+local RU_LOWER = { "а", "б", "в", "г", "д", "е", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у",
+    "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я" }
+for i, up in ipairs(RU_UPPER) do FOLD[up] = RU_LOWER[i] end
+FOLD["Ё"], FOLD["ё"] = "е", "е"
+
 function Lang.fold(text)
     local s = tostring(text or ""):lower()
     for from, to in pairs(FOLD) do s = s:gsub(from, to) end

@@ -1,0 +1,10 @@
+{
+    "UI_prof_KnoxMobile_CellTowerTech": "Техник сотовых вышек",
+    "UI_profdesc_KnoxMobile_CellTowerTech": "Поднимался на вышки и поддерживал базовые станции округа Нокс в рабочем состоянии: повторители, батарейные блоки и резервные генераторы.",
+    "UI_trait_KnoxMobile_Chatterbox": "Болтун",
+    "UI_trait_KnoxMobile_ChatterboxDesc": "Звонки и сообщения с другими поднимают настроение в два раза сильнее, а долгий разговор снимает стресс.",
+    "UI_trait_KnoxMobile_Technophobe": "Технофоб",
+    "UI_trait_KnoxMobile_TechnophobeDesc": "Не доверяет этим штукам: медленно и неуклюже взламывает и чинит телефоны, а игры на них не приносят радости.",
+    "UI_trait_KnoxMobile_Tinkerer": "Умелец",
+    "UI_trait_KnoxMobile_TinkererDesc": "Хорошо разбирается в малой электронике: быстрее и чаще взламывает PIN-коды телефонов и чинит их."
+}
