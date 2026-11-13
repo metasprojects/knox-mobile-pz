@@ -57,7 +57,7 @@ function Landlines.ring(player, sq)
     Landlines.ringing = { x = sq:getX(), y = sq:getY(), z = sq:getZ(), untilMs = getTimestampMs() + Landlines.RING_MS }
     if KnoxMobile.Client then
         KnoxMobile.Client.ringsAt[#KnoxMobile.Client.ringsAt + 1] = { x = sq:getX(), y = sq:getY(), z = sq:getZ(),
-            left = math.floor(Landlines.RING_MS / 3200), at = 0 }
+            left = math.floor(Landlines.RING_MS / 3200), at = 0, landline = true }
     end
     Net.toServer(player, "landlineRang", { x = sq:getX(), y = sq:getY(), z = sq:getZ() })
     -- Once a game: how to answer it.
@@ -79,7 +79,12 @@ end
 function Landlines.answer(sq)
     local r = Landlines.ringing
     Landlines.ringing = nil
-    if KnoxMobile.Client then KnoxMobile.Client.ringsAt = {} end
+    -- Only this phone stops ringing (0.3.2: answering it silenced every phone ringing nearby, zombies' pockets too).
+    local rings = KnoxMobile.Client and KnoxMobile.Client.ringsAt or {}
+    for i = #rings, 1, -1 do
+        local at = rings[i]
+        if at.landline and at.x == sq:getX() and at.y == sq:getY() and at.z == sq:getZ() then table.remove(rings, i) end
+    end
     local day = math.floor(Util.sinceOutbreak())
     local rng = Rng.new("landline:" .. sq:getX() .. "," .. sq:getY() .. ":" .. math.floor(Util.nowMinutes()))
     local handler = Net.clientHandlers and Net.clientHandlers.callScripted
@@ -94,9 +99,10 @@ end
 function Landlines.answerNear(player)
     local r = Landlines.ringing
     if not (r and player and getTimestampMs() <= r.untilMs) then return false end
-    if math.floor(player:getZ()) ~= r.z or math.abs(player:getX() - r.x) > 2.5 or math.abs(player:getY() - r.y) > 2.5 then
-        return false
-    end
+    -- Two and a half squares in a straight line from the phone's square, not a box (0.3.2: the box reached ~3.5
+    -- squares on a diagonal, where opening your own phone answered the house phone instead).
+    local dx, dy = player:getX() - (r.x + 0.5), player:getY() - (r.y + 0.5)
+    if math.floor(player:getZ()) ~= r.z or dx * dx + dy * dy > 2.5 * 2.5 then return false end
     local sq = getCell() and getCell():getGridSquare(r.x, r.y, r.z)
     if not sq or not Landlines.sameRoom(player:getCurrentSquare(), sq) then return false end
     Landlines.answer(sq)

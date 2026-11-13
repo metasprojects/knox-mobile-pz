@@ -150,10 +150,85 @@ function Hold.onCall()
     return call ~= nil and call.status ~= "incoming"
 end
 
+-- The arm pose's mask for a hand holding a phone (AnimSets maskingleft/right; the item scripts' primary and
+-- secondary AnimMask): the phone Knox raised first, else any phone in one hand (equipped from the inventory).
+-- Returns the variable, what Knox wants in it, what's in it now and the phone, or nil when no phone is in one hand.
+local HANDS = {
+    { var = "LeftHandMask", want = "knoxphonehold", left = true },
+    { var = "RightHandMask", want = "knoxphoneholdright", left = false },
+}
+local function heldPhone(player, hand)
+    local off, main = player:getSecondaryHandItem(), player:getPrimaryHandItem()
+    local item, other = off, main
+    if not hand.left then item, other = main, off end
+    if item and item ~= other and Phones.isPhone(item) then return item end
+    return nil
+end
+function Hold.mask(player)
+    if not player then return nil end
+    local pick
+    for _, hand in ipairs(HANDS) do
+        local item = heldPhone(player, hand)
+        if item and (item == Hold.phone or not pick) then pick = { hand = hand, item = item } end
+    end
+    if not pick then return nil end
+    local var = pick.hand.var
+    return var, pick.hand.want, tostring(player:getVariableString(var) or ""):lower(), pick.item
+end
+
+-- 0.3.2 (DUSTY, Workshop 2026-11-11: "The character is not bringing the phone up to his face anymore", two days
+-- after Project Zomboid 42.22 went stable). 42.22 made LeftHandMask and RightHandMask callback variables
+-- (IsoGameCharacter.getSecondaryHandMask): when nothing has set one, an item with an arm mask in its script (every
+-- phone) reads the flashlight's low hold, "HoldingTorchLeft"/"HoldingTorchRight" (HeldItemMaskKey.HOLDING_TORCH),
+-- so a phone whose own mask got lost sits by the hip. Once a phone is up, a missing mask or that fallback is set to
+-- Knox's own (any other mask, like RaiseHand while aiming, is left alone), and cleared again when the phone leaves that
+-- hand so an empty hand doesn't keep the pose. What the game gave goes to console.txt once per raise. The call and
+-- down variables are sent again every few seconds and to a new character, not only when they change.
+local POSE_RESEND_MS = 3000
+local FALLBACK = { [""] = true, holdingtorchleft = true, holdingtorchright = true }
+
+-- 42.22 keeps a set mask in a field the game only clears when it rebuilds a hand's model; Knox hides the held model
+-- at times (back camera, VR), so a phone put away then would leave its pose on the next thing in that hand.
+local function giveBack(player)
+    local set = Hold.maskSet
+    if not set then return end
+    Hold.maskSet = nil
+    if set.player ~= player then return end
+    for _, hand in ipairs(HANDS) do
+        if hand.var == set.var and heldPhone(player, hand) then return end -- a phone still holds it
+    end
+    if tostring(player:getVariableString(set.var) or ""):lower() == set.want then
+        player:clearVariable(set.var)
+    end
+end
+
+local function pose(player)
+    local var, want, now, item = Hold.mask(player)
+    if Hold.maskSet and (Hold.maskSet.var ~= var or Hold.maskSet.player ~= player) then giveBack(player) end
+    if not var then Hold.poseFor = nil; return end
+    local key = tostring(item:getID()) .. var
+    local got = now
+    if FALLBACK[now] then
+        player:setVariable(var, want)
+        Hold.maskSet = { var = var, want = want, player = player }
+        now = tostring(player:getVariableString(var) or ""):lower()
+    end
+    if key ~= Hold.poseFor then
+        Hold.poseFor = key
+        Util.log("Hold:", item:getType(), var, "=", got ~= "" and got or "(empty)",
+            got == want and "ok" or ("-> " .. now), "down", tostring(Hold.wasDown), "call", tostring(Hold.wasOnCall))
+    end
+end
+
 -- Ten times a second is plenty for the arm poses and the hold checks (0.2.1: was OnPlayerUpdate, every frame).
 Tick.add("hold phone", function()
     local player = getPlayer()
     if not player then return end
+    local t = getTimestampMs()
+    if player ~= Hold.forPlayer or t >= (Hold.resendAt or 0) then
+        Hold.forPlayer, Hold.resendAt = player, t + POSE_RESEND_MS
+        Hold.wasOnCall, Hold.wasDown = nil, nil
+    end
     local onCall = Hold.onCall()
     if onCall ~= Hold.wasOnCall then
         Hold.wasOnCall = onCall
@@ -161,16 +236,17 @@ Tick.add("hold phone", function()
     end
     -- Walking keeps the phone up; sprinting brings it down (2026-10-18).
     -- Debug > "Pretend to sprint" stands in for running (the test runner can't make a character sprint).
-    -- The back camera in first person lowers it too (UI/Phone.lua: Hold.cameraDown).
-    local down = player:isSprinting() or Hold.fakeSprint == true or Hold.cameraDown == true
+    -- The back camera in first person lowers it too (UI/Phone.lua: Hold.cameraDown), only while the phone is open.
+    local camera = Hold.cameraDown == true and KnoxMobile.UI ~= nil and KnoxMobile.UI.panel ~= nil
+    local down = player:isSprinting() or Hold.fakeSprint == true or camera
     if down ~= Hold.wasDown then
         Hold.wasDown = down
         player:setVariable("KnoxPhoneDown", down)
     end
-    local t = getTimestampMs()
     if t < Hold.nextCheck then return end
     Hold.nextCheck = t + CHECK_MS
     check(player)
+    pose(player)
 end, 100)
 
 Events.OnPlayerDeath.Add(Util.safe("hold phone death", function(player)

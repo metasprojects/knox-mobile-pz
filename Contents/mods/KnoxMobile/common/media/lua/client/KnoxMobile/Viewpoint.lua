@@ -12,7 +12,8 @@ KnoxMobile.Viewpoint = Compat
 -- last 3D view ("first" or "third"), from first person "third", from third person "isometric" (final test, third
 -- pass). So "third" is either first person or the isometric view after third person; the change that led there
 -- tells them apart (watched every few ticks from the start, see below).
-local track = { next = nil, view = "isometric", swapAt = nil }
+local track = { next = nil, view = "isometric", swapAt = nil, flipAt = nil }
+Compat.SWAP_GRACE_MS = 400 -- how long a seen Shift+O outranks what Viewpoint's cycle says
 
 -- Viewpoint's mouse in its 3D views (Viewpoint.Mouse.worldX: the world point it aims at, which its own Lua uses in
 -- place of the isometric conversion, so nil in the isometric view). A number means a 3D view; nil says nothing.
@@ -41,6 +42,17 @@ function Compat.view()
             track.swapAt = nil
         end
         track.next = n
+    end
+    -- 0.3.2: what the cycle goes to next rules views out every time it's read, not only when it changes (PC re-check
+    -- 2026-11-06: of two very quick Shift+O presses one was seen and one missed, so Knox stayed on third person while
+    -- Viewpoint was back in first, and the 2D and in-hand phones showed together). "isometric" next is only ever
+    -- third person, "first" next only the isometric view, and "third" next is never third person. Just after a
+    -- Shift+O the key's own swap is trusted for a moment, while Viewpoint's cycle catches up.
+    local justSwapped = track.flipAt ~= nil and getTimestampMs() - track.flipAt < Compat.SWAP_GRACE_MS
+    if not justSwapped then
+        if n == "isometric" then track.view = "third"
+        elseif n == "first" then track.view = "isometric"
+        elseif n == "third" and track.view == "third" then track.view = "first" end
     end
     -- "third" next, taken for the isometric view, while Viewpoint aims in 3D: first person (0.2.6, Workshop: "on
     -- viewpoint nothing happens when I use Use the phone"). Viewpoint remembers your view between sessions, so a game
@@ -106,6 +118,7 @@ Tick.add("viewpoint keys", function()
             track.swapAt = getTimestampMs()
             -- Within the 3D view it swaps first and third person at once: no need to wait for View.next().
             if track.view == "first" then track.view = "third" elseif track.view == "third" then track.view = "first" end
+            track.flipAt = track.swapAt
         end
     end
     tick = tick + 1

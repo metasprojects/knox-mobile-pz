@@ -8,7 +8,7 @@ and a cell network that dies with the grid.
 
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3818422092 (Mod ID `KnoxMobile`)
 - **Everything for first person in one click:** https://steamcommunity.com/sharedfiles/filedetails/?id=3823860296
-- **Version:** 0.3.1, early access (released 2026-11-11): Russian, Brazilian Portuguese and Simplified Chinese, and the phone on your hand in VR (PZVR).
+- **Version:** 0.3.2, early access (released 2026-11-12): the phone comes up to your face again on 42.22, music that stops, and house phone and first-person fixes.
 - **Languages:** English, Spanish (Spain and Latin America), Russian, Brazilian Portuguese (also used for Portugal) and Simplified Chinese, menus and stories all.
 - **Made by:** Meta
 
